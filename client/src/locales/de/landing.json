@@ -1,0 +1,211 @@
+{
+  "hero": {
+    "badge": "🚀 NEU: Jetzt mit KI‑Agenten",
+    "title": "SIGMACODE AI",
+    "subtitle": {
+      "line1": "Innovative KI‑Lösungen für Ihr Unternehmen",
+      "line2": "",
+      "highlight": "einfach, sicher und leistungsstark"
+    },
+    "microtrust": "Keine Kreditkarte erforderlich · In 2 Minuten startklar",
+    "description": "Entdecken Sie die Zukunft der künstlichen Intelligenz mit maßgeschneiderten Lösungen für Ihr Unternehmen.",
+    "cta": {
+      "primary": "Kostenlos testen",
+      "secondary": "Mehr erfahren",
+      "secondaryAria": "Mehr über SIGMACODE AI erfahren"
+    },
+    "trustedBy": "Vertrauen Sie den Besten",
+    "image_alt": "KI‑Assistent in Aktion",
+    "logos": {
+      "sap": "SAP",
+      "microsoft": "Microsoft",
+      "googleCloud": "Google Cloud"
+    }
+  },
+  "features": {
+    "title": "Leistungsstarke Funktionen",
+    "subtitle": "Alles, was Sie brauchen – an einem Ort",
+    "cta": "Alle Funktionen entdecken",
+    "categories": {
+      "all": "Alle",
+      "ai": "KI",
+      "collaboration": "Zusammenarbeit",
+      "integration": "Integration",
+      "security": "Sicherheit"
+    },
+    "ai": {
+      "title": "KI‑gestützt",
+      "description": "Fortschrittliche KI für bessere Unterstützung"
+    },
+    "security": {
+      "title": "Sicherheit zuerst",
+      "description": "Ihre Daten sind jederzeit geschützt"
+    },
+    "collaboration": {
+      "title": "Zusammenarbeit",
+      "description": "Nahtlos gemeinsam arbeiten"
+    },
+    "integration": {
+      "title": "Integrationen",
+      "description": "Verbinden Sie Ihre Lieblings‑Tools"
+    },
+    "code": {
+      "title": "Code Intelligence",
+      "description": "Verstehen und generieren Sie hochwertigen Code"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "description": "Erkenntnisse mit Dashboards und Metriken gewinnen"
+    }
+  },
+  "agents": {
+    "hero": {
+      "badge": "Autonome KI‑Agenten",
+      "title": "Lass Agenten für dich arbeiten",
+      "subtitle": "Designe aufgabengetriebene Agenten, die recherchieren, analysieren und mehrstufige Workflows Ende‑zu‑Ende ausführen.",
+      "features": [
+        { "title": "Mehrstufige Workflows", "description": "Automatisiere komplexe Aufgaben mit stabilen Schrittketten und Retry‑Logik." },
+        { "title": "Tool‑Integrationen", "description": "Verbinde APIs, Wissensquellen und interne Tools, um Agentenfähigkeiten zu erweitern." },
+        { "title": "Human‑in‑the‑Loop", "description": "Behalte die Kontrolle mit Freigaben und Checkpoints dort, wo es zählt." }
+      ]
+    }
+  },
+  "security": {
+    "subtitle": "Sicherheit & Kontrolle",
+    "title": "Ihre Daten. Ihre Kontrolle.",
+    "description": "SIGMACODE AI ist von Grund auf auf Datenschutz, Sicherheit und maximale Kontrolle ausgelegt.",
+    "learn_more": "Mehr über unsere Sicherheitsmaßnahmen",
+    "stats": {
+      "open_source": "Open Source",
+      "auth": "Authentifizierung",
+      "two_factor": "Zwei‑Faktor",
+      "directory": "Verzeichnis"
+    },
+    "features": {
+      "selfhosting": {
+        "title": "Self‑Hosting & Datenkontrolle",
+        "description": "Behalten Sie die volle Kontrolle über Ihre Daten mit Self‑Hosting‑Optionen oder wählen Sie unsere sichere Cloud‑Lösung."
+      },
+      "authentication": {
+        "title": "Sichere Authentifizierung",
+        "description": "OAuth2, LDAP, E‑Mail‑Login und 2FA für maximale Sicherheit und einfache Integration."
+      },
+      "user_management": {
+        "title": "Multi‑User & Rollenverwaltung",
+        "description": "Verwalten Sie Rollen und Berechtigungen für Teams jeder Größe mit detaillierter Zugriffskontrolle."
+      },
+      "isolation": {
+        "title": "Sichere Code‑Ausführung",
+        "description": "Vollständig isolierte Sandbox‑Umgebung für sichere Code‑Ausführung."
+      },
+      "compliance": {
+        "title": "Compliance & Datenschutz",
+        "description": "Entwickelt mit Datenschutz‑Standards und einfacher Konfiguration für Enterprise‑Anforderungen."
+      },
+      "monitoring": {
+        "title": "Monitoring & Moderation",
+        "description": "Behalte Token‑Nutzung und Aktivitäten im Blick und nutze integrierte Moderations‑Tools."
+      },
+      "data_privacy": "Datenschutzkonforme Speicherung",
+      "role_based": "Rollenbasierte Rechteverwaltung",
+      "audit": "Audit‑Logs für alle Aktivitäten",
+      "content_filter": "Integrierbarer Content‑Filter"
+    }
+  },
+  "pricing": {
+    "subtitle": "Preisgestaltung",
+    "title": "Einfache und transparente Preise",
+    "description": "Wähle den Plan, der zu deinen Anforderungen passt. Alle Pläne bieten Zugang zur vollen SIGMACODE AI‑Erfahrung.",
+    "billing": {
+      "monthly": "Monatlich",
+      "yearly": "Jährlich"
+    },
+    "per_month": "/Monat",
+    "save": "Du sparst",
+    "with_yearly": "mit jährlicher Zahlung",
+    "most_popular": "Beliebteste Wahl",
+    "enterprise_title": "Benötigen Sie eine individuelle Lösung?",
+    "enterprise_description": "Kontaktieren Sie uns für maßgeschneiderte Lösungen, individuelles Deployment und dedizierte Support‑Optionen für größere Teams und Unternehmen.",
+    "contact_sales": "Vertrieb kontaktieren",
+    "enterprise_docs": "Enterprise‑Dokumentation",
+    "plans": {
+      "community": {
+        "title": "Community",
+        "price": { "monthly": "Kostenlos", "yearly": "Kostenlos" },
+        "description": "Open Source, selbst gehostet",
+        "features": {
+          "1": "Unbegrenzte Konversationen",
+          "2": "Multi‑Modell‑Support",
+          "3": "Lokale KI‑Modelle",
+          "4": "Community‑Support",
+          "5": "Self‑Hosting"
+        },
+        "cta": "Auf GitHub klonen"
+      },
+      "professional": {
+        "title": "Professional",
+        "price": { "monthly": "19,99 €", "yearly": "16,99 €" },
+        "description": "Managed Cloud‑Hosting",
+        "features": {
+          "1": "Alles aus Community",
+          "2": "100 Code‑Interpreter‑Credits/Monat",
+          "3": "Premium KI‑Modellzugang",
+          "4": "Web‑Suche & Bildanalyse",
+          "5": "Prioritäts‑Support",
+          "6": "Team‑Kollaboration (bis 5 Nutzer)"
+        },
+        "cta": "Jetzt starten"
+      },
+      "enterprise": {
+        "title": "Enterprise",
+        "price": { "monthly": "99,99 €", "yearly": "79,99 €" },
+        "description": "Für Teams & Unternehmen",
+        "features": {
+          "1": "Alles aus Professional",
+          "2": "Unbegrenzte Code‑Interpreter‑Credits",
+          "3": "Eigene KI‑Assistenten & Agents",
+          "4": "LDAP/SSO‑Integration",
+          "5": "Dedizierte Support‑Manager",
+          "6": "Eigene Deployment‑Optionen",
+          "7": "Unbegrenzte Team‑Mitglieder",
+          "8": "Custom Branding"
+        },
+        "cta": "Kontakt aufnehmen"
+      }
+    }
+  },
+  "techstack": {
+    "title": "Gebaut mit modernster Technologie",
+    "subtitle": "Technologie‑Stack",
+    "description": "SIGMACODE AI nutzt eine flexible, modulare Architektur für maximale Performance und Anpassbarkeit.",
+    "deployment_guide": "Deployment‑Guide ansehen",
+    "features": {}
+  },
+  "comparison": {
+    "badge": "Vergleich",
+    "title": "Vergleich mit anderen Lösungen",
+    "subtitle": "Warum SIGMACODE AI die bessere Wahl für Sie ist",
+    "features": "Funktionen",
+    "sigmacode_tagline": "Die moderne KI‑Lösung für Unternehmen",
+    "chatgpt_tagline": "Allgemeiner KI‑Chat",
+    "cta": "Jetzt starten",
+    "visit_chatgpt": "Zu ChatGPT"
+  },
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "subtitle": "Alles, was Sie wissen müssen",
+    "description": "Fragen? Wir haben Antworten. Falls Sie nicht finden, was Sie suchen, kontaktieren Sie bitte unser Support‑Team.",
+    "more_questions": "Noch Fragen?",
+    "contact_us": "Kontakt aufnehmen",
+    "q1": "Was ist SIGMACODE AI?",
+    "a1": "SIGMACODE AI ist eine moderne KI‑Plattform, die leistungsstarke Modelle mit Enterprise‑Features wie Sicherheit, Self‑Hosting und Integrationen kombiniert.",
+    "q2": "Wodurch unterscheidet sich SIGMACODE AI?",
+    "a2": "Wir fokussieren Datenschutz, Erweiterbarkeit und echte Workflows. Lokal oder in der Cloud betreiben, Tools integrieren und agentenbasierte Abläufe aufbauen.",
+    "q3": "Sind meine Daten sicher?",
+    "a3": "Ja. Wir unterstützen Self‑Hosting, rollenbasierte Zugriffe, Verschlüsselung und Audit‑Logs zum Schutz Ihrer Daten.",
+    "q4": "Kann ich Modelle und Agenten anpassen?",
+    "a4": "Ja. Sie können verschiedene Modelle nutzen, Wissensquellen hinzufügen, APIs anbinden und aufgaben‑spezifische Agenten entwerfen.",
+    "q5": "Bietet ihr Support an?",
+    "a5": "Ja. Es gibt Dokumentation, Community‑Ressourcen und optional Premium‑Support‑Pakete."
+  }
+}

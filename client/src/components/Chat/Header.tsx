@@ -35,37 +35,46 @@ export default function Header() {
   const isSmallScreen = useMediaQuery('(max-width: 768px)');
 
   return (
-    <div className="sticky top-0 z-10 flex h-14 w-full items-center justify-between bg-white p-2 font-semibold text-text-primary dark:bg-gray-800">
+    <div className="sticky top-0 z-10 flex h-14 w-full items-center justify-between bg-white px-2 py-1.5 font-semibold text-text-primary shadow-sm dark:bg-gray-800 md:px-3 md:py-2">
       <div className="hide-scrollbar flex w-full items-center justify-between gap-2 overflow-x-auto">
-        <div className="mx-1 flex items-center gap-2">
+        <div className="flex items-center gap-1.5 md:gap-2">
           <div
-            className={`flex items-center gap-2 ${
-              !isSmallScreen ? 'transition-all duration-200 ease-in-out' : ''
-            } ${
+            className={`flex items-center gap-1.5 transition-all duration-200 ease-in-out md:gap-2 ${
               !navVisible
                 ? 'translate-x-0 opacity-100'
-                : 'pointer-events-none translate-x-[-100px] opacity-0'
+                : 'pointer-events-none -translate-x-4 opacity-0 md:-translate-x-8'
             }`}
           >
-            <OpenSidebar setNavVisible={setNavVisible} />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-200 active:bg-gray-300 dark:hover:bg-gray-700 dark:active:bg-gray-600">
+              <OpenSidebar setNavVisible={setNavVisible} />
+            </div>
+            <div className="h-8 w-px bg-gray-200 dark:bg-gray-600" />
             <HeaderNewChat />
           </div>
           <div
-            className={`flex items-center gap-2 ${
-              !isSmallScreen ? 'transition-all duration-200 ease-in-out' : ''
-            } ${!navVisible ? 'translate-x-0' : 'translate-x-[-100px]'}`}
+            className={`flex items-center gap-1.5 transition-all duration-200 ease-in-out md:gap-2 ${
+              !navVisible ? 'translate-x-0' : '-translate-x-4 md:-translate-x-8'
+            }`}
           >
             <ModelSelector startupConfig={startupConfig} />
-            {interfaceConfig.presets === true && interfaceConfig.modelSelect && <PresetsMenu />}
+            {interfaceConfig.presets === true && interfaceConfig.modelSelect && (
+              <div className="hidden sm:block">
+                <PresetsMenu />
+              </div>
+            )}
             {hasAccessToBookmarks === true && <BookmarkMenu />}
-            {hasAccessToMultiConvo === true && <AddMultiConvo />}
+            {hasAccessToMultiConvo === true && (
+              <div className="hidden sm:block">
+                <AddMultiConvo />
+              </div>
+            )}
             {isSmallScreen && (
-              <>
+              <div className="flex items-center gap-1.5">
                 <ExportAndShareMenu
                   isSharedButtonEnabled={startupConfig?.sharedLinksEnabled ?? false}
                 />
                 <TemporaryChat />
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -78,8 +87,6 @@ export default function Header() {
           </div>
         )}
       </div>
-      {/* Empty div for spacing */}
-      <div />
     </div>
   );
 }

@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLocalize } from '~/hooks';
+import Meta from '~/components/Seo/Meta';
 
 export default function OAuthSuccess() {
   const localize = useLocalize();
   const [searchParams] = useSearchParams();
   const [secondsLeft, setSecondsLeft] = useState(3);
   const serverName = searchParams.get('serverName');
+
+  // String-sicherer Übersetzungs-Wrapper, um TS-Typkonflikte bei nicht-erfassten Keys zu vermeiden
+  const tt = (key: string, fallback?: string): string => {
+    const res = localize(key as any);
+    if (typeof res === 'string' && res.length > 0) return res;
+    return fallback ?? key;
+  };
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -24,24 +32,26 @@ export default function OAuthSuccess() {
   }, []);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-8">
+    <>
+      <Meta title="OAuth – Erfolg" description="Authentifizierung erfolgreich" robots="noindex, nofollow" />
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-md rounded-lg bg-white p-8 text-center shadow-lg">
         <h1 className="mb-4 text-3xl font-bold text-gray-900">
-          {localize('com_ui_oauth_success_title') || 'Authentication Successful'}
+          {tt('com_ui_oauth_success_title', 'Authentication Successful')}
         </h1>
         <p className="mb-2 text-sm text-gray-600">
-          {localize('com_ui_oauth_success_description') ||
-            'Your authentication was successful. This window will close in'}{' '}
+          {tt('com_ui_oauth_success_description', 'Your authentication was successful. This window will close in')}{' '}
           <span className="font-medium text-indigo-500">{secondsLeft}</span>{' '}
-          {localize('com_ui_seconds') || 'seconds'}.
+          {tt('com_ui_seconds', 'seconds')}.
         </p>
         {serverName && (
           <p className="mt-4 text-xs text-gray-500">
-            {localize('com_ui_oauth_connected_to') || 'Connected to'}:{' '}
+            {tt('com_ui_oauth_connected_to', 'Connected to')}:{' '}
             <span className="font-medium">{serverName}</span>
           </p>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

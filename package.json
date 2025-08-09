@@ -73,7 +73,15 @@
     "b:test:api": "cd api && bun run b:test",
     "b:balance": "bun config/add-balance.js",
     "b:list-balances": "bun config/list-balances.js",
-    "reset-terms": "node config/reset-terms.js"
+    "reset-terms": "node config/reset-terms.js",
+    "i18n:check": "bun config/translations/check-sync.ts",
+    "i18n:sync": "bun config/translations/sync-locales.ts --direction app->pkg",
+    "i18n:sync:write": "bun config/translations/sync-locales.ts --direction app->pkg --write",
+    "i18n:sync:strict": "bun config/translations/sync-locales.ts --direction app->pkg --strict-array-fill",
+    "i18n:sync:strict:write": "bun config/translations/sync-locales.ts --direction app->pkg --strict-array-fill --write",
+    "i18n:sync:prune": "bun config/translations/sync-locales.ts --direction app->pkg --prune",
+    "i18n:sync:prune:write": "bun config/translations/sync-locales.ts --direction app->pkg --prune --write",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -146,5 +154,11 @@
       "admin/",
       "packages/"
     ]
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "react-syntax-highlighter": "^15.6.1",
+    "stripe": "^18.4.0"
   }
 }

@@ -3,6 +3,7 @@ import { useRecoilState } from 'recoil';
 import { useAuthContext } from '~/hooks/AuthContext';
 import StartupLayout from './Startup';
 import store from '~/store';
+import Meta from '~/components/Seo/Meta';
 
 export default function LoginLayout() {
   const { isAuthenticated } = useAuthContext();
@@ -19,5 +20,10 @@ export default function LoginLayout() {
       clearTimeout(timeout);
     };
   }, [queriesEnabled, setQueriesEnabled]);
-  return <StartupLayout isAuthenticated={isAuthenticated} />;
+  return (
+    <>
+      <Meta title="Login" description="Anmeldung bei SIGMACODE AI" robots="noindex, nofollow" />
+      <StartupLayout isAuthenticated={isAuthenticated} />
+    </>
+  );
 }

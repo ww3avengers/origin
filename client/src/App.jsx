@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { RecoilRoot } from 'recoil';
 import { DndProvider } from 'react-dnd';
 import { RouterProvider } from 'react-router-dom';
@@ -10,11 +11,14 @@ import { ScreenshotProvider, useApiErrorBoundary } from './hooks';
 import { getThemeFromEnv } from './utils/getThemeFromEnv';
 import { LiveAnnouncer } from '~/a11y';
 import { router } from './routes';
+import PerformanceMonitor from './components/common/PerformanceMonitor';
 
-const App = () => {
+// Memoized AppContent to prevent unnecessary re-renders
+const AppContent = memo(() => {
   const { setError } = useApiErrorBoundary();
-
-  const queryClient = new QueryClient({
+  
+  // Memoize queryClient to prevent recreation on every render
+  const queryClient = useMemo(() => new QueryClient({
     queryCache: new QueryCache({
       onError: (error) => {
         if (error?.response?.status === 401) {
@@ -22,53 +26,70 @@ const App = () => {
         }
       },
     }),
-  });
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        refetchOnMount: true,
+        refetchOnReconnect: true,
+        retry: 1,
+        staleTime: 5 * 60 * 1000, // 5 Minuten
+        cacheTime: 15 * 60 * 1000, // 15 Minuten
+      },
+    },
+  }), []);
 
   // Load theme from environment variables if available
-  const envTheme = getThemeFromEnv();
+  const envTheme = useMemo(() => getThemeFromEnv(), []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <RecoilRoot>
         <LiveAnnouncer>
-          <ThemeProvider
-            // Only pass initialTheme and themeRGB if environment theme exists
-            // This allows localStorage values to persist when no env theme is set
-            {...(envTheme && { initialTheme: 'system', themeRGB: envTheme })}
-          >
-            {/* The ThemeProvider will automatically:
-                1. Apply dark/light mode classes
-                2. Apply custom theme colors if envTheme is provided
-                3. Otherwise use stored theme preferences from localStorage
-                4. Fall back to default theme colors if nothing is stored */}
-            <RadixToast.Provider>
+          <DndProvider backend={HTML5Backend}>
+            <ThemeProvider initialTheme={envTheme?.theme} themeRGB={envTheme?.themeRGB}>
               <ToastProvider>
-                <DndProvider backend={HTML5Backend}>
+                <RadixToast.Provider>
                   <RouterProvider router={router} />
-                  <ReactQueryDevtools initialIsOpen={false} position="top-right" />
                   <Toast />
-                  <RadixToast.Viewport className="pointer-events-none fixed inset-0 z-[1000] mx-auto my-2 flex max-w-[560px] flex-col items-stretch justify-start md:pb-5" />
-                </DndProvider>
+                  {process.env.NODE_ENV === 'development' && (
+                    <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+                  )}
+                  <PerformanceMonitor />
+                </RadixToast.Provider>
               </ToastProvider>
-            </RadixToast.Provider>
-          </ThemeProvider>
+            </ThemeProvider>
+          </DndProvider>
         </LiveAnnouncer>
       </RecoilRoot>
     </QueryClientProvider>
   );
-};
+});
 
+// Main App Component
+const App = () => (
+  <AppContent />
+);
+
+// Memoized Audio Component to prevent unnecessary re-renders
+const SilentAudio = memo(() => (
+  <iframe
+    src="/assets/silence.mp3"
+    allow="autoplay"
+    id="audio"
+    title="audio-silence"
+    style={{
+      display: 'none',
+      position: 'absolute',
+      visibility: 'hidden',
+    }}
+    aria-hidden="true"
+  />
+));
+
+// Root Component
 export default () => (
   <ScreenshotProvider>
     <App />
-    <iframe
-      src="/assets/silence.mp3"
-      allow="autoplay"
-      id="audio"
-      title="audio-silence"
-      style={{
-        display: 'none',
-      }}
-    />
+    <SilentAudio />
   </ScreenshotProvider>
 );

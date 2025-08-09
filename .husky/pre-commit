@@ -2,4 +2,9 @@
 set -e
 . "$(dirname -- "$0")/_/husky.sh"
 [ -n "$CI" ] && exit 0
+
+# Block commits if i18n keys drift
+bun run i18n:check
+
+# Then run staged formatting/lint
 npx lint-staged --config ./.husky/lint-staged.config.js

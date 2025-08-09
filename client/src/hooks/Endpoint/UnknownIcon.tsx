@@ -1,28 +1,32 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { CustomMinimalIcon, XAIcon } from '@librechat/client';
 import { EModelEndpoint, KnownEndpoints } from 'librechat-data-provider';
 import { IconContext } from '~/common';
 import { cn } from '~/utils';
 
-const knownEndpointAssets = {
+const knownEndpointAssets: Record<string, string> = {
   [KnownEndpoints.anyscale]: '/assets/anyscale.png',
   [KnownEndpoints.apipie]: '/assets/apipie.png',
   [KnownEndpoints.cohere]: '/assets/cohere.png',
   [KnownEndpoints.deepseek]: '/assets/deepseek.svg',
   [KnownEndpoints.fireworks]: '/assets/fireworks.png',
-  [KnownEndpoints.google]: '/assets/google.svg',
+  // KnownEndpoints.google ist nicht in dieser lib-Version vorhanden – Literal nutzen
+  'google': '/assets/google.svg',
   [KnownEndpoints.groq]: '/assets/groq.png',
   [KnownEndpoints.huggingface]: '/assets/huggingface.svg',
   [KnownEndpoints.mistral]: '/assets/mistral.png',
   [KnownEndpoints.mlx]: '/assets/mlx.png',
   [KnownEndpoints.ollama]: '/assets/ollama.png',
-  [KnownEndpoints.openai]: '/assets/openai.svg',
+  'openai': '/assets/openai.svg',
   [KnownEndpoints.openrouter]: '/assets/openrouter.png',
   [KnownEndpoints.perplexity]: '/assets/perplexity.png',
-  [KnownEndpoints.qwen]: '/assets/qwen.svg',
+  'qwen': '/assets/qwen.svg',
   [KnownEndpoints.shuttleai]: '/assets/shuttleai.png',
   [KnownEndpoints['together.ai']]: '/assets/together.png',
   [KnownEndpoints.unify]: '/assets/unify.webp',
+  // Non-enum known strings
+  anthropic: '/assets/anthropic.svg',
+  gemini: '/assets/gemini.svg',
 };
 
 const knownEndpointClasses = {
@@ -34,6 +38,54 @@ const knownEndpointClasses = {
   },
 };
 
+// Normalize known aliases to existing asset keys
+// - "together" (custom endpoint name) should use the existing "together.ai" icon
+// - "gateway" (LiteLLM) should reuse the "openrouter" icon style for now
+// - "azure-openai" / "azure" map auf OpenAI-Icon
+// - "gemini" ggf. auf eigenes Icon oder Google-Icon mappen
+const normalizeKnownEndpoint = (endpoint: string): string => {
+  const lower = endpoint.toLowerCase();
+  if (lower === 'together') {
+    return KnownEndpoints['together.ai'];
+  }
+  if (lower === 'gateway') {
+    return KnownEndpoints.openrouter;
+  }
+  if (lower === 'azure-openai' || lower === 'azure') {
+    return 'openai';
+  }
+  if (lower === 'gemini' || lower === 'google-gemini' || lower === 'googleai') {
+    // bevorzugt eigenes gemini-Asset, fallback ist google
+    return knownEndpointAssets.gemini ? 'gemini' : 'google';
+  }
+  return lower;
+};
+
+const ImageWithFallback = ({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) => {
+  const [failed, setFailed] = useState(false);
+  if (failed || !src) {
+    return <CustomMinimalIcon className={className} />;
+  }
+  return (
+    <img
+      className={className}
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  );
+};
+
 const getKnownClass = ({
   currentEndpoint,
   context = '',
@@ -43,11 +95,12 @@ const getKnownClass = ({
   context?: string;
   className: string;
 }) => {
-  if (currentEndpoint === KnownEndpoints.openrouter) {
+  const normalized = normalizeKnownEndpoint(currentEndpoint);
+  if (normalized === KnownEndpoints.openrouter) {
     return className;
   }
 
-  const match = knownEndpointClasses[currentEndpoint]?.[context] ?? '';
+  const match = knownEndpointClasses[normalized]?.[context] ?? '';
   const defaultClass = context === IconContext.landing ? '' : className;
 
   return cn(match, defaultClass);
@@ -69,7 +122,7 @@ function UnknownIcon({
     return <CustomMinimalIcon className={className} />;
   }
 
-  const currentEndpoint = endpoint.toLowerCase();
+  const currentEndpoint = normalizeKnownEndpoint(endpoint);
 
   if (currentEndpoint === KnownEndpoints.xai) {
     return (
@@ -84,7 +137,7 @@ function UnknownIcon({
   }
 
   if (iconURL) {
-    return <img className={className} src={iconURL} alt={`${endpoint} Icon`} />;
+    return <ImageWithFallback className={className} src={iconURL} alt={`${endpoint} Icon`} />;
   }
 
   const assetPath: string = knownEndpointAssets[currentEndpoint] ?? '';
@@ -94,7 +147,7 @@ function UnknownIcon({
   }
 
   return (
-    <img
+    <ImageWithFallback
       className={getKnownClass({
         currentEndpoint,
         context: context,

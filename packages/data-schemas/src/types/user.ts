@@ -1,4 +1,5 @@
 import { Document, Types } from 'mongoose';
+import { IUserSubscription } from './userSubscription';
 
 export interface IUser extends Document {
   name?: string;
@@ -33,6 +34,7 @@ export interface IUser extends Document {
   personalization?: {
     memories?: boolean;
   };
+  subscription?: IUserSubscription;
   createdAt?: Date;
   updatedAt?: Date;
 }

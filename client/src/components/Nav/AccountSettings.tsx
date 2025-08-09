@@ -91,6 +91,14 @@ function AccountSettings() {
           <FileText className="icon-md" aria-hidden="true" />
           {localize('com_nav_my_files')}
         </Select.SelectItem>
+        <Select.SelectItem
+          value=""
+          onClick={() => window.location.href = '/referral'}
+          className="select-item text-sm"
+        >
+          <UserIcon aria-hidden="true" />
+          Empfehlungen & Guthaben
+        </Select.SelectItem>
         {startupConfig?.helpAndFaqURL !== '/' && (
           <Select.SelectItem
             value=""

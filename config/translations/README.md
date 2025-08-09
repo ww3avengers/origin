@@ -28,3 +28,31 @@ npm install --save-dev hnswlib-node
   - e.g.: `client/src/localization/languages/Es_missing_keys.json`
 5. Discard all git changes with `git checkout .`.
 6. Copy the generated translations to their respective files, e.g.: `client/src/localization/languages/Es.ts`.
+
+## Key Drift Check & Sync (monorepo locales)
+
+Die folgenden Tools helfen, Übersetzungs-Keys zwischen `client/src/locales/` (App) und `packages/client/src/locales/` (Package) zu synchronisieren. Standard ist ein sicherer, additiver Sync ohne Löschungen.
+
+### Check auf Schlüsseldrift
+
+- Befehl: `npm run i18n:check`
+- Verhalten:
+  - Exit-Code 0: In Sync
+  - Exit-Code 1: Unterschiede vorhanden (CI kann daran fehlschlagen)
+
+### Auto-Sync (Dry-Run)
+
+- Befehl: `npm run i18n:sync`
+- Standardrichtung: App → Package
+- Fügt fehlende Sprachen/Keys im Ziel hinzu, löscht nichts.
+
+### Auto-Sync anwenden
+
+- Befehl: `npm run i18n:sync:write`
+- Wirkt identisch zum Dry-Run, schreibt aber Änderungen in das Zielverzeichnis.
+
+### Hinweise & Best Practices
+
+- Single Source of Truth: Empfohlen ist `client/src/locales/`.
+- CI: Der Check kann als GitHub Action laufen (`.github/workflows/i18n-check.yml`).
+- Kein Prune: Extra Keys im Ziel werden bewusst nicht gelöscht (Datenverlust vermeiden). Ein optionaler „prune“-Modus kann bei Bedarf ergänzt werden.

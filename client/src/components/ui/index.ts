@@ -1,1 +1,3 @@
-export { default as TermsAndConditionsModal } from './TermsAndConditionsModal';
+export * from './card';
+export * from './button';
+export { TermsAndConditionsModal } from './TermsAndConditionsModal';

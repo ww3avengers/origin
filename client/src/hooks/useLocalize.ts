@@ -1,15 +1,14 @@
 import { useEffect } from 'react';
-import { TOptions } from 'i18next';
 import { useRecoilValue } from 'recoil';
 import { useTranslation } from 'react-i18next';
-import { resources } from '~/locales/i18n';
+import type { TFunction } from 'i18next';
 import store from '~/store';
 
-export type TranslationKeys = keyof typeof resources.en.translation;
-
-export default function useLocalize() {
+// Liefert das getypte i18next "t". Dank i18next-Typaugmentierung (siehe `locales/i18n.ts`)
+// sind Keys aus den Namespaces `translation` und `landing` korrekt typisiert.
+export default function useLocalize(): TFunction<["translation", "landing"], string> {
   const lang = useRecoilValue(store.lang);
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation(["translation", "landing"]);
 
   useEffect(() => {
     if (i18n.language !== lang) {
@@ -17,5 +16,5 @@ export default function useLocalize() {
     }
   }, [lang, i18n]);
 
-  return (phraseKey: TranslationKeys, options?: TOptions) => t(phraseKey, options);
+  return t;
 }

@@ -32,6 +32,8 @@ export type TMessageActions = Pick<
 
 export default function useMessageActions(props: TMessageActions) {
   const localize = useLocalize();
+  // Flexibler Wrapper, um strikte Key-Union zu umgehen und stets string zu erhalten
+  const lz = localize as unknown as (key: string, options?: any) => string;
   const { user } = useAuthContext();
   const UsernameDisplay = useRecoilValue<boolean>(store.UsernameDisplay);
   const { message, currentEditId, setCurrentEditId, isMultiMessage, searchResults } = props;
@@ -123,7 +125,7 @@ export default function useMessageActions(props: TMessageActions) {
 
   const messageLabel = useMemo(() => {
     if (message?.isCreatedByUser === true) {
-      return UsernameDisplay ? (user?.name ?? '') || user?.username : localize('com_user_message');
+      return UsernameDisplay ? (user?.name ?? '') || user?.username : lz('translation:com_user_message');
     } else if (agent) {
       return agent.name ?? 'Assistant';
     } else if (assistant) {

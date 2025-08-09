@@ -1,3 +1,150 @@
 {
-  "com_ui_cancel": "Abbrechen"
+  "landing_legacy": {
+    "comparison": {
+      "descriptions": {}
+    }
+  },
+  "com_ui_cancel": "Abbrechen",
+  "hero": {
+    "subtitle": {},
+    "cta": {}
+  },
+  "site": {},
+  "landing": {
+    "hero": {
+      "cta": {}
+    },
+    "agents": {
+      "hero": {
+        "features": [
+          {},
+          {},
+          {}
+        ]
+      },
+      "stats": {},
+      "usp": {
+        "items": [
+          {},
+          {},
+          {},
+          {}
+        ]
+      }
+    },
+    "hero_secondary": {
+      "cta": {}
+    },
+    "features": {},
+    "usps": {}
+  },
+  "testimonials": {
+    "1": {},
+    "2": {}
+  },
+  "stats": {},
+  "features": {
+    "categories": {},
+    "ai": {},
+    "security": {},
+    "collaboration": {},
+    "integration": {},
+    "code": {},
+    "analytics": {},
+    "items": [
+      {},
+      {},
+      {},
+      {},
+      {},
+      {}
+    ]
+  },
+  "target": {
+    "social": {
+      "features": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    "business": {},
+    "developers": {},
+    "creators": {}
+  },
+  "security": {
+    "features": {
+      "selfhosting": {},
+      "authentication": {},
+      "user_management": {},
+      "isolation": {},
+      "compliance": {},
+      "monitoring": {}
+    }
+  },
+  "comparison": {
+    "features": {},
+    "solutions": {},
+    "values": {
+      "local_execution": {},
+      "privacy": {},
+      "open_source": {},
+      "customizable_models": {},
+      "code_analysis": {},
+      "api_access": {},
+      "costs": {},
+      "customization": {},
+      "offline": {},
+      "true_false": {}
+    }
+  },
+  "pricing": {
+    "billing": {},
+    "plans": {
+      "community": {
+        "price": {},
+        "features": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "professional": {
+        "price": {},
+        "features": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "enterprise": {
+        "price": {},
+        "features": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    }
+  },
+  "faq": {},
+  "cta": {
+    "features": {
+      "open_source": {},
+      "privacy": {},
+      "performance": {}
+    }
+  }
 }

@@ -8,6 +8,7 @@ import {
   TwoFactorScreen,
   RequestPasswordReset,
 } from '~/components/Auth';
+import LandingPage from '~/components/Landing/LandingPage';
 import { OAuthSuccess, OAuthError } from '~/components/OAuth';
 import { AuthContextProvider } from '~/hooks/AuthContext';
 import RouteErrorBoundary from './RouteErrorBoundary';
@@ -18,6 +19,8 @@ import ShareRoute from './ShareRoute';
 import ChatRoute from './ChatRoute';
 import Search from './Search';
 import Root from './Root';
+import { subscriptionRoutes } from '~/features/subscription';
+import { referralRoutes } from '~/features/referral/routes';
 
 const AuthLayout = () => (
   <AuthContextProvider>
@@ -27,13 +30,19 @@ const AuthLayout = () => (
 );
 
 export const router = createBrowserRouter([
+  // Public routes
   {
-    path: 'share/:shareId',
+    path: '/',
+    element: <LandingPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: '/share/:shareId',
     element: <ShareRoute />,
     errorElement: <RouteErrorBoundary />,
   },
   {
-    path: 'oauth',
+    path: '/oauth',
     errorElement: <RouteErrorBoundary />,
     children: [
       {
@@ -46,56 +55,57 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  // Auth routes
   {
-    path: '/',
     element: <StartupLayout />,
     errorElement: <RouteErrorBoundary />,
     children: [
       {
-        path: 'register',
+        path: '/auth/register',
         element: <Registration />,
       },
       {
-        path: 'forgot-password',
+        path: '/auth/forgot-password',
         element: <RequestPasswordReset />,
       },
       {
-        path: 'reset-password',
+        path: '/auth/reset-password',
         element: <ResetPassword />,
       },
-    ],
-  },
-  {
-    path: 'verify',
-    element: <VerifyEmail />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
-    element: <AuthLayout />,
-    errorElement: <RouteErrorBoundary />,
-    children: [
       {
-        path: '/',
+        path: '/auth/verify',
+        element: <VerifyEmail />,
+      },
+      {
+        path: '/login',
         element: <LoginLayout />,
         children: [
           {
-            path: 'login',
+            index: true,
             element: <Login />,
           },
           {
-            path: 'login/2fa',
+            path: '2fa',
             element: <TwoFactorScreen />,
           },
         ],
       },
+    ],
+  },
+  // Protected routes
+  {
+    element: <AuthLayout />,
+    errorElement: <RouteErrorBoundary />,
+    children: [
       dashboardRoutes,
+      ...referralRoutes,
       {
-        path: '/',
+        path: '/app',
         element: <Root />,
         children: [
           {
             index: true,
-            element: <Navigate to="/c/new" replace={true} />,
+            element: <Navigate to="/app/c/new" replace={true} />,
           },
           {
             path: 'c/:conversationId?',

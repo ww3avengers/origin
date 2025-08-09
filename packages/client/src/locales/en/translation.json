@@ -1,4 +1,85 @@
 {
   "com_ui_cancel": "Cancel",
-  "com_ui_no_options": "No options available"
+  "site": {},
+  "landing": {
+    "hero": {
+      "logos": {},
+      "cta": {},
+      "usps": {}
+    },
+    "agents": {
+      "hero": {
+        "features": [
+          {},
+          {},
+          {}
+        ]
+      },
+      "stats": {},
+      "usp": {
+        "items": [
+          {},
+          {},
+          {},
+          {}
+        ]
+      }
+    },
+    "features": {
+      "categories": {}
+    },
+    "testimonials": {
+      "1": {},
+      "2": {}
+    },
+    "stats": {},
+    "featureItems": {
+      "items": [
+        {},
+        {},
+        {},
+        {},
+        {},
+        {}
+      ]
+    },
+    "target": {
+      "social": {
+        "features": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      "business": {},
+      "developers": {},
+      "creators": {}
+    },
+    "security": {
+      "features": {
+        "selfhosting": {},
+        "authentication": {},
+        "user_management": {},
+        "isolation": {},
+        "compliance": {},
+        "monitoring": {}
+      }
+    },
+    "comparison": {
+      "descriptions": {},
+      "feature_items": {},
+      "values": {
+        "privacy": {},
+        "code_analysis": {},
+        "api_access": {},
+        "costs": {},
+        "customization": {},
+        "true_false": {}
+      }
+    },
+    "faq": {}
+  },
+  "com_ui_no_options": ""
 }

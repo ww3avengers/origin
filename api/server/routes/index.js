@@ -26,6 +26,11 @@ const edit = require('./edit');
 const keys = require('./keys');
 const user = require('./user');
 const mcp = require('./mcp');
+const referrals = require('./referrals');
+const chatbot = require('./chatbot');
+const llmUsage = require('./llmUsage');
+// Conditionally load Stripe routes if STRIPE_SECRET_KEY is set
+const stripe = process.env.STRIPE_SECRET_KEY ? require('./stripe') : null;
 
 module.exports = {
   edit,
@@ -46,14 +51,18 @@ module.exports = {
   prompts,
   plugins,
   actions,
+  referrals,
   presets,
-  balance,
-  messages,
   memories,
+  messages,
   endpoints,
-  tokenizer,
-  assistants,
   categories,
+  assistants,
+  tokenizer,
+  balance,
+  chatbot,
+  llmUsage,
+  ...(stripe ? { stripe } : {}), // Only include stripe if it was loaded
   staticRoute,
   mcp,
 };

@@ -23,6 +23,8 @@ interface ServerState {
 
 export function useMCPServerManager() {
   const localize = useLocalize();
+  // Flexibler Wrapper für i18n, liefert stets string und umgeht starre Key-Unions
+  const lz = localize as unknown as (key: string, options?: any) => string;
   const { showToast } = useToastContext();
   const { mcpSelect, startupConfig } = useBadgeRowContext();
   const { mcpValues, setMCPValues, mcpToolDetails, isPinned, setIsPinned } = mcpSelect;
@@ -50,7 +52,7 @@ export function useMCPServerManager() {
 
   const updateUserPluginsMutation = useUpdateUserPluginsMutation({
     onSuccess: async () => {
-      showToast({ message: localize('com_nav_mcp_vars_updated'), status: 'success' });
+      showToast({ message: lz('translation:com_nav_mcp_vars_updated'), status: 'success' });
 
       await Promise.all([
         queryClient.refetchQueries([QueryKeys.tools]),
@@ -61,7 +63,7 @@ export function useMCPServerManager() {
     onError: (error: unknown) => {
       console.error('Error updating MCP auth:', error);
       showToast({
-        message: localize('com_nav_mcp_vars_update_error'),
+        message: lz('translation:com_nav_mcp_vars_update_error'),
         status: 'error',
       });
     },
@@ -151,7 +153,7 @@ export function useMCPServerManager() {
             clearInterval(pollInterval);
 
             showToast({
-              message: localize('com_ui_mcp_authenticated_success', { 0: serverName }),
+              message: lz('translation:com_ui_mcp_authenticated_success', { 0: serverName }),
               status: 'success',
             });
 
@@ -172,7 +174,7 @@ export function useMCPServerManager() {
 
           if (state?.oauthStartTime && Date.now() - state.oauthStartTime > 180000) {
             showToast({
-              message: localize('com_ui_mcp_oauth_timeout', { 0: serverName }),
+              message: lz('translation:com_ui_mcp_oauth_timeout', { 0: serverName }),
               status: 'error',
             });
             clearInterval(pollInterval);
@@ -182,7 +184,7 @@ export function useMCPServerManager() {
 
           if (serverStatus?.connectionState === 'error') {
             showToast({
-              message: localize('com_ui_mcp_init_failed'),
+              message: lz('translation:com_ui_mcp_init_failed'),
               status: 'error',
             });
             clearInterval(pollInterval);
@@ -235,7 +237,7 @@ export function useMCPServerManager() {
             await queryClient.refetchQueries([QueryKeys.mcpConnectionStatus]);
 
             showToast({
-              message: localize('com_ui_mcp_initialized_success', { 0: serverName }),
+              message: lz('translation:com_ui_mcp_initialized_success', { 0: serverName }),
               status: 'success',
             });
 
@@ -248,7 +250,7 @@ export function useMCPServerManager() {
           }
         } else {
           showToast({
-            message: localize('com_ui_mcp_init_failed', { 0: serverName }),
+            message: lz('translation:com_ui_mcp_init_failed', { 0: serverName }),
             status: 'error',
           });
           cleanupServerState(serverName);
@@ -256,7 +258,7 @@ export function useMCPServerManager() {
       } catch (error) {
         console.error(`[MCP Manager] Failed to initialize ${serverName}:`, error);
         showToast({
-          message: localize('com_ui_mcp_init_failed', { 0: serverName }),
+          message: lz('translation:com_ui_mcp_init_failed', { 0: serverName }),
           status: 'error',
         });
         cleanupServerState(serverName);
@@ -283,14 +285,14 @@ export function useMCPServerManager() {
           queryClient.invalidateQueries([QueryKeys.mcpConnectionStatus]);
 
           showToast({
-            message: localize('com_ui_mcp_oauth_cancelled', { 0: serverName }),
+            message: lz('translation:com_ui_mcp_oauth_cancelled', { 0: serverName }),
             status: 'warning',
           });
         },
         onError: (error) => {
           console.error(`[MCP Manager] Failed to cancel OAuth for ${serverName}:`, error);
           showToast({
-            message: localize('com_ui_mcp_init_failed', { 0: serverName }),
+            message: lz('translation:com_ui_mcp_init_failed', { 0: serverName }),
             status: 'error',
           });
         },
@@ -321,8 +323,8 @@ export function useMCPServerManager() {
   );
 
   const placeholderText = useMemo(
-    () => startupConfig?.interface?.mcpServers?.placeholder || localize('com_ui_mcp_servers'),
-    [startupConfig?.interface?.mcpServers?.placeholder, localize],
+    () => startupConfig?.interface?.mcpServers?.placeholder || lz('translation:com_ui_mcp_servers'),
+    [startupConfig?.interface?.mcpServers?.placeholder, lz],
   );
 
   const batchToggleServers = useCallback(

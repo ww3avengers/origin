@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  librechat:
+    image: ghcr.io/danny-avila/librechat-dev:latest
+    container_name: librechat-3090
+    ports:
+      - "3090:3080"
+    environment:
+      - PORT=3080
+      - MONGO_URI=mongodb://mongodb:27017/LibreChat
+      - DOMAIN_CLIENT=http://localhost:3090
+      - DOMAIN_SERVER=http://localhost:3090
+    depends_on:
+      - mongodb
+    networks:
+      - librechat-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-3090
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - librechat-network
+
+networks:
+  librechat-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

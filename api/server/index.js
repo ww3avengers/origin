@@ -119,6 +119,8 @@ const startServer = async () => {
   app.use('/api/memories', routes.memories);
   app.use('/api/tags', routes.tags);
   app.use('/api/mcp', routes.mcp);
+  app.use('/api/chatbot', routes.chatbot);
+  app.use('/api/llm/usage', routes.llmUsage);
 
   // Add the error controller one more time after all routes
   app.use(errorController);

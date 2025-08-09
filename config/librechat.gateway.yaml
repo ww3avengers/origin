@@ -1,0 +1,135 @@
+# Custom LibreChat configuration with Gateway (LiteLLM) and direct providers
+# After committing this file, set env CONFIG_PATH to this path
+# Example: CONFIG_PATH=./config/librechat.gateway.yaml
+
+endpoints:
+  custom:
+    - name: "gateway"           # LiteLLM as central OpenAI-compatible gateway
+      baseURL: "https://YOUR-LITELLM-HOST/v1"
+      apiKey: "user_provided"   # or "{{LITELLM_API_KEY}}"
+      headers:
+        Authorization: "Bearer {{apiKey}}"
+      models:
+        default:
+          - "gpt-4o-mini"
+          - "mixtral-8x7b-instruct"
+        fetch: false
+      titleMethod: "completion"
+      streamRate: 30
+
+    - name: "groq"
+      baseURL: "https://api.groq.com/openai/v1/"
+      apiKey: "user_provided"   # or "{{GROQ_API_KEY}}"
+      headers:
+        Authorization: "Bearer {{apiKey}}"
+      models:
+        default:
+          - "mixtral-8x7b-32768"
+          - "llama3-70b-8192"
+        fetch: false
+
+    - name: "cohere"
+      baseURL: "https://api.cohere.com/v1"
+      apiKey: "user_provided"   # or "{{COHERE_API_KEY}}"
+      headers:
+        Authorization: "Bearer {{apiKey}}"
+      models:
+        default:
+          - "command"
+          - "command-r"
+        fetch: false
+
+    - name: "mistral"
+      baseURL: "https://api.mistral.ai/v1"
+      apiKey: "user_provided"   # or "{{MISTRAL_API_KEY}}"
+      headers:
+        Authorization: "Bearer {{apiKey}}"
+      models:
+        default:
+          - "mistral-small-latest"
+          - "mistral-large-latest"
+          - "codestral-latest"
+        fetch: false
+
+    - name: "together"
+      baseURL: "https://api.together.xyz/v1"
+      apiKey: "user_provided"   # or "{{TOGETHER_API_KEY}}"
+      headers:
+        Authorization: "Bearer {{apiKey}}"
+      models:
+        default:
+          - "meta-llama/Meta-Llama-3-70B-Instruct"
+          - "Qwen/Qwen2-72B-Instruct"
+        fetch: false
+
+    - name: "openai"
+      baseURL: "https://api.openai.com/v1"
+      apiKey: "user_provided"   # or "{{OPENAI_API_KEY}}"
+      headers:
+        Authorization: "Bearer {{apiKey}}"
+      models:
+        default:
+          - "gpt-4o"
+          - "gpt-4o-mini"
+          - "gpt-4.1-mini"
+        fetch: false
+
+    - name: "openrouter"
+      baseURL: "https://openrouter.ai/api/v1"
+      apiKey: "user_provided"   # or "{{OPENROUTER_API_KEY}}"
+      headers:
+        Authorization: "Bearer {{apiKey}}"
+        HTTP-Referer: "{{ORIGIN}}"            # optional best practice
+        X-Title: "{{APP_NAME}}"               # optional best practice
+      models:
+        default:
+          - "openrouter/auto"
+          - "anthropic/claude-3.5-sonnet"
+          - "meta-llama/llama-3.1-70b-instruct"
+        fetch: false
+
+    - name: "deepseek"
+      baseURL: "https://api.deepseek.com/v1"
+      apiKey: "user_provided"   # or "{{DEEPSEEK_API_KEY}}"
+      headers:
+        Authorization: "Bearer {{apiKey}}"
+      models:
+        default:
+          - "deepseek-chat"
+          - "deepseek-reasoner"
+        fetch: false
+
+    # Azure OpenAI template — fill in your resource + deployment names
+    - name: "azure-openai"
+      baseURL: "https://{{AZURE_RESOURCE_NAME}}.openai.azure.com/openai/deployments/{{AZURE_DEPLOYMENT_NAME}}"
+      apiKey: "user_provided"   # or "{{AZURE_OPENAI_API_KEY}}"
+      headers:
+        api-key: "{{apiKey}}"
+      models:
+        default:
+          - "gpt-4o"
+          - "gpt-35-turbo"
+        fetch: false
+
+    - name: "anthropic"
+      baseURL: "https://api.anthropic.com/v1"
+      apiKey: "user_provided"   # or "{{ANTHROPIC_API_KEY}}"
+      headers:
+        x-api-key: "{{apiKey}}"
+        anthropic-version: "2023-06-01"
+      models:
+        default:
+          - "claude-3-5-sonnet-latest"
+          - "claude-3-5-haiku-latest"
+        fetch: false
+
+    - name: "gemini"
+      baseURL: "https://generativelanguage.googleapis.com/v1beta"
+      apiKey: "user_provided"   # or "{{GEMINI_API_KEY}}"
+      headers:
+        x-goog-api-key: "{{apiKey}}"
+      models:
+        default:
+          - "gemini-1.5-pro"
+          - "gemini-1.5-flash"
+        fetch: false

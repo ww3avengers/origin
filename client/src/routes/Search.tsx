@@ -8,9 +8,12 @@ import { useMessagesInfiniteQuery } from '~/data-provider';
 import { useFileMapContext } from '~/Providers';
 import { buildTree } from '~/utils';
 import store from '~/store';
+import Meta from '~/components/Seo/Meta';
 
 export default function Search() {
   const localize = useLocalize();
+  // Lokaler Wrapper mit flexibler Signatur, liefert garantiert string
+  const lz = localize as unknown as (key: string, options?: any) => string;
   const fileMap = useFileMapContext();
   const { showToast } = useToastContext();
   const { isAuthenticated } = useAuthContext();
@@ -65,15 +68,22 @@ export default function Search() {
   }
 
   if (!searchQuery) {
-    return null;
+    return (
+      <>
+        <Meta title="Suche" description="Suchergebnisse" robots="noindex, nofollow" />
+        {null}
+      </>
+    );
   }
 
   return (
-    <MinimalMessagesWrapper ref={containerRef} className="relative flex h-full pt-4">
+    <>
+      <Meta title="Suche" description="Suchergebnisse" robots="noindex, nofollow" />
+      <MinimalMessagesWrapper ref={containerRef} className="relative flex h-full pt-4">
       {(messages && messages.length === 0) || messages == null ? (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="rounded-lg bg-white p-6 text-lg text-gray-500 dark:border-gray-800/50 dark:bg-gray-800 dark:text-gray-300">
-            {localize('com_ui_nothing_found')}
+            {lz('translation:com_ui_nothing_found')}
           </div>
         </div>
       ) : (
@@ -89,6 +99,7 @@ export default function Search() {
         </>
       )}
       <div className="absolute bottom-0 left-0 right-0 h-[5%] bg-gradient-to-t from-gray-50 to-transparent dark:from-gray-800" />
-    </MinimalMessagesWrapper>
+      </MinimalMessagesWrapper>
+    </>
   );
 }

@@ -36,6 +36,8 @@ const getConversationId = (prevLocationPath: string) => {
 export default function DashBreadcrumb() {
   const location = useLocation();
   const localize = useLocalize();
+  // Lokaler, flexibler Wrapper um starre Key-Unions zu umgehen und stets string zu liefern
+  const lz = localize as unknown as (key: string, options?: any) => string;
   const { user } = useAuthContext();
   const { prevLocationPath } = useDashboardContext();
   const lastConversationId = useMemo(() => getConversationId(prevLocationPath), [prevLocationPath]);
@@ -68,8 +70,8 @@ export default function DashBreadcrumb() {
               onClick={chatLinkHandler}
             >
               <ArrowLeft className="icon-xs" aria-hidden="true" />
-              <span className="hidden md:flex">{localize('com_ui_back_to_chat')}</span>
-              <span className="flex md:hidden">{localize('com_ui_chat')}</span>
+              <span className="hidden md:flex">{lz('translation:com_ui_back_to_chat')}</span>
+              <span className="flex md:hidden">{lz('translation:com_ui_chat')}</span>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -99,7 +101,7 @@ export default function DashBreadcrumb() {
               onClick={promptsLinkHandler}
             >
               <MessageSquareQuote className="h-4 w-4 dark:text-gray-300" aria-hidden="true" />
-              {localize('com_ui_prompts')}
+              {lz('translation:com_ui_prompts')}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
