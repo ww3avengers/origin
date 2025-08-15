@@ -1,4 +1,3 @@
 User-agent: *
-Disallow: /api/
-Allow: /
-Sitemap: https://sigmacode.ai/sitemap.xml
+Disallow: /
+# Non-production environment: disallow all

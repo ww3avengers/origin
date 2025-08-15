@@ -14,7 +14,7 @@ export default function processGlobal() {
           'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
           'process.platform': JSON.stringify('browser'),
           'process.browser': true,
-          'process.env': {}
+          'process.env': {},
         },
         resolve: {
           alias: {
@@ -23,16 +23,16 @@ export default function processGlobal() {
             util: 'util',
             buffer: 'buffer',
             path: 'path-browserify',
-          }
+          },
         },
         optimizeDeps: {
           esbuildOptions: {
             define: {
-              global: 'globalThis'
-            }
-          }
-        }
+              global: 'globalThis',
+            },
+          },
+        },
       };
-    }
+    },
   };
 }

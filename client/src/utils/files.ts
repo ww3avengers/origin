@@ -1,12 +1,7 @@
 import { SheetPaths, TextPaths, FilePaths, CodePaths } from '~/components/svg';
-import {
-  megabyte,
-  QueryKeys,
-  excelMimeTypes,
-  codeTypeMapping,
-  fileConfig as defaultFileConfig,
-} from 'librechat-data-provider';
-import type { TFile, EndpointFileConfig } from 'librechat-data-provider';
+import type React from 'react';
+import { QueryKeys, fileConfig as defaultFileConfig } from 'librechat-data-provider';
+import type * as t from 'librechat-data-provider';
 import type { QueryClient } from '@tanstack/react-query';
 import type { ExtendedFile } from '~/common';
 
@@ -17,6 +12,10 @@ const textDocument = {
   fill: '#FF5588',
   title: 'Document',
 };
+
+// Lokale Fallback-Regex für Excel/CSV MIME Types, da excelMimeTypes nicht mehr exportiert wird
+const EXCEL_MIME_REGEX =
+  /(?:application\/vnd\.(?:ms-excel|openxmlformats-officedocument\.spreadsheetml\.sheet)|text\/csv)/i;
 
 const spreadsheet = {
   paths: SheetPaths,
@@ -37,7 +36,13 @@ const artifact = {
   title: 'Code',
 };
 
-export const fileTypes = {
+type FileTypeDef = {
+  paths: React.FC;
+  fill: string;
+  title: string;
+};
+
+export const fileTypes: Record<string, FileTypeDef> = {
   /* Category matches */
   file: {
     paths: FilePaths,
@@ -83,19 +88,13 @@ export const fileTypes = {
 //   return fileType;
 // };
 
-export const getFileType = (
-  type = '',
-): {
-  paths: React.FC;
-  fill: string;
-  title: string;
-} => {
+export const getFileType = (type = ''): FileTypeDef => {
   // Direct match check
   if (fileTypes[type]) {
     return fileTypes[type];
   }
 
-  if (excelMimeTypes.test(type)) {
+  if (EXCEL_MIME_REGEX.test(type)) {
     return spreadsheet;
   }
 
@@ -160,8 +159,8 @@ export function formatDate(dateString: string, isSmallScreen = false) {
 /**
  * Adds a file to the query cache
  */
-export function addFileToCache(queryClient: QueryClient, newfile: TFile) {
-  const currentFiles = queryClient.getQueryData<TFile[]>([QueryKeys.files]);
+export function addFileToCache(queryClient: QueryClient, newfile: ExtendedFile) {
+  const currentFiles = queryClient.getQueryData<ExtendedFile[]>([QueryKeys.files]);
 
   if (!currentFiles) {
     console.warn('No current files found in cache, skipped updating file query cache');
@@ -175,7 +174,7 @@ export function addFileToCache(queryClient: QueryClient, newfile: TFile) {
     return;
   }
 
-  queryClient.setQueryData<TFile[]>(
+  queryClient.setQueryData<ExtendedFile[]>(
     [QueryKeys.files],
     [
       {
@@ -207,7 +206,7 @@ export const validateFiles = ({
   fileList: File[];
   files: Map<string, ExtendedFile>;
   setError: (error: string) => void;
-  endpointFileConfig: EndpointFileConfig;
+  endpointFileConfig: t.TEndpointsConfig;
 }) => {
   const { fileLimit, fileSizeLimit, totalSizeLimit, supportedMimeTypes } = endpointFileConfig;
   const existingFiles = Array.from(files.values());
@@ -227,7 +226,34 @@ export const validateFiles = ({
     let originalFile = fileList[i];
     let fileType = originalFile.type;
     const extension = originalFile.name.split('.').pop() ?? '';
-    const knownCodeType = codeTypeMapping[extension];
+    // Fallback-Mapping für Code-Dateiendungen -> MIME-Type
+    const CODE_TYPE_MAPPING: Record<string, string> = {
+      js: 'text/javascript',
+      ts: 'text/typescript',
+      jsx: 'text/javascript',
+      tsx: 'text/typescript',
+      py: 'text/x-python',
+      rb: 'text/x-ruby',
+      go: 'text/x-go',
+      rs: 'text/x-rust',
+      java: 'text/x-java-source',
+      c: 'text/x-c',
+      h: 'text/x-c',
+      cpp: 'text/x-c++',
+      hpp: 'text/x-c++',
+      cs: 'text/x-csharp',
+      sh: 'text/x-sh',
+      sql: 'application/sql',
+      md: 'text/markdown',
+      json: 'application/json',
+      yml: 'text/yaml',
+      yaml: 'text/yaml',
+      xml: 'application/xml',
+      html: 'text/html',
+      css: 'text/css',
+      scss: 'text/x-scss',
+    };
+    const knownCodeType = CODE_TYPE_MAPPING[extension];
 
     // Infer MIME type for Known Code files when the type is empty or a mismatch
     if (knownCodeType && (!fileType || fileType !== knownCodeType)) {
@@ -253,14 +279,17 @@ export const validateFiles = ({
       return false;
     }
 
+    // Lokaler MB-Faktor (ersetzt fehlenden megabyte-Export)
+    const MEGABYTE = 1024 * 1024;
     if (fileSizeLimit && originalFile.size >= fileSizeLimit) {
-      setError(`File size exceeds ${fileSizeLimit / megabyte} MB.`);
+      setError(`File size exceeds ${fileSizeLimit / MEGABYTE} MB.`);
       return false;
     }
   }
 
   if (totalSizeLimit && currentTotalSize + incomingTotalSize > totalSizeLimit) {
-    setError(`The total size of the files cannot exceed ${totalSizeLimit / megabyte} MB.`);
+    const MEGABYTE = 1024 * 1024;
+    setError(`The total size of the files cannot exceed ${totalSizeLimit / MEGABYTE} MB.`);
     return false;
   }
 

@@ -35,11 +35,17 @@ router.get('/', async function (req, res) {
     return today.getMonth() === 1 && today.getDate() === 11;
   };
 
-  const instanceProject = await getProjectByName(Constants.GLOBAL_PROJECT_NAME, '_id');
-
   const ldap = getLdapConfig();
 
   try {
+    // Lookup instance project inside try/catch so missing project won't crash the route
+    let instanceProject = null;
+    try {
+      instanceProject = await getProjectByName(Constants.GLOBAL_PROJECT_NAME, '_id');
+    } catch (e) {
+      // log at debug level via data-schemas logger if available
+      logger.warn?.('Startup config: instance project not found, continuing without it');
+    }
     const isOpenIdEnabled =
       !!process.env.OPENID_CLIENT_ID &&
       !!process.env.OPENID_CLIENT_SECRET &&
@@ -95,7 +101,7 @@ router.get('/', async function (req, res) {
       sharedLinksEnabled,
       publicSharedLinksEnabled,
       analyticsGtmId: process.env.ANALYTICS_GTM_ID,
-      instanceProjectId: instanceProject._id.toString(),
+      instanceProjectId: instanceProject?._id?.toString(),
       bundlerURL: process.env.SANDPACK_BUNDLER_URL,
       staticBundlerURL: process.env.SANDPACK_STATIC_BUNDLER_URL,
     };

@@ -4,7 +4,7 @@ import { Button, Input } from '@librechat/client';
 import VectorStoreButton from './VectorStoreButton';
 import VectorStoreList from './VectorStoreList';
 import { TVectorStore } from '~/common';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 const fakeVectorStores: TVectorStore[] = [
   {
@@ -206,7 +206,7 @@ const fakeVectorStores: TVectorStore[] = [
 ];
 
 export default function VectorStoreSidePanel() {
-  const localize = useLocalize();
+  const t = useT();
   const deleteVectorStore = (id: string | undefined) => {
     // Define delete functionality here
     console.log(`Deleting VectorStore with id: ${id}`);
@@ -224,7 +224,7 @@ export default function VectorStoreSidePanel() {
               <ListFilter className="h-4 w-4" />
             </Button>
             <Input
-              placeholder={localize('com_files_filter')}
+              placeholder={t('com_files_filter')}
               value={''}
               onChange={() => {
                 console.log('changed');

@@ -6,7 +6,6 @@ import { fileConfig as defaultFileConfig, mergeFileConfig } from 'librechat-data
 import {
   Slider,
   Button,
-  Spinner,
   OGDialog,
   OGDialogContent,
   OGDialogHeader,
@@ -14,23 +13,19 @@ import {
   OGDialogTrigger,
   useToastContext,
 } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import type { TUser } from 'librechat-data-provider';
 import { useUploadAvatarMutation, useGetFileConfig } from '~/data-provider';
 import { cn, formatBytes } from '~/utils';
 import { useLocalize } from '~/hooks';
 import store from '~/store';
 
-interface AvatarEditorRef {
-  getImageScaledToCanvas: () => HTMLCanvasElement;
-  getImage: () => HTMLImageElement;
-}
-
 function Avatar() {
   const setUser = useSetRecoilState(store.user);
 
   const [scale, setScale] = useState<number>(1);
   const [rotation, setRotation] = useState<number>(0);
-  const editorRef = useRef<AvatarEditorRef | null>(null);
+  const editorRef = useRef<AvatarEditor | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const openButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -45,14 +40,14 @@ function Avatar() {
   const { showToast } = useToastContext();
 
   const { mutate: uploadAvatar, isLoading: isUploading } = useUploadAvatarMutation({
-    onSuccess: (data) => {
-      showToast({ message: localize('com_ui_upload_success') });
-      setUser((prev) => ({ ...prev, avatar: data.url }) as TUser);
+    onSuccess: (data: { url: string }) => {
+      showToast({ message: localize('translation:com_ui_upload_success') });
+      setUser((prev: TUser) => ({ ...prev, avatar: data.url }) as TUser);
       openButtonRef.current?.click();
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
       console.error('Error:', error);
-      showToast({ message: localize('com_ui_upload_error'), status: 'error' });
+      showToast({ message: localize('translation:com_ui_upload_error'), status: 'error' });
     },
   });
 
@@ -70,7 +65,7 @@ function Avatar() {
       const megabytes =
         fileConfig.avatarSizeLimit != null ? formatBytes(fileConfig.avatarSizeLimit) : 2;
       showToast({
-        message: localize('com_ui_upload_invalid_var', { 0: megabytes + '' }),
+        message: localize('translation:com_ui_upload_invalid_var', { 0: megabytes + '' }),
         status: 'error',
       });
     }
@@ -132,11 +127,11 @@ function Avatar() {
       }}
     >
       <div className="flex items-center justify-between">
-        <span>{localize('com_nav_profile_picture')}</span>
+        <span>{localize('translation:com_nav_profile_picture')}</span>
         <OGDialogTrigger ref={openButtonRef}>
           <Button variant="outline">
             <FileImage className="mr-2 flex w-[22px] items-center stroke-1" />
-            <span>{localize('com_nav_change_picture')}</span>
+            <span>{localize('translation:com_nav_change_picture')}</span>
           </Button>
         </OGDialogTrigger>
       </div>
@@ -144,7 +139,9 @@ function Avatar() {
       <OGDialogContent className="w-11/12 max-w-sm" style={{ borderRadius: '12px' }}>
         <OGDialogHeader>
           <OGDialogTitle className="text-lg font-medium leading-6 text-text-primary">
-            {image != null ? localize('com_ui_preview') : localize('com_ui_upload_image')}
+            {image != null
+              ? localize('translation:com_ui_preview')
+              : localize('translation:com_ui_upload_image')}
           </OGDialogTitle>
         </OGDialogHeader>
         <div className="flex flex-col items-center justify-center">
@@ -165,7 +162,7 @@ function Avatar() {
               </div>
               <div className="mt-4 flex w-full flex-col items-center space-y-4">
                 <div className="flex w-full items-center justify-center space-x-4">
-                  <span className="text-sm">{localize('com_ui_zoom')}</span>
+                  <span className="text-sm">{localize('translation:com_ui_zoom')}</span>
                   <Slider
                     value={[scale]}
                     min={1}
@@ -191,11 +188,11 @@ function Avatar() {
                 disabled={isUploading}
               >
                 {isUploading ? (
-                  <Spinner className="icon-sm mr-2" />
+                  <InlineSpinner size="sm" ariaLabel={localize`translation:com_ui_loading`} />
                 ) : (
                   <Upload className="mr-2 h-5 w-5" />
                 )}
-                {localize('com_ui_upload')}
+                {localize('translation:com_ui_upload')}
               </Button>
             </>
           ) : (
@@ -206,10 +203,10 @@ function Avatar() {
             >
               <FileImage className="mb-4 size-12 text-gray-400" />
               <p className="mb-2 text-center text-sm text-gray-500 dark:text-gray-400">
-                {localize('com_ui_drag_drop')}
+                {localize('translation:com_ui_drag_drop')}
               </p>
               <Button variant="secondary" onClick={openFileDialog}>
-                {localize('com_ui_select_file')}
+                {localize('translation:com_ui_select_file')}
               </Button>
               <input
                 ref={fileInputRef}

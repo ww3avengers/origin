@@ -2,11 +2,11 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Spinner, ThemeSelector } from '@librechat/client';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useVerifyEmailMutation, useResendVerificationEmail } from '~/data-provider';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 function RequestPasswordReset() {
   const navigate = useNavigate();
-  const localize = useLocalize();
+  const t = useT();
   const [params] = useSearchParams();
 
   const [countdown, setCountdown] = useState<number>(3);
@@ -32,12 +32,12 @@ function RequestPasswordReset() {
 
   const verifyEmailMutation = useVerifyEmailMutation({
     onSuccess: () => {
-      setHeaderText(localize('com_auth_email_verification_success') + ' 🎉');
+      setHeaderText(t('com_auth_email_verification_success') + ' 🎉');
       setVerificationStatus(true);
       countdownRedirect();
     },
     onError: (error: unknown) => {
-      setHeaderText(localize('com_auth_email_verification_failed') + ' 😢');
+      setHeaderText(t('com_auth_email_verification_failed') + ' 😢');
       setShowResendLink(true);
       setVerificationStatus(true);
     },
@@ -45,11 +45,11 @@ function RequestPasswordReset() {
 
   const resendEmailMutation = useResendVerificationEmail({
     onSuccess: () => {
-      setHeaderText(localize('com_auth_email_resent_success') + ' 📧');
+      setHeaderText(t('com_auth_email_resent_success') + ' 📧');
       countdownRedirect();
     },
     onError: () => {
-      setHeaderText(localize('com_auth_email_resent_failed') + ' 😢');
+      setHeaderText(t('com_auth_email_resent_failed') + ' 😢');
     },
     onMutate: () => setShowResendLink(false),
   });
@@ -67,9 +67,9 @@ function RequestPasswordReset() {
       verifyEmailMutation.mutate({ email, token });
     } else {
       if (email) {
-        setHeaderText(localize('com_auth_email_verification_failed_token_missing') + ' 😢');
+        setHeaderText(t('com_auth_email_verification_failed_token_missing') + ' 😢');
       } else {
-        setHeaderText(localize('com_auth_email_verification_invalid') + ' 🤨');
+        setHeaderText(t('com_auth_email_verification_invalid') + ' 🤨');
       }
       setShowResendLink(true);
       setVerificationStatus(true);
@@ -83,18 +83,18 @@ function RequestPasswordReset() {
       </h1>
       {countdown > 0 && (
         <p className="text-center text-lg text-gray-600 dark:text-gray-400">
-          {localize('com_auth_email_verification_redirecting', { 0: countdown.toString() })}
+          {t('com_auth_email_verification_redirecting', { 0: countdown.toString() })}
         </p>
       )}
       {showResendLink && countdown === 0 && (
         <p className="text-center text-lg text-gray-600 dark:text-gray-400">
-          {localize('com_auth_email_verification_resend_prompt')}
+          {t('com_auth_email_verification_resend_prompt')}
           <button
             className="ml-2 text-blue-600 hover:underline"
             onClick={handleResendEmail}
             disabled={resendEmailMutation.isLoading}
           >
-            {localize('com_auth_email_resend_link')}
+            {t('com_auth_email_resend_link')}
           </button>
         </p>
       )}
@@ -104,7 +104,7 @@ function RequestPasswordReset() {
   const VerificationInProgress = () => (
     <div className="flex flex-col items-center justify-center">
       <h1 className="mb-4 text-center text-3xl font-semibold text-black dark:text-white">
-        {localize('com_auth_email_verification_in_progress')}
+        {t('com_auth_email_verification_in_progress')}
       </h1>
       <div className="mt-4 flex justify-center">
         <Spinner className="h-8 w-8 text-green-500" />

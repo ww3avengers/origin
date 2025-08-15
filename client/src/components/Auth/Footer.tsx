@@ -1,8 +1,8 @@
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import { TStartupConfig } from 'librechat-data-provider';
 
 function Footer({ startupConfig }: { startupConfig: TStartupConfig | null | undefined }) {
-  const localize = useLocalize();
+  const t = useT();
   if (!startupConfig) {
     return null;
   }
@@ -16,7 +16,7 @@ function Footer({ startupConfig }: { startupConfig: TStartupConfig | null | unde
       target={privacyPolicy.openNewTab ? '_blank' : undefined}
       rel="noreferrer"
     >
-      {localize('com_ui_privacy_policy')}
+      {t('com_ui_privacy_policy')}
     </a>
   );
 
@@ -27,7 +27,7 @@ function Footer({ startupConfig }: { startupConfig: TStartupConfig | null | unde
       target={termsOfService.openNewTab ? '_blank' : undefined}
       rel="noreferrer"
     >
-      {localize('com_ui_terms_of_service')}
+      {t('com_ui_terms_of_service')}
     </a>
   );
 

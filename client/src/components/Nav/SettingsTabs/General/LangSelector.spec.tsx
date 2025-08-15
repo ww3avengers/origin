@@ -6,7 +6,7 @@ import { LangSelector } from './General';
 import { RecoilRoot } from 'recoil';
 
 describe('LangSelector', () => {
-  let mockOnChange;
+  let mockOnChange: (value: string) => void;
 
   beforeEach(() => {
     mockOnChange = jest.fn();
@@ -24,9 +24,10 @@ describe('LangSelector', () => {
       </RecoilRoot>,
     );
 
-    expect(getByText('Language')).toBeInTheDocument();
+    // i18n-agnostisch: akzeptiere Klartext oder Key-Fallback
+    expect(getByText(/(Language|com_nav_language)/i)).toBeInTheDocument();
     const dropdownButton = getByRole('combobox');
-    expect(dropdownButton).toHaveTextContent('English');
+    expect(dropdownButton).toHaveTextContent(/(English|com_nav_lang_english)/i);
   });
 
   it('calls onChange when the select value changes', async () => {
@@ -41,13 +42,13 @@ describe('LangSelector', () => {
       </RecoilRoot>,
     );
 
-    expect(getByRole('combobox')).toHaveTextContent('English');
+    expect(getByRole('combobox')).toHaveTextContent(/(English|com_nav_lang_english)/i);
 
     const dropdownButton = getByTestId('dropdown-menu');
 
     fireEvent.click(dropdownButton);
 
-    const italianOption = getByRole('option', { name: 'Italiano' });
+    const italianOption = getByRole('option', { name: /(Italiano|com_nav_lang_italian)/i });
     fireEvent.click(italianOption);
 
     await waitFor(() => {

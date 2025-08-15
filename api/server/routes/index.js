@@ -29,6 +29,13 @@ const mcp = require('./mcp');
 const referrals = require('./referrals');
 const chatbot = require('./chatbot');
 const llmUsage = require('./llmUsage');
+const analytics = require('./analytics');
+const analyticsIngest = require('./analyticsIngest');
+const analyticsBots = require('./analyticsBots');
+const analyticsAdmin = require('./analyticsAdmin');
+const analyticsMetrics = require('./analyticsMetrics');
+const analyticsOverview = require('./analyticsOverview');
+const seo = require('./seo');
 // Conditionally load Stripe routes if STRIPE_SECRET_KEY is set
 const stripe = process.env.STRIPE_SECRET_KEY ? require('./stripe') : null;
 
@@ -62,6 +69,13 @@ module.exports = {
   balance,
   chatbot,
   llmUsage,
+  analytics,
+  analyticsIngest,
+  analyticsBots,
+  analyticsAdmin,
+  analyticsMetrics,
+  analyticsOverview,
+  seo,
   ...(stripe ? { stripe } : {}), // Only include stripe if it was loaded
   staticRoute,
   mcp,

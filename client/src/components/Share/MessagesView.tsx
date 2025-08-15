@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { TMessage } from 'librechat-data-provider';
 import MultiMessage from './MultiMessage';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 export default function MessagesView({
   messagesTree: _messagesTree,
@@ -10,7 +10,7 @@ export default function MessagesView({
   messagesTree?: TMessage[] | null;
   conversationId: string;
 }) {
-  const localize = useLocalize();
+  const t = useT();
   const [currentEditId, setCurrentEditId] = useState<number | string | null>(-1);
   return (
     <div className="flex-1 pb-[50px]">
@@ -25,7 +25,7 @@ export default function MessagesView({
           <div className="flex flex-col pb-9 text-sm dark:bg-transparent">
             {(_messagesTree && _messagesTree.length == 0) || _messagesTree === null ? (
               <div className="flex w-full items-center justify-center gap-1 bg-gray-50 p-3 text-sm text-gray-500 dark:border-gray-800/50 dark:bg-gray-800 dark:text-gray-300">
-                {localize('com_ui_nothing_found')}
+                {t('com_ui_nothing_found')}
               </div>
             ) : (
               <>

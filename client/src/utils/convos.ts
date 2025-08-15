@@ -49,7 +49,7 @@ const getGroupName = (date: Date) => {
   }
   if (isWithinInterval(date, { start: startOfYear(now), end: now })) {
     const month = format(date, 'MMMM').toLowerCase();
-    return dateKeys[month];
+    return (dateKeys as Record<string, string>)[month];
   }
   return ' ' + getYear(date).toString();
 };

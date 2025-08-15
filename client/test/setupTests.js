@@ -11,7 +11,8 @@ import '@testing-library/jest-dom';
 // allows you to do things like:
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom/extend-expect';
+// Note: extend-expect was merged into the main package in v6
+// See: https://github.com/testing-library/jest-dom#usage
 
 // Mock canvas when run unit test cases with jest.
 // 'react-lottie' uses canvas
@@ -35,8 +36,34 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
+// Mock IntersectionObserver globally for JSDOM
+class MockIntersectionObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return []; }
+}
+
+Object.defineProperty(window, 'IntersectionObserver', {
+  writable: true,
+  configurable: true,
+  value: MockIntersectionObserver,
+});
+
+import { cleanup } from '@testing-library/react';
+import i18n from '~/locales/i18n';
+
 beforeEach(() => {
   jest.clearAllMocks();
+  // Setze deterministische Sprache für Tests
+  i18n.changeLanguage('en');
+});
+
+afterEach(() => {
+  cleanup();
 });
 
 jest.mock('react-i18next', () => {

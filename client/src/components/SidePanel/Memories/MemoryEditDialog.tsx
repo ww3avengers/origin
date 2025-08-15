@@ -6,9 +6,9 @@ import {
   Button,
   Label,
   Input,
-  Spinner,
   useToastContext,
 } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import type { TUserMemory } from 'librechat-data-provider';
 import { useUpdateMemoryMutation, useMemoriesQuery } from '~/data-provider';
 import { useLocalize, useHasAccess } from '~/hooks';
@@ -195,7 +195,11 @@ export default function MemoryEditDialog({
               disabled={isLoading || !key.trim() || !value.trim()}
               className="text-white"
             >
-              {isLoading ? <Spinner className="size-4" /> : localize('com_ui_save')}
+              {isLoading ? (
+                <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading`} />
+              ) : (
+                localize('com_ui_save')
+              )}
             </Button>
           ) : null
         }

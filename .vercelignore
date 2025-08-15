@@ -1,0 +1,12 @@
+# Ignore local and build artifacts for Vercel
+node_modules
+**/.next
+**/dist
+**/.vercel
+**/.cache
+**/.husky
+**/.pnpm-store
+**/coverage
+**/playwright-report
+**/e2e/playwright-report
+**/*.log

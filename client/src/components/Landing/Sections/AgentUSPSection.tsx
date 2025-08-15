@@ -1,19 +1,24 @@
-import { HeroActions } from './HeroActions';
-import { useRef, useMemo } from 'react';
+import HeroActions from './HeroActions';
+import LandingSection, { IN_VIEW_ONCE } from './LandingSection';
+import HeadingBlock from '@/components/ui/HeadingBlock';
+import { useRef, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { track } from '@/lib/analytics/track';
+import { getVariantForKey } from '@/lib/ab/variant';
 
 // Icons
-import { 
-  Zap, 
-  Shield, 
-  Lightbulb, 
-  Users, 
-  BarChart2, 
-  Settings, 
-  Code, 
-  MessageSquare, 
-  Clock, 
+import {
+  Zap,
+  Shield,
+  Lightbulb,
+  Users,
+  BarChart2,
+  Settings,
+  Code,
+  MessageSquare,
+  Clock,
   Rocket,
   Check,
   ChevronRight,
@@ -21,45 +26,10 @@ import {
   ShieldCheck,
   TrendingUp,
 } from 'lucide-react';
-import { useTranslation, UseTranslationResponse } from 'react-i18next';
-import { TFunction } from 'i18next';
+import { useT } from '~/utils/i18n';
+import { Badge } from '~/components/ui/Badge';
 
-// Type for translation keys
-type TranslationKeys = 
-  | 'landing.agents.usps.items'
-  | 'landing.agents.successStories'
-  | 'landing.agents.metrics.fasterDevelopment'
-  | 'landing.agents.metrics.fewerBugs'
-  | 'landing.agents.metrics.fasterTimeToMarket'
-  | 'landing.agents.cta.freeTrial'
-  | 'landing.agents.cta.noCreditCard'
-  | 'landing.agents.cta.start'
-  | 'landing.agents.successStoriesTitle'
-  | 'landing.agents.successStoriesSubtitle'
-  | 'landing.agents.usps.title'
-  | 'landing.agents.usps.subtitle'
-  | 'landing.agents.header.title'
-  | 'landing.agents.header.subtitle'
-  | 'landing.agents.header.description'
-  | 'landing.agents.stats.availability'
-  | 'landing.agents.stats.availabilityDesc'
-  | 'landing.agents.stats.reliability'
-  | 'landing.agents.stats.reliabilityDesc'
-  | 'landing.agents.stats.integrations'
-  | 'landing.agents.stats.integrationsDesc'
-  | 'landing.agents.stats.efficiency'
-  | 'landing.agents.stats.efficiencyDesc'
-  | 'common.learnMore';
-
-// Simplified type for the useTranslation hook with our keys
-type UseTranslationResponseTyped = {
-  t: {
-    (key: string, defaultValue?: string, options?: { ns?: string }): string;
-    <T = any>(key: string, defaultValue: T, options: { ns?: string; returnObjects: true }): T;
-  };
-  i18n: any;
-  ready: boolean;
-};
+// Hinweis: Alle i18n-Keys sind vollqualifiziert als 'landing.*'.
 
 // Typen für die Komponenten-Props
 interface AgentUSPSectionProps {
@@ -125,9 +95,10 @@ const item = {
 // Component
 // -----------------------------------------------------------------------------
 const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
-  const { t } = useTranslation(['translation', 'landing']) as unknown as UseTranslationResponseTyped;
+  const t = useT();
   const sectionRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = useReducedMotion() ?? false;
+  const navigate = useNavigate();
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -136,50 +107,58 @@ const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
 
   const y1 = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
 
-  // Typisierte Hilfsfunktion für sichere Übersetzungen
-  const translate = <T = string>(
-    key: string,
-    fallback: T,
-    options: { returnObjects?: boolean } = {}
-  ): T => {
-    try {
-      const finalKey = key.startsWith('landing.') ? key.substring(8) : key;
-      
-      if (options.returnObjects) {
-        // @ts-ignore - i18next-Typen sind nicht perfekt mit Generics kompatibel
-        const result = t(finalKey, { 
-          ...options, 
-          ns: 'landing',
-          returnObjects: true,
-          defaultValue: JSON.stringify(fallback)
-        } as any);
-        return typeof result === 'string' ? JSON.parse(result) : result;
-      }
-      
-      const result = t(finalKey, { 
-        ns: 'landing',
-        defaultValue: String(fallback)
-      } as any);
-      
-      return (result === finalKey ? fallback : result) as unknown as T;
-    } catch (error) {
-      console.warn(`Übersetzung für ${key} fehlgeschlagen:`, error);
-      return fallback;
+  // Dev-only diagnostics: verify target and nearest scrollable parent positioning
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'development') return;
+    const el = sectionRef.current as HTMLElement | null;
+    if (!el) return;
+    const cs = window.getComputedStyle(el);
+    if (cs.position === 'static') {
+      // eslint-disable-next-line no-console
+      console.warn('[useScroll][AgentUSPSection] target has static position', {
+        id: el.id,
+        className: el.className,
+        position: cs.position,
+      });
     }
-  };
+    let p: HTMLElement | null = el.parentElement as HTMLElement | null;
+    while (p && p !== document.body) {
+      const pcs = window.getComputedStyle(p);
+      const scrollable =
+        ['auto', 'scroll', 'overlay'].includes(pcs.overflowY) ||
+        ['auto', 'scroll', 'overlay'].includes(pcs.overflowX);
+      if (scrollable) {
+        if (pcs.position === 'static') {
+          // eslint-disable-next-line no-console
+          console.warn('[useScroll][AgentUSPSection] scrollable parent is static', {
+            tag: p.tagName.toLowerCase(),
+            id: p.id,
+            className: p.className,
+            position: pcs.position,
+            overflowY: pcs.overflowY,
+            overflowX: pcs.overflowX,
+          });
+        }
+        break;
+      }
+      p = p.parentElement as HTMLElement | null;
+    }
+  }, []);
+
+  // Keine Fallback-Helper mehr – t() liefert Strings, Objekte via returnObjects bei Bedarf
 
   // Helper functions for icons and colors
   const getIconComponent = (iconName: string): React.ElementType => {
     const iconMap: Record<string, React.ElementType> = {
-      'zap': Zap,
-      'shield': Shield,
-      'lightbulb': Lightbulb,
-      'rocket': Rocket,
-      'clock': Clock,
-      'users': Users,
+      zap: Zap,
+      shield: Shield,
+      lightbulb: Lightbulb,
+      rocket: Rocket,
+      clock: Clock,
+      users: Users,
       'bar-chart': BarChart2,
-      'settings': Settings,
-      'code': Code,
+      settings: Settings,
+      code: Code,
       'message-square': MessageSquare,
     };
     return iconMap[iconName] || Zap; // Fallback to Zap icon
@@ -193,15 +172,17 @@ const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
         border: 'border-blue-200 dark:border-blue-800',
         hover: 'hover:bg-blue-100 dark:hover:bg-blue-900/30',
       },
-      purple: {
-        bg: 'bg-purple-50 dark:bg-purple-900/20',
-        text: 'text-purple-600 dark:text-purple-400',
-        border: 'border-purple-200 dark:border-purple-800',
-        hover: 'hover:bg-purple-100 dark:hover:bg-purple-900/30',
+      brand: {
+        bg: 'bg-[rgb(var(--accent))]/10 dark:bg-[rgb(var(--accent))]/15',
+        text: 'text-[rgb(var(--accent))]',
+        border: 'border-[rgb(var(--accent-ring))]/40',
+        hover: 'hover:bg-[rgb(var(--accent))]/15 dark:hover:bg-[rgb(var(--accent))]/20',
       },
       // Add more color schemes as needed
     };
-    return schemes[colorName as keyof typeof schemes] || schemes.blue;
+    // Map "purple"-Wünsche auf Brand-Purple
+    const key = (colorName === 'purple' ? 'brand' : colorName) as keyof typeof schemes;
+    return schemes[key] || schemes.blue;
   };
 
   // Farben & Icons zyklisch zuordnen
@@ -211,182 +192,174 @@ const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
       borderColor: 'border-amber-500/20',
       iconBg: 'bg-amber-500/10',
       iconColor: 'text-amber-500',
-      icon: <Zap className="w-6 h-6" />,
+      icon: <Zap className="h-6 w-6" />,
     },
     {
       color: 'from-blue-500/10 to-blue-500/5',
       borderColor: 'border-blue-500/20',
       iconBg: 'bg-blue-500/10',
       iconColor: 'text-blue-500',
-      icon: <Code className="w-6 h-6" />,
+      icon: <Code className="h-6 w-6" />,
     },
     {
       color: 'from-emerald-500/10 to-emerald-500/5',
       borderColor: 'border-emerald-500/20',
       iconBg: 'bg-emerald-500/10',
       iconColor: 'text-emerald-500',
-      icon: <ShieldCheck className="w-6 h-6" />,
+      icon: <ShieldCheck className="h-6 w-6" />,
     },
     {
-      color: 'from-purple-500/10 to-purple-500/5',
-      borderColor: 'border-purple-500/20',
-      iconBg: 'bg-purple-500/10',
-      iconColor: 'text-purple-500',
-      icon: <BarChart2 className="w-6 h-6" />,
+      color: 'from-[rgb(var(--accent))]/10 to-[rgb(var(--accent))]/5',
+      borderColor: 'border-[rgb(var(--accent-ring))]/40',
+      iconBg: 'bg-[rgb(var(--accent))]/10',
+      iconColor: 'text-[rgb(var(--accent))]',
+      icon: <BarChart2 className="h-6 w-6" />,
     },
   ];
 
   // USP-Karten mit Typisierung
   const usps = useMemo<USPItem[]>(() => {
-    type USPItemData = Omit<USPItem, 'icon' | 'color'> & { 
-      iconName: string; 
+    type USPItemData = Omit<USPItem, 'icon' | 'color'> & {
+      iconName: string;
       colorName: string;
     };
-    
-    const items = translate<USPItemData[]>(
-      'landing.agents.usps.items',
-      [],
-      { returnObjects: true }
-    );
-    
+
+    const items =
+      (t('landing.agents.usps.items', { returnObjects: true }) as unknown as USPItemData[]) ?? [];
+
     return items.map((item) => {
       const IconComponent = getIconComponent(item.iconName || '');
       const color = getColorScheme(item.colorName || 'blue').bg;
-      
+
       return {
         ...item,
         icon: <IconComponent className="h-6 w-6" />,
         color,
       };
     });
-  }, [translate]);
+  }, [t]);
 
   // Erfolgsgeschichten (mit Default-Metriken)
   const successStories = useMemo<SuccessStory[]>(() => {
-    const stories = translate<Array<{
-      id: string;
-      title: string;
-      description: string;
-      company: string;
-      role: string;
-      metrics?: Array<{ value: string; label: string }>;
-    }>>('landing.agents.successStories', [], { returnObjects: true });
+    const stories =
+      (t('landing.agents.successStories', { returnObjects: true }) as unknown as Array<{
+        id: string;
+        title: string;
+        description: string;
+        company: string;
+        role: string;
+        metrics?: Array<{ value: string; label: string }>;
+      }>) ?? [];
 
     const icons = [
-      <Code className="w-5 h-5 text-blue-500" key="code-icon" />,
-      <TrendingUp className="w-5 h-5 text-emerald-500" key="trending-icon" />,
-      <Clock className="w-5 h-5 text-amber-500" key="clock-icon" />,
+      <Code className="h-5 w-5 text-blue-500" key="code-icon" />,
+      <TrendingUp className="h-5 w-5 text-emerald-500" key="trending-icon" />,
+      <Clock className="h-5 w-5 text-amber-500" key="clock-icon" />,
     ];
 
     const defaultMetrics = [
-      { 
-        value: '40%', 
-        label: translate('landing.agents.metrics.fasterDevelopment', 'Schnellere Entwicklung') 
+      {
+        value: '40%',
+        label: t('landing.agents.metrics.fasterDevelopment'),
       },
-      { 
-        value: '65%', 
-        label: translate('landing.agents.metrics.fewerBugs', 'Weniger Bugs') 
+      {
+        value: '65%',
+        label: t('landing.agents.metrics.fewerBugs'),
       },
-      { 
-        value: '30%', 
-        label: translate('landing.agents.metrics.fasterTimeToMarket', 'Kürzere Time-to-Market') 
+      {
+        value: '30%',
+        label: t('landing.agents.metrics.fasterTimeToMarket'),
       },
     ];
 
     return stories.map((story, index) => ({
       ...story,
       metrics: story.metrics || defaultMetrics,
-      icon: icons[index % icons.length]
+      icon: icons[index % icons.length],
     }));
-  }, [translate]);
+  }, [t]);
 
   // Statistik-Karten mit Typisierung
-  const stats = useMemo<StatItem[]>(() => [
-    {
-      value: '24/7',
-      label: translate('landing.agents.stats.availability', 'Verfügbarkeit'),
-      description: translate(
-        'landing.agents.stats.availabilityDesc',
-        'Rund um die Uhr einsatzbereit, an 365 Tagen im Jahr.'
-      ),
-      icon: <Clock className="w-6 h-6 text-amber-500" />,
-    },
-    {
-      value: '99.9%',
-      label: translate('landing.agents.stats.reliability', 'Zuverlässigkeit'),
-      description: translate(
-        'landing.agents.stats.reliabilityDesc',
-        'Höchste Verfügbarkeit durch ausfallsichere Infrastruktur.'
-      ),
-      icon: <ShieldCheck className="w-6 h-6 text-emerald-500" />,
-    },
-    {
-      value: '50+',
-      label: translate('landing.agents.stats.integrations', 'Integrationen'),
-      description: translate(
-        'landing.agents.stats.integrationsDesc',
-        'Nahtlose Einbindung in Ihre bestehenden Tools und Workflows.'
-      ),
-      icon: <Code className="w-6 h-6 text-blue-500" />,
-    },
-    {
-      value: '10x',
-      label: translate('landing.agents.stats.efficiency', 'Effizienzsteigerung'),
-      description: translate(
-        'landing.agents.stats.efficiencyDesc',
-        'Bis zu 10x schnellere Ergebnisse als herkömmliche Lösungen.'
-      ),
-      icon: <Zap className="w-6 h-6 text-purple-500" />,
-    },
-  ], [translate]);
+  const stats = useMemo<StatItem[]>(
+    () => [
+      {
+        value: '24/7',
+        label: t('landing.agents.stats.availability'),
+        description: t('landing.agents.stats.availabilityDesc'),
+        icon: <Clock className="h-6 w-6 text-amber-500" />,
+      },
+      {
+        value: '99.9%',
+        label: t('landing.agents.stats.reliability'),
+        description: t('landing.agents.stats.reliabilityDesc'),
+        icon: <ShieldCheck className="h-6 w-6 text-emerald-500" />,
+      },
+      {
+        value: '50+',
+        label: t('landing.agents.stats.integrations'),
+        description: t('landing.agents.stats.integrationsDesc'),
+        icon: <Code className="h-6 w-6 text-blue-500" />,
+      },
+      {
+        value: '10x',
+        label: t('landing.agents.stats.efficiency'),
+        description: t('landing.agents.stats.efficiencyDesc'),
+        icon: <Zap className="h-6 w-6 text-[rgb(var(--accent))]" />,
+      },
+    ],
+    [t],
+  );
+
+  // Variant für A/B Attribution (Experiment-Key: 'usp')
+  const variant = getVariantForKey('usp');
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative py-20 overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800"
+    <LandingSection
+      ref={sectionRef as any}
+      className="relative overflow-hidden bg-transparent"
+      ariaLabel={t('landing.agents.header.title') as string}
+      dataSection="agents-usp"
     >
       {/* Dekorative Elemente mit Parallax (bei Reduced Motion deaktiviert) */}
-      {!prefersReducedMotion && (
-        <motion.div className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ y: y1 }}>
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-500/5 rounded-full mix-blend-multiply filter blur-3xl" />
-          <div className="absolute top-1/2 -right-48 w-96 h-96 bg-blue-500/5 rounded-full mix-blend-multiply filter blur-3xl" />
-          <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl" />
-        </motion.div>
-      )}
+      {/* Decorative gradient blobs removed for neutrality/performance */}
 
-      <div className="container relative mx-auto px-4 z-10">
+      <div className="relative z-10 mx-auto max-w-7xl">
         {/* Header */}
         <motion.div
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: '-100px' }}
+          viewport={{ ...IN_VIEW_ONCE, margin: '-100px' }}
           variants={container}
-          className="text-center mb-20"
+          className={`text-center`}
+          style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 360px' }}
         >
-          <motion.span
-            variants={item}
-            className="inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-semibold text-cyan-100 backdrop-blur mb-6"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            {translate('landing.agents.header.title', 'Die Zukunft der Arbeit beginnt hier')}
-          </motion.span>
+          <HeadingBlock align="center">
+            <motion.span variants={item} className="mb-6 inline-flex">
+              <Badge
+                size="sm"
+                tone="soft"
+                variant="features"
+                className="whitespace-nowrap py-1 sm:py-1"
+                leadingIcon={<Sparkles className="h-3.5 w-3.5" aria-hidden />}
+              >
+                {t('landing.agents.header.title')}
+              </Badge>
+            </motion.span>
 
-          <motion.h2
-            variants={item}
-            className="text-3xl md:text-6xl font-bold tracking-tight text-gray-100 mb-6 leading-tight"
-          >
-            {translate('landing.agents.header.subtitle', 'Intelligente KI-Agenten für Ihre Herausforderungen')}
-          </motion.h2>
+            <motion.h2
+              variants={item}
+              className="mb-6 text-3xl font-bold leading-tight tracking-tight text-gray-100 md:text-6xl"
+            >
+              {t('landing.agents.header.subtitle')}
+            </motion.h2>
 
-          <motion.p
-            variants={item}
-            className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed"
-          >
-            {translate(
-              'landing.agents.header.description',
-              'Unsere KI-Agenten revolutionieren, wie Sie arbeiten – mit maßgeschneiderten Lösungen, die Produktivität steigern, Prozesse automatisieren und Innovationen beschleunigen.'
-            )}
-          </motion.p>
+            <motion.p
+              variants={item}
+              className="mx-auto max-w-4xl text-xl leading-relaxed text-gray-600 dark:text-gray-300"
+            >
+              {t('landing.agents.header.description')}
+            </motion.p>
+          </HeadingBlock>
         </motion.div>
 
         {/* USP Karten */}
@@ -394,30 +367,30 @@ const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
           variants={container}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-28"
+          viewport={{ ...IN_VIEW_ONCE, margin: '-100px' }}
+          className="mb-20 md:mb-24 grid grid-cols-1 gap-8 md:gap-10 lg:gap-12 md:grid-cols-2 lg:grid-cols-4"
         >
           {usps.map((usp, index) => (
             <motion.div
               key={`usp-${index}`}
               variants={item}
-              className="group bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700"
+              className="group rounded-xl bg-transparent p-6 ring-1 ring-inset ring-white/10 transition-shadow duration-300 hover:shadow-xl"
             >
               {/* Icon */}
-              <div className={cn('w-14 h-14 flex items-center justify-center rounded-xl mb-6', usp.iconBg, usp.iconColor)}>
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-inset ring-white/15">
                 {usp.icon}
               </div>
 
               {/* Content */}
-              <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">{usp.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">{usp.description}</p>
+              <h3 className="mb-3 text-xl font-bold text-gray-900 dark:text-white">{usp.title}</h3>
+              <p className="mb-4 text-gray-600 dark:text-gray-300">{usp.description}</p>
 
               {/* Features */}
               {Array.isArray(usp.features) && usp.features.length > 0 && (
-                <div className="space-y-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <div className="mt-4 space-y-2 border-t border-gray-100 pt-4 dark:border-gray-700">
                   {usp.features.map((feature, i) => (
                     <div key={`usp-${index}-f-${i}`} className="flex items-start gap-2">
-                      <Check className="mt-0.5 w-4 h-4 text-emerald-500 flex-shrink-0" />
+                      <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-white" />
                       <div className="text-sm">
                         {!!feature?.title && (
                           <div className="font-medium text-gray-900 dark:text-gray-100">
@@ -425,9 +398,7 @@ const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
                           </div>
                         )}
                         {!!feature?.description && (
-                          <p className="text-gray-600 dark:text-gray-300">
-                            {feature.description}
-                          </p>
+                          <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
                         )}
                       </div>
                     </div>
@@ -436,13 +407,21 @@ const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
               )}
 
               {/* Hover Action */}
-              <div className="mt-6 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+              <div className="mt-6 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                 <button
                   type="button"
-                  className="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                  aria-label={t('landing.cta.secondary')}
+                  className="inline-flex items-center text-sm font-medium text-gray-200 hover:text-white"
+                  onClick={() => {
+                    track({
+                      name: 'usp_hover_cta_click',
+                      props: { to: '/docs', variant, cardIndex: index, cardId: usp.id },
+                    });
+                    navigate('/docs');
+                  }}
                 >
-                  <span className="font-medium">{translate('common.learnMore', 'Mehr erfahren')}</span>
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                  <span className="font-medium">{t('landing.cta.secondary')}</span>
+                  <ChevronRight className="ml-1 h-4 w-4" />
                 </button>
               </div>
             </motion.div>
@@ -454,91 +433,39 @@ const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
           variants={container}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: '-100px' }}
-          className="mb-28"
+          viewport={{ ...IN_VIEW_ONCE, margin: '-100px' }}
+          className="mb-20 md:mb-24"
         >
-          <div className="text-center mb-12">
-            <motion.h3 variants={item} className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
-              {translate('landing.agents.successStoriesTitle', 'Erfolgsgeschichten')}
-            </motion.h3>
-            <motion.p variants={item} className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              {translate(
-                'landing.agents.successStoriesSubtitle',
-                'Lesen Sie, wie Unternehmen mit unseren KI-Agenten ihre Prozesse revolutioniert haben:'
-              )}
-            </motion.p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {successStories.map((story: any, index: number) => (
-              <motion.div
-                key={`story-${index}`}
-                variants={item}
-                className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100 dark:border-gray-700"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700 mr-3">
-                    {story.icon}
-                  </div>
-                  <h4 className="text-xl font-semibold text-gray-900 dark:text-white">{story.title}</h4>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">{story.description}</p>
-                <div className="grid grid-cols-3 gap-2">
-                  {story.metrics.map((metric: any, i: number) => (
-                    <div key={`metric-${index}-${i}`} className="text-center">
-                      <div className="text-xl font-bold text-blue-600 dark:text-blue-400">{metric.value}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">{metric.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Statistik-Banner */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-100px' }}
-          className="relative overflow-hidden rounded-2xl mb-28 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-0.5"
-        >
-          {/* Glow */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-400 rounded-2xl opacity-20 blur-lg" />
-
-          <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="relative rounded-xl bg-transparent p-8 ring-1 ring-inset ring-white/10">
+            <div className="grid grid-cols-1 gap-8 md:gap-10 lg:gap-12 md:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat, index) => (
-                <motion.div key={`stat-${index}`} variants={item} className="text-center group">
+                <motion.div key={`stat-${index}`} variants={item} className="group text-center">
                   <div className="flex flex-col items-center">
                     <div
                       className={cn(
-                        'w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 mb-4',
-                        !prefersReducedMotion && 'group-hover:scale-110 transition-transform duration-300'
+                        'mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/10 ring-1 ring-inset ring-white/15',
+                        !prefersReducedMotion &&
+                          'transition-transform duration-300 group-hover:scale-110',
                       )}
                     >
-                      <div className="group-hover:text-white transition-colors duration-300">{stat.icon}</div>
+                      <div className="text-white transition-colors duration-300">{stat.icon}</div>
                     </div>
-                    <div className="text-4xl font-bold text-white mb-2">
-                      {stat.value}
-                    </div>
+                    <div className="mb-2 text-4xl font-bold text-white">{stat.value}</div>
                     <h3 className="text-2xl font-bold text-white">{stat.label}</h3>
-                    <p className="text-sm text-blue-100/80 max-w-xs mx-auto">{stat.description}</p>
+                    <p className="mx-auto max-w-xs text-sm text-blue-100/80">{stat.description}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
-
             {/* CTA Button */}
             <motion.div variants={item} className="mt-12 text-center">
               <HeroActions
                 className="mt-0 justify-center"
                 onPrimaryClick={() => {}}
                 onSecondaryClick={() => {}}
-                groupLabel={translate('landing.agents.cta.groupLabel', 'Aktionen: Jetzt starten oder mehr erfahren')}
+                groupLabel={t('landing.cta.groupLabel')}
               />
-              <p className="mt-4 text-sm text-blue-100/70">{translate('landing.agents.cta.noCreditCard', 'Keine Kreditkarte erforderlich')}</p>
+              <p className="mt-4 text-sm text-blue-100/70">{t('landing.cta.noCreditCard')}</p>
             </motion.div>
           </div>
         </motion.div>
@@ -547,28 +474,28 @@ const AgentUSPSection: React.FC<AgentUSPSectionProps> = ({ className }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={IN_VIEW_ONCE}
           transition={{ duration: 0.5 }}
-          className="text-center"
+          className={`text-center`}
+          style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 240px' }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-100">
-            {translate('landing.agents.usps.title', 'Warum Unternehmen auf unsere KI-Agenten setzen')}
-          </h2>
-          <p className="mt-4 text-lg text-gray-300 max-w-3xl mx-auto">
-            {translate(
-              'landing.agents.usps.subtitle',
-              'Unsere KI-Agenten sind speziell darauf trainiert, komplexe Aufgaben zu automatisieren und wertvolle Erkenntnisse zu liefern - rund um die Uhr, an 365 Tagen im Jahr.'
-            )}
-          </p>
-          <HeroActions
-            className="mt-8 justify-center"
-            onPrimaryClick={() => {}}
-            onSecondaryClick={() => {}}
-            groupLabel={translate('landing.agents.cta.groupLabel', 'Aktionen: Jetzt starten oder mehr erfahren')}
-          />
+          <HeadingBlock align="center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-100 sm:text-4xl">
+              {t('landing.agents.usps.title')}
+            </h2>
+            <p className="mx-auto mt-4 max-w-3xl text-lg text-gray-300">
+              {t('landing.agents.usps.subtitle')}
+            </p>
+            <HeroActions
+              className="mt-8 justify-center"
+              onPrimaryClick={() => {}}
+              onSecondaryClick={() => {}}
+              groupLabel={t('landing.cta.groupLabel')}
+            />
+          </HeadingBlock>
         </motion.div>
       </div>
-    </section>
+    </LandingSection>
   );
 };
 

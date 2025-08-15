@@ -13,6 +13,10 @@
 
     bun config/translations/sync-locales.ts --direction pkg->app         # Dry-Run
 
+  Optionen:
+    --strict-array-fill  Erzwingt Array-Container, wenn numerische Segmente folgen
+    --copy-values        Kopiert Originalwerte aus Source statt leere Strings zu setzen
+
   Exit Codes:
     0 = nichts zu tun / erfolgreich synchron
     1 = Änderungen nötig (Dry-Run) oder Fehler
@@ -49,6 +53,7 @@ function parseArgs() {
     write?: boolean | string;
     baseline?: string;
     prune?: boolean | string;
+    ['copy-values']?: boolean | string;
   };
 }
 
@@ -141,7 +146,8 @@ function diff<T>(a: Set<T>, b: Set<T>): { onlyA: T[]; onlyB: T[] } {
 }
 
 function main() {
-  const { direction = 'app->pkg', write, baseline = 'en', prune } = parseArgs();
+  const { direction = 'app->pkg', write, baseline = 'en', prune, ['copy-values']: copyValuesFlag } = parseArgs();
+  const COPY_VALUES = copyValuesFlag === true || copyValuesFlag === 'true' || copyValuesFlag === '';
   const SRC = direction === 'app->pkg' ? APP_LOCALES : PKG_LOCALES;
   const DST = direction === 'app->pkg' ? PKG_LOCALES : APP_LOCALES;
 
@@ -186,7 +192,13 @@ function main() {
         // Füge fehlende Keys mit leeren Strings ein
         for (const k of missingInDst) {
           const val = getByPath(srcJson, k);
-          setByPath(dstJson, k, typeof val === 'object' && val !== null ? '' : '');
+          // Standard: leere Strings. Optional: Originalwerte aus Quelle übernehmen.
+          const v = COPY_VALUES
+            ? (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean'
+                ? String(val)
+                : '')
+            : '';
+          setByPath(dstJson, k, v);
         }
         fs.writeFileSync(dstPath, JSON.stringify(dstJson, null, 2) + '\n', 'utf8');
       }

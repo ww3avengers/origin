@@ -1,5 +1,5 @@
 import { TooltipAnchor } from '@librechat/client';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import { cn } from '~/utils';
 
 export default function NavToggle({
@@ -19,7 +19,7 @@ export default function NavToggle({
   className?: string;
   translateX?: boolean;
 }) {
-  const localize = useLocalize();
+  const t = useT();
   const transition = {
     transition: 'transform 0.3s ease, opacity 0.2s ease',
   };
@@ -42,15 +42,13 @@ export default function NavToggle({
     >
       <TooltipAnchor
         side={side === 'right' ? 'left' : 'right'}
-        aria-label={side === 'left' ? localize('com_ui_chat_history') : localize('com_ui_controls')}
+        aria-label={side === 'left' ? t('com_ui_chat_history') : t('com_ui_controls')}
         aria-expanded={navVisible}
         aria-controls={side === 'left' ? 'chat-history-nav' : 'controls-nav'}
         id={`toggle-${side}-nav`}
         onClick={onToggle}
         role="button"
-        description={
-          navVisible ? localize('com_nav_close_sidebar') : localize('com_nav_open_sidebar')
-        }
+        description={navVisible ? t('com_nav_close_sidebar') : t('com_nav_open_sidebar')}
         className="flex items-center justify-center"
         tabIndex={0}
       >
@@ -62,7 +60,7 @@ export default function NavToggle({
             <div className="flex h-6 w-6 flex-col items-center">
               {/* Top bar */}
               <div
-                className="h-3 w-1 rounded-full bg-black dark:bg-white"
+                className="h-3 w-1 rounded-full bg-foreground"
                 style={{
                   ...transition,
                   transform: `translateY(0.15rem) rotate(${topBarRotation}) translateZ(0px)`,
@@ -70,7 +68,7 @@ export default function NavToggle({
               />
               {/* Bottom bar */}
               <div
-                className="h-3 w-1 rounded-full bg-black dark:bg-white"
+                className="h-3 w-1 rounded-full bg-foreground"
                 style={{
                   ...transition,
                   transform: `translateY(-0.15rem) rotate(${bottomBarRotation}) translateZ(0px)`,

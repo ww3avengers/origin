@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useMediaQuery } from '@librechat/client';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, Link } from 'react-router-dom';
 import { getConfigDefaults, PermissionTypes, Permissions } from 'librechat-data-provider';
 import type { ContextType } from '~/common';
 import ModelSelector from './Menus/Endpoints/ModelSelector';
@@ -10,13 +10,14 @@ import ExportAndShareMenu from './ExportAndShareMenu';
 import BookmarkMenu from './Menus/BookmarkMenu';
 import { TemporaryChat } from './TemporaryChat';
 import AddMultiConvo from './AddMultiConvo';
-import { useHasAccess } from '~/hooks';
+import { useHasAccess, useLocalize } from '~/hooks';
 
 const defaultInterface = getConfigDefaults().interface;
 
 export default function Header() {
   const { data: startupConfig } = useGetStartupConfig();
   const { navVisible, setNavVisible } = useOutletContext<ContextType>();
+  const localize = useLocalize();
   const interfaceConfig = useMemo(
     () => startupConfig?.interface ?? defaultInterface,
     [startupConfig],
@@ -74,6 +75,21 @@ export default function Header() {
                   isSharedButtonEnabled={startupConfig?.sharedLinksEnabled ?? false}
                 />
                 <TemporaryChat />
+                {/* Quick Links: Dashboard & Analytics (mobile) */}
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/60"
+                  aria-label={localize('translation:com_ui_dashboard')}
+                >
+                  {localize('translation:com_ui_dashboard')}
+                </Link>
+                <Link
+                  to="/app/analytics"
+                  className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/60"
+                  aria-label={localize('translation:com_ui_analytics')}
+                >
+                  {localize('translation:com_ui_analytics')}
+                </Link>
               </div>
             )}
           </div>
@@ -84,6 +100,21 @@ export default function Header() {
               isSharedButtonEnabled={startupConfig?.sharedLinksEnabled ?? false}
             />
             <TemporaryChat />
+            {/* Quick Links: Dashboard & Analytics (desktop) */}
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/60"
+              aria-label={localize('translation:com_ui_dashboard')}
+            >
+              {localize('translation:com_ui_dashboard')}
+            </Link>
+            <Link
+              to="/app/analytics"
+              className="inline-flex items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700/60"
+              aria-label={localize('translation:com_ui_analytics')}
+            >
+              {localize('translation:com_ui_analytics')}
+            </Link>
           </div>
         )}
       </div>

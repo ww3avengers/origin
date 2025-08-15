@@ -10,7 +10,7 @@ import {
 } from 'librechat-data-provider';
 import type * as t from 'librechat-data-provider';
 import type { UseMutationResult } from '@tanstack/react-query';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 export const useUploadFileMutation = (
   _options?: t.UploadMutationOptions,
@@ -148,7 +148,7 @@ export const useDeleteFilesMutation = (
 > => {
   const queryClient = useQueryClient();
   const { showToast } = useToastContext();
-  const localize = useLocalize();
+  const t = useT();
   const { onSuccess, onError, ...options } = _options || {};
   return useMutation([MutationKeys.fileDelete], {
     mutationFn: (body: t.DeleteFilesBody) => dataService.deleteFiles(body),
@@ -158,7 +158,7 @@ export const useDeleteFilesMutation = (
         const errorWithResponse = error as { response?: { status?: number } };
         if (errorWithResponse.response?.status === 403) {
           showToast({
-            message: localize('com_ui_delete_not_allowed'),
+            message: t('com_ui_delete_not_allowed'),
             status: 'error',
           });
         }
@@ -178,7 +178,7 @@ export const useDeleteFilesMutation = (
       });
 
       showToast({
-        message: localize('com_ui_delete_success'),
+        message: t('com_ui_delete_success'),
         status: 'success',
       });
 

@@ -11,12 +11,7 @@ interface ShareModalProps {
   referralCode: string;
 }
 
-const ShareModal: React.FC<ShareModalProps> = ({
-  isOpen,
-  onClose,
-  referralUrl,
-  referralCode
-}) => {
+const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, referralUrl, referralCode }) => {
   const [emailRecipient, setEmailRecipient] = useState('');
   const [emailMessage, setEmailMessage] = useState(`Hey! 
   
@@ -27,19 +22,20 @@ ${referralUrl}
 Viele Grüße`);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(referralUrl)
+    navigator.clipboard
+      .writeText(referralUrl)
       .then(() => toast.success('Link in die Zwischenablage kopiert!'))
       .catch(() => toast.error('Fehler beim Kopieren des Links'));
   };
 
   const handleSendEmail = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!emailRecipient) {
       toast.error('Bitte gib eine E-Mail-Adresse ein');
       return;
     }
-    
+
     const subject = encodeURIComponent('Empfehlung für LibreChat');
     const body = encodeURIComponent(emailMessage);
     window.open(`mailto:${emailRecipient}?subject=${subject}&body=${body}`, '_blank');
@@ -51,34 +47,49 @@ Viele Grüße`);
       name: 'Twitter',
       icon: '/assets/twitter-icon.svg',
       action: () => {
-        const text = encodeURIComponent('Ich habe LibreChat entdeckt! Nutze meinen Referral-Link für einen 10% Rabatt:');
-        window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(referralUrl)}`, '_blank');
-      }
+        const text = encodeURIComponent(
+          'Ich habe LibreChat entdeckt! Nutze meinen Referral-Link für einen 10% Rabatt:',
+        );
+        window.open(
+          `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(referralUrl)}`,
+          '_blank',
+        );
+      },
     },
     {
       name: 'Facebook',
       icon: '/assets/facebook-icon.svg',
       action: () => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}`, '_blank');
-      }
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}`,
+          '_blank',
+        );
+      },
     },
     {
       name: 'LinkedIn',
       icon: '/assets/linkedin-icon.svg',
       action: () => {
         const title = encodeURIComponent('LibreChat - KI-Chat-Plattform');
-        const summary = encodeURIComponent('Nutze meinen Referral-Link für 10% Rabatt auf dein erstes Abo!');
-        window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(referralUrl)}&title=${title}&summary=${summary}`, '_blank');
-      }
+        const summary = encodeURIComponent(
+          'Nutze meinen Referral-Link für 10% Rabatt auf dein erstes Abo!',
+        );
+        window.open(
+          `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(referralUrl)}&title=${title}&summary=${summary}`,
+          '_blank',
+        );
+      },
     },
     {
       name: 'WhatsApp',
       icon: '/assets/whatsapp-icon.svg',
       action: () => {
-        const text = encodeURIComponent(`Ich nutze LibreChat und kann es dir empfehlen! Registriere dich mit meinem Link und erhalte 10% Rabatt: ${referralUrl}`);
+        const text = encodeURIComponent(
+          `Ich nutze LibreChat und kann es dir empfehlen! Registriere dich mit meinem Link und erhalte 10% Rabatt: ${referralUrl}`,
+        );
         window.open(`https://wa.me/?text=${text}`, '_blank');
-      }
-    }
+      },
+    },
   ];
 
   const [activeTab, setActiveTab] = useState<'link' | 'email'>('link');
@@ -96,13 +107,13 @@ Viele Grüße`);
         className="sm:max-w-md"
         main={
           <div className="p-4 pt-0">
-            <div className="grid w-full grid-cols-2 mb-4 gap-2">
+            <div className="mb-4 grid w-full grid-cols-2 gap-2">
               <Button
                 variant={activeTab === 'link' ? 'default' : 'ghost'}
                 className="flex items-center justify-center"
                 onClick={() => setActiveTab('link')}
               >
-                <LinkIcon className="h-4 w-4 mr-2" />
+                <LinkIcon className="mr-2 h-4 w-4" />
                 Link teilen
               </Button>
               <Button
@@ -110,7 +121,7 @@ Viele Grüße`);
                 className="flex items-center justify-center"
                 onClick={() => setActiveTab('email')}
               >
-                <EnvelopeIcon className="h-4 w-4 mr-2" />
+                <EnvelopeIcon className="mr-2 h-4 w-4" />
                 Per E-Mail teilen
               </Button>
             </div>
@@ -118,11 +129,11 @@ Viele Grüße`);
             {activeTab === 'link' && (
               <div className="space-y-4">
                 <div>
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <input
                       value={referralUrl}
                       readOnly
-                      className="flex-1 font-mono text-sm rounded-md border border-gray-300 px-3 py-2"
+                      className="flex-1 rounded-md border border-gray-300 px-3 py-2 font-mono text-sm"
                     />
                     <Button onClick={handleCopyLink}>Kopieren</Button>
                   </div>
@@ -132,16 +143,16 @@ Viele Grüße`);
                 </div>
 
                 <div className="mt-6">
-                  <h4 className="text-sm font-medium mb-3">Teilen über</h4>
+                  <h4 className="mb-3 text-sm font-medium">Teilen über</h4>
                   <div className="grid grid-cols-4 gap-4">
                     {shareOptions.map((option) => (
                       <button
                         key={option.name}
                         onClick={option.action}
-                        className="flex flex-col items-center gap-2 p-3 rounded-md hover:bg-gray-50 transition-colors"
+                        className="flex flex-col items-center gap-2 rounded-md p-3 transition-colors hover:bg-gray-50"
                       >
-                        <div className="w-8 h-8 flex items-center justify-center">
-                          <img src={option.icon} alt={option.name} className="w-5 h-5" />
+                        <div className="flex h-8 w-8 items-center justify-center">
+                          <img src={option.icon} alt={option.name} className="h-5 w-5" />
                         </div>
                         <span className="text-xs">{option.name}</span>
                       </button>
@@ -175,7 +186,7 @@ Viele Grüße`);
                     rows={5}
                     value={emailMessage}
                     onChange={(e) => setEmailMessage(e.target.value)}
-                    className="w-full mt-1 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   />
                 </div>
                 <Button type="submit" className="w-full">
@@ -188,7 +199,7 @@ Viele Grüße`);
         buttons={
           <div className="flex w-full justify-end">
             <Button variant="ghost" onClick={onClose} className="inline-flex items-center">
-              <XMarkIcon className="h-4 w-4 mr-2" />
+              <XMarkIcon className="mr-2 h-4 w-4" />
               Schließen
             </Button>
           </div>

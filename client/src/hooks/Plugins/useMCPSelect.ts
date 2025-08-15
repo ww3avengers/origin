@@ -3,7 +3,7 @@ import { useRecoilState } from 'recoil';
 import { Constants, LocalStorageKeys, EModelEndpoint } from 'librechat-data-provider';
 import type { TPlugin } from 'librechat-data-provider';
 import { useAvailableToolsQuery, useGetStartupConfig } from '~/data-provider';
-import useLocalStorage from '~/hooks/useLocalStorageAlt';
+import useLocalStorage from '~/hooks/useLocalStorage';
 import { ephemeralAgentByConvoId } from '~/store';
 
 const storageCondition = (value: unknown, rawCurrentValue?: string | null) => {

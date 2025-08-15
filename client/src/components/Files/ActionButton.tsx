@@ -1,13 +1,13 @@
 import React from 'react';
 import { Button } from '@librechat/client';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 type ActionButtonProps = {
   onClick: () => void;
 };
 
 export default function ActionButton({ onClick }: ActionButtonProps) {
-  const localize = useLocalize();
+  const t = useT();
   return (
     <div className="w-32">
       <Button
@@ -15,7 +15,7 @@ export default function ActionButton({ onClick }: ActionButtonProps) {
         onClick={onClick}
       >
         {/* Action Button */}
-        {localize('com_ui_action_button')}
+        {t('com_ui_action_button')}
       </Button>
     </div>
   );

@@ -23,14 +23,15 @@ import {
   Account,
 } from './SettingsTabs';
 import usePersonalizationAccess from '~/hooks/usePersonalizationAccess';
-import { useLocalize, TranslationKeys } from '~/hooks';
+import type { TranslationKeys } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import { useGetStartupConfig } from '~/data-provider';
 import { cn } from '~/utils';
 
 export default function Settings({ open, onOpenChange }: TDialogProps) {
   const isSmallScreen = useMediaQuery('(max-width: 767px)');
   const { data: startupConfig } = useGetStartupConfig();
-  const localize = useLocalize();
+  const t = useT();
   const [activeTab, setActiveTab] = useState(SettingsTabValues.GENERAL);
   const tabRefs = useRef({});
   const { hasAnyPersonalizationFeature, hasMemoryOptOut } = usePersonalizationAccess();
@@ -160,7 +161,7 @@ export default function Settings({ open, onOpenChange }: TDialogProps) {
                 as="div"
               >
                 <h2 className="text-lg font-medium leading-6 text-text-primary">
-                  {localize('com_nav_settings')}
+                  {t('com_nav_settings')}
                 </h2>
                 <button
                   type="button"
@@ -182,7 +183,7 @@ export default function Settings({ open, onOpenChange }: TDialogProps) {
                     <line x1="18" x2="6" y1="6" y2="18"></line>
                     <line x1="6" x2="18" y1="6" y2="18"></line>
                   </svg>
-                  <span className="sr-only">{localize('com_ui_close')}</span>
+                  <span className="sr-only">{t('com_ui_close')}</span>
                 </button>
               </DialogTitle>
               <div className="max-h-[550px] overflow-auto px-6 md:max-h-[400px] md:min-h-[400px] md:w-[680px]">
@@ -215,7 +216,7 @@ export default function Settings({ open, onOpenChange }: TDialogProps) {
                         ref={(el) => (tabRefs.current[value] = el)}
                       >
                         {icon}
-                        {localize(label)}
+                        {t(label)}
                       </Tabs.Trigger>
                     ))}
                   </Tabs.List>

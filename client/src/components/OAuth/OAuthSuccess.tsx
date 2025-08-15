@@ -10,8 +10,8 @@ export default function OAuthSuccess() {
   const serverName = searchParams.get('serverName');
 
   // String-sicherer Übersetzungs-Wrapper, um TS-Typkonflikte bei nicht-erfassten Keys zu vermeiden
-  const tt = (key: string, fallback?: string): string => {
-    const res = localize(key as any);
+  const tt = (key: string, fallback?: string, options?: Record<string, unknown>): string => {
+    const res = localize(key as any, options as any);
     if (typeof res === 'string' && res.length > 0) return res;
     return fallback ?? key;
   };
@@ -33,24 +33,30 @@ export default function OAuthSuccess() {
 
   return (
     <>
-      <Meta title="OAuth – Erfolg" description="Authentifizierung erfolgreich" robots="noindex, nofollow" />
+      <Meta
+        title={tt('com_ui_oauth_meta_title', 'OAuth – Success')}
+        description={tt('com_ui_oauth_meta_description', 'Authentication successful')}
+        robots="noindex, nofollow"
+      />
       <div className="flex min-h-screen items-center justify-center bg-gray-50 p-8">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 text-center shadow-lg">
-        <h1 className="mb-4 text-3xl font-bold text-gray-900">
-          {tt('com_ui_oauth_success_title', 'Authentication Successful')}
-        </h1>
-        <p className="mb-2 text-sm text-gray-600">
-          {tt('com_ui_oauth_success_description', 'Your authentication was successful. This window will close in')}{' '}
-          <span className="font-medium text-indigo-500">{secondsLeft}</span>{' '}
-          {tt('com_ui_seconds', 'seconds')}.
-        </p>
-        {serverName && (
-          <p className="mt-4 text-xs text-gray-500">
-            {tt('com_ui_oauth_connected_to', 'Connected to')}:{' '}
-            <span className="font-medium">{serverName}</span>
+        <div className="w-full max-w-md rounded-lg bg-white p-8 text-center shadow-lg">
+          <h1 className="mb-4 text-3xl font-bold text-gray-900">
+            {tt('com_ui_oauth_success_title', 'Authentication Successful')}
+          </h1>
+          <p className="mb-2 text-sm text-gray-600">
+            {tt(
+              'com_ui_oauth_success_description',
+              'Your authentication was successful. This window will close in {{count}} seconds.',
+              { count: secondsLeft },
+            )}
           </p>
-        )}
-      </div>
+          {serverName && (
+            <p className="mt-4 text-xs text-gray-500">
+              {tt('com_ui_oauth_connected_to', 'Connected to')}:{' '}
+              <span className="font-medium">{serverName}</span>
+            </p>
+          )}
+        </div>
       </div>
     </>
   );

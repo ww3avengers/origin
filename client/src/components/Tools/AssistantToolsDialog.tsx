@@ -15,6 +15,7 @@ import { PluginPagination, PluginAuthForm } from '~/components/Plugins/Store';
 import { useLocalize, usePluginDialogHelpers } from '~/hooks';
 import { useAvailableToolsQuery } from '~/data-provider';
 import ToolItem from './ToolItem';
+import InlineError from '~/components/ui/InlineError';
 
 function AssistantToolsDialog({
   isOpen,
@@ -161,11 +162,11 @@ function AssistantToolsDialog({
               <div className="text-center sm:text-left">
                 <DialogTitle className="text-lg font-medium leading-6 text-text-primary">
                   {isAgentTools
-                    ? localize('com_nav_tool_dialog_agents')
-                    : localize('com_nav_tool_dialog')}
+                    ? localize`com_nav_tool_dialog_agents`
+                    : localize`com_nav_tool_dialog`}
                 </DialogTitle>
                 <Description className="text-sm text-text-secondary">
-                  {localize('com_nav_tool_dialog_description')}
+                  {localize`com_nav_tool_dialog_description`}
                 </Description>
               </div>
             </div>
@@ -186,11 +187,17 @@ function AssistantToolsDialog({
             </div>
           </div>
           {error && (
-            <div
-              className="relative m-4 rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
-              role="alert"
-            >
-              {localize('com_nav_plugin_auth_error')} {errorMessage}
+            <div className="m-4">
+              <InlineError
+                message={
+                  <>
+                    {localize`com_nav_plugin_auth_error`} {errorMessage}
+                  </>
+                }
+                ariaLabel={localize`com_nav_plugin_auth_error`}
+                variant="subtle"
+                role="alert"
+              />
             </div>
           )}
           {showPluginAuthForm && (
@@ -210,7 +217,7 @@ function AssistantToolsDialog({
                   type="text"
                   value={searchValue}
                   onChange={handleSearch}
-                  placeholder={localize('com_nav_tool_search')}
+                  placeholder={localize`com_nav_tool_search`}
                   className="w-64 rounded border border-border-medium bg-transparent px-2 py-1 text-text-primary focus:outline-none"
                 />
               </div>

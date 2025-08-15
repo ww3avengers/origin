@@ -33,7 +33,8 @@ describe('PluginAuthForm', () => {
 
     await userEvent.type(screen.getByLabelText('Key'), '1234567890');
     await userEvent.type(screen.getByLabelText('Secret'), '1234567890');
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    // i18n-agnostisch: akzeptiere Save/Speichern sowie Key-Fallback
+    await userEvent.click(screen.getByRole('button', { name: /(Save|Speichern|com_ui_save)/i }));
     expect(onSubmit).toHaveBeenCalledWith({
       pluginKey: 'test-plugin',
       action: 'install',

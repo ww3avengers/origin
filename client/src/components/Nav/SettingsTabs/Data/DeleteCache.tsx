@@ -5,9 +5,9 @@ import {
   Button,
   OGDialog,
   OGDialogTrigger,
-  Spinner,
   useOnClickOutside,
 } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { useLocalize } from '~/hooks';
 
 export const DeleteCache = ({ disabled = false }: { disabled?: boolean }) => {
@@ -63,7 +63,11 @@ export const DeleteCache = ({ disabled = false }: { disabled?: boolean }) => {
             selectHandler: revokeAllUserKeys,
             selectClasses:
               'bg-destructive text-white transition-all duration-200 hover:bg-destructive/80',
-            selectText: isLoading ? <Spinner /> : localize('com_ui_delete'),
+            selectText: isLoading ? (
+              <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading` as string} />
+            ) : (
+              localize('com_ui_delete')
+            ),
           }}
         />
       </OGDialog>

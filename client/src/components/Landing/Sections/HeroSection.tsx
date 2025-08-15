@@ -1,116 +1,160 @@
-import { FC, useRef, useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion, useReducedMotion } from 'framer-motion';
+import { FC, useRef, useCallback, useState, useEffect, useId } from 'react';
+import { useT } from '~/utils/i18n';
 import { useAnimationPerformance, useOptimizeAnimations } from '@/hooks/useAnimationPerformance';
 import { cn } from '@/lib/utils';
 import { HeroContent } from './HeroContent';
-
-// Generate random particles for the background
-const generateParticles = (count: number) => {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `particle-${i}`,
-    size: Math.random() * 3 + 1,
-    left: `${Math.random() * 100}%`,
-    top: `${Math.random() * 100}%`,
-    duration: Math.random() * 15 + 10,
-    delay: Math.random() * 5,
-    opacity: Math.random() * 0.5 + 0.1,
-  }));
-};
-
+import { Container } from '~/components/ui';
+import { Section } from '~/components/ui/Section';
+import RequestDemoDialog from '@/components/Landing/Dialogs/RequestDemoDialog';
+import { track } from '@/lib/analytics/track';
+import { getVariantForKey } from '@/lib/ab/variant';
 
 interface HeroSectionProps {
   className?: string;
 }
 
 export const HeroSection: FC<HeroSectionProps> = ({ className }) => {
-  // Only use the 'landing' namespace as it's the only one we need
-  const { t } = useTranslation('landing');
-  
-  // Helper function to safely get translations with type assertion
-  const getTranslation = (key: string): string => {
-    return t(key as any) as string;
-  };
+  const t = useT();
   const targetRef = useRef<HTMLDivElement>(null);
-  
+  const [openDemo, setOpenDemo] = useState(false);
+  const variant = getVariantForKey('hero', 'base');
+  const headingId = useId();
+  const [vhPx, setVhPx] = useState<number | null>(null);
+  const [smallViewport, setSmallViewport] = useState<boolean>(false); // < md
+
+  // Context for analytics events (locale, reduced motion, screen width)
+  const getEventContext = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return { locale: 'und', reduced_motion: false, screen_width: 0 };
+    }
+    const locale =
+      (document && document.documentElement && document.documentElement.lang) ||
+      (navigator && (navigator as any).language) ||
+      'und';
+    const reduced = window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
+    const width = window.innerWidth || 0;
+    return { locale, reduced_motion: reduced, screen_width: width };
+  }, []);
+
   // Performance monitoring and optimization
   // Initialize animation performance monitoring (no assignment needed)
   useAnimationPerformance(process.env.NODE_ENV === 'development');
   useOptimizeAnimations();
-  const prefersReducedMotion = useReducedMotion() ?? false;
+  // Decorative background permanently removed for cleaner layout
 
-  // Memoize particles to avoid remounts on re-render (reduced count for calm background)
-  const particles = useMemo(() => generateParticles(6), []);
-
-
+  // State-of-the-art Mobile-Viewport-Höhe via visualViewport (Fallback: innerHeight)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const checkSmall = () => setSmallViewport(window.innerWidth < 768); // < md
+    checkSmall();
+    const calcVh = () => {
+      const vv = (window as any).visualViewport;
+      const h = Math.round(vv?.height ?? window.innerHeight);
+      setVhPx(h);
+    };
+    calcVh();
+    window.addEventListener('resize', () => {
+      checkSmall();
+      calcVh();
+    });
+    window.addEventListener('orientationchange', () => {
+      checkSmall();
+      calcVh();
+    });
+    const vv = (window as any).visualViewport as VisualViewport | undefined;
+    vv?.addEventListener('resize', () => {
+      checkSmall();
+      calcVh();
+    });
+    return () => {
+      // Best-effort cleanup; listeners were anonymous wrappers
+      window.removeEventListener('resize', () => {});
+      window.removeEventListener('orientationchange', () => {});
+      vv?.removeEventListener('resize', () => {});
+    };
+  }, []);
 
   const handlePrimaryClick = useCallback(() => {
-    // Handle primary CTA click (e.g., open signup modal)
-    console.log('Primary CTA clicked');
-  }, []);
+    // Track Primary CTA
+    track({
+      name: 'hero_cta_primary_click',
+      props: { to: 'request_demo', variant, ...getEventContext() },
+    });
+    // Öffne Enterprise Demo-Modal; Fallback bleibt durch separate Kontakt-Sektion/Route bestehen
+    setOpenDemo(true);
+  }, [variant, getEventContext]);
 
   const handleSecondaryClick = useCallback(() => {
-    // Handle secondary CTA click (e.g., scroll to features)
-    console.log('Secondary CTA clicked');
-  }, []);
+    // Track Secondary CTA
+    track({
+      name: 'hero_cta_secondary_click',
+      props: { to: 'https://docs.sigmacode.ai', variant, ...getEventContext() },
+    });
+    // Vereinheitlichter Doku-Link
+    window.open('https://docs.sigmacode.ai', '_blank', 'noopener,noreferrer');
+  }, [variant, getEventContext]);
+
+  // Impression tracking when Hero becomes visible (once)
+  useEffect(() => {
+    const node = targetRef.current;
+    if (!node || typeof window === 'undefined' || typeof IntersectionObserver === 'undefined')
+      return;
+    let fired = false;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!fired && e.isIntersecting && e.intersectionRatio >= 0.5) {
+            fired = true;
+            track({ name: 'hero_impression', props: { variant, ...getEventContext() } });
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: [0, 0.25, 0.5, 0.75, 1] },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, [variant, getEventContext]);
 
   return (
-    <section
-      ref={targetRef}
-      className={cn(
-        'relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900',
-        'py-16 md:py-24',
-        className
-      )}
-      aria-label={getTranslation('hero.title')}
+    <Section
+      ref={targetRef as any}
+      className={cn('bg-transparent px-0 py-0 sm:px-4 sm:py-0 overflow-visible', className)}
+      data-section="hero"
+      data-ai-title={t('landing.hero.title')}
+      aria-labelledby={headingId}
+      padding="none"
+      divider="none"
     >
-      {/* Moderner Blur-Licht Hintergrund */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        {/* Subtiler Farbverlauf mit Blur */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-800/90 via-gray-900 to-gray-800/90" />
-        
-        {/* Weiche Lichtpunkte mit Animation in blau/cyan Tönen */}
-        <div className="absolute -left-[15%] -top-[15%] w-[60%] h-[60%] bg-blue-400/5 rounded-full mix-blend-soft-light filter blur-[100px] animate-float-slow" />
-        <div className="absolute -right-[10%] -bottom-[10%] w-[50%] h-[50%] bg-cyan-400/5 rounded-full mix-blend-soft-light filter blur-[120px] animate-float-slow animation-delay-2000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-white/3 rounded-full mix-blend-soft-light filter blur-[150px] animate-pulse-slow" />
-
-        {/* Subtile Partikel mit dezenter Animation */}
-        {!prefersReducedMotion && particles.map((particle) => (
-          <motion.div
-            key={particle.id}
-            className="absolute rounded-full bg-white/5"
-            style={{
-              left: particle.left,
-              top: particle.top,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              opacity: particle.opacity * 0.5,
-            }}
-            animate={{ y: [0, -6, 0], x: [0, 3, 0] }}
-            transition={{
-              duration: particle.duration * 1.8,
-              delay: particle.delay,
-              repeat: Infinity,
-              repeatType: 'reverse',
-              ease: 'easeInOut',
-            }}
-          />
-        ))}
-
-         {/* Removed red scan line for a cleaner, unified aesthetic */}
+      <div
+        className="w-full"
+        style={{
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
+          paddingTop: 'calc(env(safe-area-inset-top) + 32px)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom) + 0px)',
+          // Keine erzwungene Viewport-Höhe über Breakpoints hinweg
+          contentVisibility: 'auto',
+          containIntrinsicSize: '800px 600px',
+        }}
+      >
+        <Container>
+          <div className="mx-auto w-full max-w-[1280px] xl:max-w-[1360px] 2xl:max-w-[1440px] min-h-full flex flex-col items-center justify-start pb-0 sm:pb-5">
+            <HeroContent
+              onPrimaryClick={handlePrimaryClick}
+              onSecondaryClick={handleSecondaryClick}
+              className="w-full text-center"
+              headingId={headingId}
+            />
+          </div>
+        </Container>
       </div>
-      
-      {/* Content */}
-      <div className="relative z-10 w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
-        <div className="max-w-3xl mx-auto">
-          <HeroContent
-            onPrimaryClick={handlePrimaryClick}
-            onSecondaryClick={handleSecondaryClick}
-            className="w-full text-center"
-          />
-        </div>
-      </div>
-    </section>
+
+      {/* Request Demo Modal */}
+      <RequestDemoDialog open={openDemo} onOpenChange={setOpenDemo} source="hero" />
+    </Section>
   );
 };
 

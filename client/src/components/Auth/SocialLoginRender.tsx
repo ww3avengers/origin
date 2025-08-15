@@ -10,7 +10,7 @@ import {
 
 import SocialButton from './SocialButton';
 
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 import { TStartupConfig } from 'librechat-data-provider';
 
@@ -19,7 +19,7 @@ function SocialLoginRender({
 }: {
   startupConfig: TStartupConfig | null | undefined;
 }) {
-  const localize = useLocalize();
+  const t = useT();
 
   if (!startupConfig) {
     return null;
@@ -33,7 +33,7 @@ function SocialLoginRender({
         serverDomain={startupConfig.serverDomain}
         oauthPath="discord"
         Icon={DiscordIcon}
-        label={localize('com_auth_discord_login')}
+        label={t('com_auth_discord_login')}
         id="discord"
       />
     ),
@@ -44,7 +44,7 @@ function SocialLoginRender({
         serverDomain={startupConfig.serverDomain}
         oauthPath="facebook"
         Icon={FacebookIcon}
-        label={localize('com_auth_facebook_login')}
+        label={t('com_auth_facebook_login')}
         id="facebook"
       />
     ),
@@ -55,7 +55,7 @@ function SocialLoginRender({
         serverDomain={startupConfig.serverDomain}
         oauthPath="github"
         Icon={GithubIcon}
-        label={localize('com_auth_github_login')}
+        label={t('com_auth_github_login')}
         id="github"
       />
     ),
@@ -66,7 +66,7 @@ function SocialLoginRender({
         serverDomain={startupConfig.serverDomain}
         oauthPath="google"
         Icon={GoogleIcon}
-        label={localize('com_auth_google_login')}
+        label={t('com_auth_google_login')}
         id="google"
       />
     ),
@@ -77,7 +77,7 @@ function SocialLoginRender({
         serverDomain={startupConfig.serverDomain}
         oauthPath="apple"
         Icon={AppleIcon}
-        label={localize('com_auth_apple_login')}
+        label={t('com_auth_apple_login')}
         id="apple"
       />
     ),
@@ -111,7 +111,7 @@ function SocialLoginRender({
             <SamlIcon />
           )
         }
-        label={startupConfig.samlLabel ? startupConfig.samlLabel : localize('com_auth_saml_login')}
+        label={startupConfig.samlLabel ? startupConfig.samlLabel : t('com_auth_saml_login')}
         id="saml"
       />
     ),

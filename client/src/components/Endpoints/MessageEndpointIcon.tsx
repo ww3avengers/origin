@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Feather } from 'lucide-react';
-import { EModelEndpoint, isAssistantsEndpoint, alternateName } from 'librechat-data-provider';
+import { alternateName, EModelEndpoint, isAssistantsEndpoint } from 'librechat-data-provider';
 import {
   Plugin,
   GPTIcon,
@@ -28,7 +28,7 @@ function getOpenAIColor(_model: string | null | undefined) {
   if (model && (/\b(o\d)\b/i.test(model) || /\bgpt-[5-9]\b/i.test(model))) {
     return '#000000';
   }
-  return model.includes('gpt-4') ? '#AB68FF' : '#19C37D';
+  return model.includes('gpt-4') ? '#60A5FA' : '#19C37D';
 }
 
 function getGoogleIcon(model: string | null | undefined, size: number) {

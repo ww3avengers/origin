@@ -36,11 +36,18 @@ export function useChatbot(config: ChatbotConfig) {
       setLoading(true);
 
       const userMsg: ChatMessage = { id: uuid(), role: 'user', content, createdAt: Date.now() };
-      const tempAssistant: ChatMessage = { id: uuid(), role: 'assistant', content: '', createdAt: Date.now() };
+      const tempAssistant: ChatMessage = {
+        id: uuid(),
+        role: 'assistant',
+        content: '',
+        createdAt: Date.now(),
+      };
       setMessages((prev) => [...prev, userMsg, tempAssistant]);
 
       const payload: SendMessagePayload = {
-        messages: history.map((m) => ({ role: m.role, content: m.content })).concat({ role: 'user', content }),
+        messages: history
+          .map((m) => ({ role: m.role, content: m.content }))
+          .concat({ role: 'user', content }),
         model: config.model,
         persona: config.persona,
         pagePath: typeof window !== 'undefined' ? window.location.pathname : undefined,
@@ -87,13 +94,17 @@ export function useChatbot(config: ChatbotConfig) {
                 if (chunk.error) throw new Error(chunk.error);
                 if (chunk.content) {
                   setMessages((prev) =>
-                    prev.map((m) => (m.id === tempAssistant.id ? { ...m, content: m.content + chunk.content } : m))
+                    prev.map((m) =>
+                      m.id === tempAssistant.id ? { ...m, content: m.content + chunk.content } : m,
+                    ),
                   );
                 }
               } catch {
                 // fallback: treat as plain text token
                 setMessages((prev) =>
-                  prev.map((m) => (m.id === tempAssistant.id ? { ...m, content: m.content + l } : m))
+                  prev.map((m) =>
+                    m.id === tempAssistant.id ? { ...m, content: m.content + l } : m,
+                  ),
                 );
               }
             }
@@ -101,21 +112,29 @@ export function useChatbot(config: ChatbotConfig) {
         } else if (contentType.includes('application/json')) {
           const data = await res.json();
           const text: string = data?.content || data?.message || '';
-          setMessages((prev) => prev.map((m) => (m.id === tempAssistant.id ? { ...m, content: text } : m)));
+          setMessages((prev) =>
+            prev.map((m) => (m.id === tempAssistant.id ? { ...m, content: text } : m)),
+          );
         } else {
           const text = await res.text();
-          setMessages((prev) => prev.map((m) => (m.id === tempAssistant.id ? { ...m, content: text } : m)));
+          setMessages((prev) =>
+            prev.map((m) => (m.id === tempAssistant.id ? { ...m, content: text } : m)),
+          );
         }
       } catch (e: any) {
         setError(e?.message || 'Unbekannter Fehler');
         setMessages((prev) =>
-          prev.map((m) => (m.role === 'assistant' && m.content === '' ? { ...m, content: 'Entschuldige, da ging etwas schief.' } : m))
+          prev.map((m) =>
+            m.role === 'assistant' && m.content === ''
+              ? { ...m, content: 'Entschuldige, da ging etwas schief.' }
+              : m,
+          ),
         );
       } finally {
         setLoading(false);
       }
     },
-    [config.apiUrl, config.model, config.persona, history]
+    [config.apiUrl, config.model, config.persona, history],
   );
 
   const stop = useCallback(() => {
@@ -124,7 +143,11 @@ export function useChatbot(config: ChatbotConfig) {
   }, []);
 
   const reset = useCallback(() => {
-    setMessages(config.welcome ? [{ id: uuid(), role: 'assistant', content: config.welcome, createdAt: Date.now() }] : []);
+    setMessages(
+      config.welcome
+        ? [{ id: uuid(), role: 'assistant', content: config.welcome, createdAt: Date.now() }]
+        : [],
+    );
     setError(null);
   }, [config.welcome]);
 

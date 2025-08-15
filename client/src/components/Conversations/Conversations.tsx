@@ -1,10 +1,13 @@
-import { useMemo, memo, type FC, useCallback } from 'react';
+import { useMemo, memo, type FC, useCallback, useEffect, useRef, useState } from 'react';
 import throttle from 'lodash/throttle';
 import { parseISO, isToday } from 'date-fns';
-import { Spinner, useMediaQuery } from '@librechat/client';
+import { useMediaQuery } from '@librechat/client';
+import type { TranslationKeys } from '@librechat/client';
+import LoadingState from '~/components/ui/LoadingState';
 import { List, AutoSizer, CellMeasurer, CellMeasurerCache } from 'react-virtualized';
+import type { ListRowProps } from 'react-virtualized/dist/es/List';
 import { TConversation } from 'librechat-data-provider';
-import { useLocalize, TranslationKeys } from '~/hooks';
+import { useLocalize } from '~/hooks';
 import { groupConversationsByDate } from '~/utils';
 import Convo from './Convo';
 
@@ -18,22 +21,13 @@ interface ConversationsProps {
   isSearchLoading: boolean;
 }
 
-const LoadingSpinner = memo(() => {
-  const localize = useLocalize();
-
-  return (
-    <div className="mx-auto mt-2 flex items-center justify-center gap-2">
-      <Spinner className="text-text-primary" />
-      <span className="animate-pulse text-text-primary">{localize('com_ui_loading')}</span>
-    </div>
-  );
-});
+// use centralized LoadingState instead of local LoadingSpinner
 
 const DateLabel: FC<{ groupName: string }> = memo(({ groupName }) => {
   const localize = useLocalize();
   return (
     <div className="mt-2 pl-2 pt-1 text-text-secondary" style={{ fontSize: '0.7rem' }}>
-      {localize(groupName as TranslationKeys) || groupName}
+      {localize(groupName as any) || groupName}
     </div>
   );
 });
@@ -87,6 +81,8 @@ const Conversations: FC<ConversationsProps> = ({
 }) => {
   const isSmallScreen = useMediaQuery('(max-width: 768px)');
   const convoHeight = isSmallScreen ? 44 : 34;
+  const localize = useLocalize();
+  const tr = useCallback((key: string) => localize(key as any) as string, [localize]);
 
   const filteredConversations = useMemo(
     () => rawConversations.filter(Boolean) as TConversation[],
@@ -113,10 +109,23 @@ const Conversations: FC<ConversationsProps> = ({
     });
 
     if (isLoading) {
-      items.push({ type: 'loading' } as any);
+      items.push({ type: 'loading' });
     }
     return items;
   }, [groupedConversations, isLoading]);
+
+  // Positions-Map für ARIA posinset und Gesamtgröße (WeakMap vermeidet string/null Issues)
+  const convoPositions = useMemo(() => {
+    let pos = 0;
+    const map = new WeakMap<TConversation, number>();
+    flattenedItems.forEach((it) => {
+      if (it.type === 'convo') {
+        pos += 1;
+        map.set(it.convo, pos);
+      }
+    });
+    return { map, size: pos } as const;
+  }, [flattenedItems]);
 
   const cache = useMemo(
     () =>
@@ -141,14 +150,16 @@ const Conversations: FC<ConversationsProps> = ({
   );
 
   const rowRenderer = useCallback(
-    ({ index, key, parent, style }) => {
+    ({ index, key, parent, style }: ListRowProps) => {
       const item = flattenedItems[index];
       if (item.type === 'loading') {
         return (
           <CellMeasurer cache={cache} columnIndex={0} key={key} parent={parent} rowIndex={index}>
             {({ registerChild }) => (
               <div ref={registerChild} style={style}>
-                <LoadingSpinner />
+                <div className="mx-auto mt-2 flex items-center justify-center gap-2">
+                  <LoadingState label={localize`com_ui_loading`} />
+                </div>
               </div>
             )}
           </CellMeasurer>
@@ -161,19 +172,25 @@ const Conversations: FC<ConversationsProps> = ({
               {item.type === 'header' ? (
                 <DateLabel groupName={item.groupName} />
               ) : item.type === 'convo' ? (
-                <MemoizedConvo
-                  conversation={item.convo}
-                  retainView={moveToTop}
-                  toggleNav={toggleNav}
-                  isLatestConvo={item.convo.conversationId === firstTodayConvoId}
-                />
+                <div
+                  role="listitem"
+                  aria-posinset={convoPositions.map.get(item.convo) ?? 1}
+                  aria-setsize={convoPositions.size}
+                >
+                  <MemoizedConvo
+                    conversation={item.convo}
+                    retainView={moveToTop}
+                    toggleNav={toggleNav}
+                    isLatestConvo={item.convo.conversationId === firstTodayConvoId}
+                  />
+                </div>
               ) : null}
             </div>
           )}
         </CellMeasurer>
       );
     },
-    [cache, flattenedItems, firstTodayConvoId, moveToTop, toggleNav],
+    [cache, flattenedItems, firstTodayConvoId, moveToTop, toggleNav, convoPositions],
   );
 
   const getRowHeight = useCallback(
@@ -186,6 +203,14 @@ const Conversations: FC<ConversationsProps> = ({
     [loadMoreConversations],
   );
 
+  // Cleanup throttled handler to avoid memory leaks
+  // and ensure no calls after unmount
+  useEffect(() => {
+    return () => {
+      throttledLoadMore.cancel?.();
+    };
+  }, [throttledLoadMore]);
+
   const handleRowsRendered = useCallback(
     ({ stopIndex }: { stopIndex: number }) => {
       if (stopIndex >= flattenedItems.length - 8) {
@@ -195,12 +220,49 @@ const Conversations: FC<ConversationsProps> = ({
     [flattenedItems.length, throttledLoadMore],
   );
 
+  const noRowsRenderer = useCallback(
+    () => (
+      <div className="flex h-full items-center justify-center" role="status" aria-live="polite">
+        <span className="sr-only">{localize`com_ui_empty` || ''}</span>
+      </div>
+    ),
+    [localize],
+  );
+
+  // Ensure measurements stay correct when data or row height changes
+  useEffect(() => {
+    cache.clearAll();
+    const refCurrent = containerRef.current as any;
+    if (refCurrent && typeof refCurrent.recomputeRowHeights === 'function') {
+      refCurrent.recomputeRowHeights();
+    }
+  }, [cache, containerRef, flattenedItems, convoHeight]);
+
+  // Einmaliges Auto-Scroll auf die erste heutige Konversation
+  const didAutoScroll = useRef(false);
+  const [scrollToIndex, setScrollToIndex] = useState<number | undefined>(undefined);
+  useEffect(() => {
+    if (didAutoScroll.current || isLoading || isSearchLoading || !firstTodayConvoId) {
+      return;
+    }
+    const idx = flattenedItems.findIndex(
+      (it) => it.type === 'convo' && it.convo.conversationId === firstTodayConvoId,
+    );
+    if (idx >= 0) {
+      setScrollToIndex(idx);
+      didAutoScroll.current = true;
+    }
+  }, [flattenedItems, firstTodayConvoId, isLoading, isSearchLoading]);
+
   return (
-    <div className="relative flex h-full flex-col pb-2 text-sm text-text-primary">
+    <div
+      className="relative flex h-full flex-col pb-2 text-sm text-text-primary"
+      style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 480px' }}
+      aria-busy={isLoading || isSearchLoading}
+    >
       {isSearchLoading ? (
         <div className="flex flex-1 items-center justify-center">
-          <Spinner className="text-text-primary" />
-          <span className="ml-2 text-text-primary">Loading...</span>
+          <LoadingState label={tr('com_ui_loading')} />
         </div>
       ) : (
         <div className="flex-1">
@@ -214,7 +276,10 @@ const Conversations: FC<ConversationsProps> = ({
                 rowCount={flattenedItems.length}
                 rowHeight={getRowHeight}
                 rowRenderer={rowRenderer}
-                overscanRowCount={10}
+                overscanRowCount={isSmallScreen ? 8 : 12}
+                scrollToIndex={scrollToIndex ?? -1}
+                scrollToAlignment="start"
+                noRowsRenderer={noRowsRenderer}
                 className="outline-none"
                 style={{ outline: 'none' }}
                 role="list"

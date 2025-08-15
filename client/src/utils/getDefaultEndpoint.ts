@@ -1,9 +1,5 @@
-import type {
-  TPreset,
-  TConversation,
-  EModelEndpoint,
-  TEndpointsConfig,
-} from 'librechat-data-provider';
+import type { TPreset, TConversation, TEndpointsConfig } from 'librechat-data-provider';
+import { EModelEndpoint } from 'librechat-data-provider';
 import { getLocalStorageItems } from './localStorage';
 import { mapEndpoints } from './endpoints';
 
@@ -11,14 +7,17 @@ type TConvoSetup = Partial<TPreset> | Partial<TConversation>;
 
 type TDefaultEndpoint = { convoSetup: TConvoSetup; endpointsConfig: TEndpointsConfig };
 
+// Lokaler Typalias für Endpunkt-Keys basierend auf dem Value-Enum
+type TEndpointKey = keyof typeof EModelEndpoint;
+
 const getEndpointFromSetup = (
   convoSetup: TConvoSetup | null,
   endpointsConfig: TEndpointsConfig,
-): EModelEndpoint | null => {
+): TEndpointKey | null => {
   let { endpoint: targetEndpoint = '' } = convoSetup || {};
   targetEndpoint = targetEndpoint ?? '';
   if (targetEndpoint && endpointsConfig?.[targetEndpoint]) {
-    return targetEndpoint as EModelEndpoint;
+    return targetEndpoint as TEndpointKey;
   } else if (targetEndpoint) {
     console.warn(`Illegal target endpoint ${targetEndpoint}`, endpointsConfig);
   }
@@ -54,7 +53,7 @@ const getDefinedEndpoint = (endpointsConfig: TEndpointsConfig) => {
 const getDefaultEndpoint = ({
   convoSetup,
   endpointsConfig,
-}: TDefaultEndpoint): EModelEndpoint | undefined => {
+}: TDefaultEndpoint): TEndpointKey | undefined => {
   return (
     getEndpointFromSetup(convoSetup, endpointsConfig) ||
     getEndpointFromLocalStorage(endpointsConfig) ||

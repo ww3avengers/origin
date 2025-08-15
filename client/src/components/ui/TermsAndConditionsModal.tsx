@@ -47,10 +47,10 @@ export function TermsAndConditionsModal({
       } else {
         errorMessage = JSON.stringify(error);
       }
-      
-      showToast({ 
-        message: `${localize('com_auth_error_accepting_terms')}: ${errorMessage}`, 
-        status: 'error' as const
+
+      showToast({
+        message: `${localize('com_auth_error_accepting_terms')}: ${errorMessage}`,
+        status: 'error' as const,
       });
     },
   });
@@ -76,7 +76,12 @@ export function TermsAndConditionsModal({
     [localize],
   );
 
-  const { content, title: contentTitle, accept: acceptText, decline: declineText } = useMemo(() => {
+  const {
+    content,
+    title: contentTitle,
+    accept: acceptText,
+    decline: declineText,
+  } = useMemo(() => {
     if (typeof modalContent === 'string') {
       return {
         content: modalContent,
@@ -114,11 +119,7 @@ export function TermsAndConditionsModal({
         main={
           <div className="prose dark:prose-invert max-h-[60vh] overflow-y-auto p-4 text-sm">
             {contentUrl ? (
-              <iframe
-                src={contentUrl}
-                className="h-[60vh] w-full border-0"
-                title={currentTitle}
-              />
+              <iframe src={contentUrl} className="h-[60vh] w-full border-0" title={currentTitle} />
             ) : (
               <MarkdownLite content={content} />
             )}
@@ -127,7 +128,8 @@ export function TermsAndConditionsModal({
         selection={{
           selectHandler: handleAccept,
           selectText: acceptButtonText,
-          selectClasses: 'inline-flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+          selectClasses:
+            'inline-flex justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
         }}
         buttons={
           <button

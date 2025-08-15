@@ -1,15 +1,15 @@
 import { cn } from '@/lib/utils';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
-import { Zap, Shield, GitBranch, Rocket } from 'lucide-react';
+import { IN_VIEW_ONCE } from './LandingSection';
+import { useT } from '~/utils/i18n';
+import { GitBranch, Bot, Users } from 'lucide-react';
 
-type FeatureKey = 'ai' | 'security' | 'collaboration' | 'performance';
+type FeatureKey = 'workflows' | 'agents' | 'teams';
 
 interface FeatureItem {
   id: FeatureKey;
   icon: React.ReactNode;
-  titleKey: `features.items.${number}.title`;
-  descriptionKey: `features.items.${number}.description`;
+  text: string;
 }
 
 interface HeroFeaturesProps {
@@ -17,57 +17,36 @@ interface HeroFeaturesProps {
   animationDuration?: number;
 }
 
-export const HeroFeatures = ({
-  className,
-  animationDuration = 0.5,
-}: HeroFeaturesProps) => {
-  const { t } = useTranslation('landing');
+export const HeroFeatures = ({ className, animationDuration = 0.5 }: HeroFeaturesProps) => {
+  const t = useT();
   const prefersReducedMotion = useReducedMotion() ?? false;
 
-  // Helper function to safely get translations with type assertion
-  const getTranslation = (key: string): string => {
-    return t(key as any) as string;
-  };
+  // Pull USPs from landing.hero.usps (array of strings) with safe fallbacks
+  const usps = (t('landing.hero.usps', { returnObjects: true }) as unknown as string[]) || [];
+  const [
+    usp0 = 'Build repeatable AI workflows',
+    usp1 = 'Deploy specialized AI agents',
+    usp2 = 'Orchestrate MAS teams for complex tasks',
+  ] = usps;
 
   const features: FeatureItem[] = [
-    { 
-      id: 'ai', 
-      icon: <Zap className="h-5 w-5" />,
-      titleKey: 'features.items.0.title',
-      descriptionKey: 'features.items.0.description'
-    },
-    { 
-      id: 'security', 
-      icon: <Shield className="h-5 w-5" />,
-      titleKey: 'features.items.1.title',
-      descriptionKey: 'features.items.1.description'
-    },
-    { 
-      id: 'collaboration', 
-      icon: <GitBranch className="h-5 w-5" />,
-      titleKey: 'features.items.2.title',
-      descriptionKey: 'features.items.2.description'
-    },
-    { 
-      id: 'performance', 
-      icon: <Rocket className="h-5 w-5" />,
-      titleKey: 'features.items.3.title',
-      descriptionKey: 'features.items.3.description'
-    },
+    { id: 'workflows', icon: <GitBranch className="h-5 w-5" />, text: usp0 },
+    { id: 'agents', icon: <Bot className="h-5 w-5" />, text: usp1 },
+    { id: 'teams', icon: <Users className="h-5 w-5" />, text: usp2 },
   ];
 
   return (
     <motion.div
-      className={cn('mt-6 md:mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4', className)}
+      className={cn('mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:mt-8', className)}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.5 }}
+      viewport={{ ...IN_VIEW_ONCE, amount: 0.5 }}
       transition={{ staggerChildren: 0.08 }}
     >
       {features.map((feature) => (
         <motion.div
           key={feature.id}
-          className="group relative overflow-hidden rounded-lg border border-gray-700/70 bg-gradient-to-br from-gray-800/70 to-gray-900/90 p-4 backdrop-blur-sm transition-all hover:border-cyan-400/25 hover:shadow-md hover:shadow-cyan-500/10"
+          className="group relative overflow-hidden rounded-lg bg-transparent p-4 ring-1 ring-inset ring-white/10 transition-all hover:shadow-md"
           variants={{
             hidden: { opacity: 0, y: 20 },
             visible: {
@@ -81,31 +60,22 @@ export const HeroFeatures = ({
           }}
           whileHover={prefersReducedMotion ? undefined : { y: -2, transition: { duration: 0.18 } }}
         >
-          {/* Glasmorphism Highlight Effect */}
-          <div className="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-cyan-400/8 via-transparent to-teal-400/8 opacity-0 blur-sm transition duration-300 group-hover:opacity-100" />
-          
+          {/* Neutral highlight removed: no gradient/blur */}
+          <div className="absolute -inset-[1px] rounded-lg opacity-0 transition duration-300 group-hover:opacity-100" />
+
           <div className="relative">
-            <motion.div 
-              className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500/12 to-teal-500/12 text-cyan-300"
+            <motion.div
+              className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-white ring-1 ring-inset ring-white/15"
               whileHover={prefersReducedMotion ? undefined : { scale: 1.06, rotate: 3 }}
               transition={{ type: 'spring', stiffness: 280 }}
             >
               {feature.icon}
             </motion.div>
-            
-            <h3 className="mb-2 text-sm font-semibold text-gray-100">
-              {getTranslation(feature.titleKey)}
-            </h3>
-            
-            <p className="text-xs text-gray-400 leading-relaxed">
-              {getTranslation(feature.descriptionKey)}
-            </p>
+
+            <h3 className="text-sm font-semibold leading-snug text-gray-100">{feature.text}</h3>
           </div>
-          
-          {/* Corner decoration */}
-          {!prefersReducedMotion && (
-            <div className="absolute -right-4 -bottom-4 h-16 w-16 rounded-full bg-gradient-to-r from-cyan-500/10 to-teal-500/10 opacity-0 blur-md transition-all duration-500 group-hover:opacity-100" />
-          )}
+
+          {/* Corner decoration removed for neutrality and performance */}
         </motion.div>
       ))}
     </motion.div>

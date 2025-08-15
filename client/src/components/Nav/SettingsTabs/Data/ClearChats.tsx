@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 import { useClearConversationsMutation } from 'librechat-data-provider/react-query';
-import {
-  OGDialogTemplate,
-  Label,
-  Button,
-  OGDialog,
-  OGDialogTrigger,
-  Spinner,
-} from '@librechat/client';
+import { OGDialogTemplate, Label, Button, OGDialog, OGDialogTrigger } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { clearAllConversationStorage } from '~/utils';
 import { useLocalize, useNewConvo } from '~/hooks';
 
@@ -55,7 +49,11 @@ export const ClearChats = () => {
             selectHandler: clearConvos,
             selectClasses:
               'bg-destructive text-white transition-all duration-200 hover:bg-destructive/80',
-            selectText: clearConvosMutation.isLoading ? <Spinner /> : localize('com_ui_delete'),
+            selectText: clearConvosMutation.isLoading ? (
+              <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading` as string} />
+            ) : (
+              localize('com_ui_delete')
+            ),
           }}
         />
       </OGDialog>

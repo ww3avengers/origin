@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       return (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+        <div className="rounded-md border border-red-200 bg-red-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <span className="text-red-500">
@@ -54,9 +54,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </span>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
-                Ein Fehler ist aufgetreten
-              </h3>
+              <h3 className="text-sm font-medium text-red-800">Ein Fehler ist aufgetreten</h3>
               <div className="mt-2 text-sm text-red-700">
                 <p>{this.state.error.message}</p>
               </div>
@@ -64,7 +62,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 <button
                   type="button"
                   onClick={this.resetErrorBoundary}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                  className="inline-flex items-center rounded-md border border-transparent bg-red-100 px-3 py-2 text-sm font-medium leading-4 text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                 >
                   Erneut versuchen
                 </button>

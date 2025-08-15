@@ -16,7 +16,10 @@ const panelVariants = {
 };
 
 export function ChatbotWidget({ config, className }: ChatbotWidgetProps) {
-  const merged = useMemo<ChatbotConfig>(() => ({ ...defaultChatbotConfig, ...(config || {}) }), [config]);
+  const merged = useMemo<ChatbotConfig>(
+    () => ({ ...defaultChatbotConfig, ...(config || {}) }),
+    [config],
+  );
   const { open, toggle, loading, error, messages, send, stop, reset } = useChatbot(merged);
   const [input, setInput] = useState('');
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -36,13 +39,13 @@ export function ChatbotWidget({ config, className }: ChatbotWidgetProps) {
   };
 
   return (
-    <div className={`fixed z-50 right-4 bottom-4 ${className || ''}`} aria-live="polite">
+    <div className={`fixed bottom-4 right-4 z-50 ${className || ''}`} aria-live="polite">
       {/* Toggle Button */}
       <button
         type="button"
         onClick={toggle}
         aria-expanded={open}
-        className="group relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg shadow-cyan-500/30 ring-1 ring-white/20 transition hover:scale-105 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+        className="btn-chat btn-chat--circle group relative flex items-center justify-center hover:scale-105"
       >
         <span className="sr-only">Chat öffnen</span>
         <svg
@@ -53,9 +56,16 @@ export function ChatbotWidget({ config, className }: ChatbotWidgetProps) {
           strokeWidth="1.5"
           className="h-6 w-6"
         >
-          <path d="M7 8h10M7 12h6m7-2a8 8 0 10-3.293 6.293L21 21" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="M7 8h10M7 12h6m7-2a8 8 0 10-3.293 6.293L21 21"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-        <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white/90" aria-hidden></span>
+        <span
+          className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-white/90"
+          aria-hidden
+        ></span>
       </button>
 
       {/* Panel */}
@@ -67,7 +77,7 @@ export function ChatbotWidget({ config, className }: ChatbotWidgetProps) {
             exit="exit"
             variants={panelVariants}
             transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-            className="mt-3 w-[92vw] max-w-sm overflow-hidden rounded-2xl border border-white/10 ring-1 ring-white/10 bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-xl shadow-2xl dark:from-zinc-900/80 dark:to-zinc-900/60 dark:ring-zinc-800/40"
+            className="glass-card mt-3 w-[92vw] max-w-sm overflow-hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Produkt-Chatbot"
@@ -76,52 +86,70 @@ export function ChatbotWidget({ config, className }: ChatbotWidgetProps) {
             <div className="flex items-center justify-between border-b border-white/10 p-3">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
-                <p className="text-sm font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400 dark:from-sky-400 dark:to-cyan-300">LibreChat Berater</p>
+                <p className="brand-title text-sm font-semibold">LibreChat Berater</p>
               </div>
               <div className="flex items-center gap-2">
                 {loading ? (
-                  <button
-                    onClick={stop}
-                    className="text-xs text-cyan-700 hover:text-cyan-900 dark:text-cyan-300 dark:hover:text-cyan-200"
-                  >
+                  <button onClick={stop} className="btn-chat">
                     Stop
                   </button>
                 ) : (
-                  <button
-                    onClick={reset}
-                    className="text-xs text-cyan-700 hover:text-cyan-900 dark:text-cyan-300 dark:hover:text-cyan-200"
-                  >
+                  <button onClick={reset} className="btn-chat">
                     Reset
                   </button>
                 )}
-                <button
-                  onClick={toggle}
-                  className="rounded-md p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
-                >
+                <button onClick={toggle} className="btn-chat btn-chat--circle">
                   <span className="sr-only">Schließen</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-5 w-5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12-2-6-7-3z"
+                    />
+                  </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="h-5 w-5"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
             </div>
 
             {/* Messages */}
-            <div ref={listRef} className="max-h-80 overflow-y-auto px-3 py-2 space-y-2 bg-gradient-to-b from-transparent via-white/40 to-transparent dark:via-zinc-800/40">
+            <div
+              ref={listRef}
+              className="max-h-80 space-y-2 overflow-y-auto bg-gradient-to-b from-transparent via-white/40 to-transparent px-3 py-2 dark:via-zinc-800/40"
+            >
               {messages.map((m: ChatMessage) => (
-                <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  key={m.id}
+                  className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
                   <div
                     className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-3 py-2 text-sm shadow-sm ring-1 ${
                       m.role === 'user'
-                        ? 'bg-blue-50 ring-blue-200 text-blue-900 dark:bg-sky-950/40 dark:ring-sky-900/40 dark:text-sky-100'
-                        : 'bg-white/70 ring-zinc-200 text-zinc-800 dark:bg-zinc-800/60 dark:ring-zinc-700 dark:text-zinc-100'
+                        ? 'bg-blue-50 text-blue-900 ring-blue-200 dark:bg-sky-950/40 dark:text-sky-100 dark:ring-sky-900/40'
+                        : 'bg-white/70 text-zinc-800 ring-zinc-200 dark:bg-zinc-800/60 dark:text-zinc-100 dark:ring-zinc-700'
                     }`}
                   >
                     {m.content}
                   </div>
                 </div>
               ))}
-              {error && (
-                <p className="text-xs text-rose-500">{error}</p>
-              )}
+              {error && <p className="text-xs text-rose-500">{error}</p>}
             </div>
 
             {/* Input */}
@@ -138,12 +166,33 @@ export function ChatbotWidget({ config, className }: ChatbotWidgetProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 px-3 py-2 text-sm font-medium text-white shadow ring-1 ring-white/30 transition hover:brightness-105 disabled:opacity-60"
+                  className="btn-chat inline-flex items-center gap-1 px-3 py-2"
                 >
                   {loading ? (
-                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="3" className="opacity-20" /><path d="M12 2a10 10 0 0 1 10 10" strokeWidth="3" className="opacity-80"/></svg>
+                    <svg
+                      className="h-4 w-4 animate-spin"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                    >
+                      <circle cx="12" cy="12" r="10" strokeWidth="3" className="opacity-20" />
+                      <path d="M12 2a10 10 0 0 1 10 10" strokeWidth="3" className="opacity-80" />
+                    </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-4 w-4"><path strokeLinecap="round" strokeLinejoin="round" d="M3.5 12l16-7-7 16-2-6-7-3z"/></svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      className="h-4 w-4"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3.5 12l16-7-7 16-2-6-7-3z"
+                      />
+                    </svg>
                   )}
                   <span>Senden</span>
                 </button>

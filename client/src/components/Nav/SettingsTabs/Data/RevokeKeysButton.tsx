@@ -3,14 +3,8 @@ import {
   useRevokeAllUserKeysMutation,
   useRevokeUserKeyMutation,
 } from 'librechat-data-provider/react-query';
-import {
-  OGDialogTemplate,
-  Button,
-  Label,
-  OGDialog,
-  OGDialogTrigger,
-  Spinner,
-} from '@librechat/client';
+import { OGDialogTemplate, Button, Label, OGDialog, OGDialogTrigger } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { useLocalize } from '~/hooks';
 
 export const RevokeKeysButton = ({
@@ -76,7 +70,11 @@ export const RevokeKeysButton = ({
           selectHandler: onClick,
           selectClasses:
             'bg-destructive text-white transition-all duration-200 hover:bg-destructive/80',
-          selectText: isLoading ? <Spinner /> : localize('com_ui_revoke'),
+          selectText: isLoading ? (
+            <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading` as string} />
+          ) : (
+            localize('com_ui_revoke')
+          ),
         }}
       />
     </OGDialog>

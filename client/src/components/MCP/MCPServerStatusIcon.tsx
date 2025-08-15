@@ -1,5 +1,5 @@
 import React from 'react';
-import { Spinner } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { SettingsIcon, AlertTriangle, KeyRound, PlugZap, X } from 'lucide-react';
 import type { MCPServerStatus, TPlugin } from 'librechat-data-provider';
 import { useLocalize } from '~/hooks';
@@ -102,7 +102,7 @@ function InitializingStatusIcon({ serverName, onCancel, canCancel }: Initializin
         title={localize('com_ui_cancel')}
       >
         <div className="relative h-4 w-4">
-          <Spinner className="h-4 w-4 group-hover:opacity-0" />
+          <InlineSpinner size="xs" className="group-hover:opacity-0" />
           <X className="absolute inset-0 h-4 w-4 text-red-500 opacity-0 group-hover:opacity-100" />
         </div>
       </button>
@@ -111,9 +111,9 @@ function InitializingStatusIcon({ serverName, onCancel, canCancel }: Initializin
 
   return (
     <div className="flex h-6 w-6 items-center justify-center rounded p-1">
-      <Spinner
-        className="h-4 w-4"
-        aria-label={localize('com_nav_mcp_status_connecting', { 0: serverName })}
+      <InlineSpinner
+        size="xs"
+        ariaLabel={localize('com_nav_mcp_status_connecting', { 0: serverName })}
       />
     </div>
   );
@@ -122,9 +122,9 @@ function InitializingStatusIcon({ serverName, onCancel, canCancel }: Initializin
 function ConnectingStatusIcon({ serverName }: StatusIconProps) {
   return (
     <div className="flex h-6 w-6 items-center justify-center rounded p-1">
-      <Spinner
-        className="h-4 w-4"
-        aria-label={localize('com_nav_mcp_status_connecting', { 0: serverName })}
+      <InlineSpinner
+        size="xs"
+        ariaLabel={localize('com_nav_mcp_status_connecting', { 0: serverName })}
       />
     </div>
   );

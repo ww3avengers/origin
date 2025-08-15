@@ -1,160 +1,318 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import { useT } from '~/utils/i18n';
+import LandingSection, { IN_VIEW_ONCE } from './LandingSection';
 import { cn } from '@/lib/utils';
+import { useAIMetadata } from '@/lib/ai-explain/useAIMetadata';
+import { useEffect, useRef } from 'react';
+import { track } from '@/lib/analytics/track';
+import { getVariantForKey } from '@/lib/ab/variant';
 
-type LogoKey = 'sap' | 'microsoft' | 'googleCloud' | 'openai' | 'grok';
+// Logo-Assets
+const sapUrl = '/assets/sap-wordmark-mono.svg';
+const microsoftUrl = '/assets/microsoft-mono.svg';
+const googleCloudUrl = '/assets/google-cloud-mono.svg';
+const googleUrl = '/assets/google-mono.svg';
+const openaiUrl = '/assets/openai-mono.svg';
+const grokUrl = '/assets/grok-mono.svg';
+const huggingfaceUrl = '/assets/huggingface-mono.svg';
+const deepseekUrl = '/assets/deepseek.svg';
+const mistralUrl = '/assets/mistral.png';
+const cohereUrl = '/assets/cohere.png';
+const groqUrl = '/assets/groq.png';
+const openrouterUrl = '/assets/openrouter.png';
+const ollamaUrl = '/assets/ollama.png';
+const anyscaleUrl = '/assets/anyscale.png';
+
+type LogoKey =
+  | 'sap'
+  | 'microsoft'
+  | 'googleCloud'
+  | 'google'
+  | 'openai'
+  | 'grok'
+  | 'huggingface'
+  | 'deepseek'
+  | 'mistral'
+  | 'cohere'
+  | 'groq'
+  | 'openrouter'
+  | 'ollama'
+  | 'anyscale';
 
 interface Logo {
   key: LogoKey;
-  src: string; // resolved with BASE_URL
-  rawSrc: string; // root-relative fallback (/assets/...)
+  src: string;
   altKey: `hero.logos.${LogoKey}`;
-  width: number;
-  height: number;
 }
 
-interface HeroLogosProps {
+const logos: readonly Logo[] = [
+  { key: 'openai', src: openaiUrl, altKey: 'hero.logos.openai' },
+  { key: 'googleCloud', src: googleCloudUrl, altKey: 'hero.logos.googleCloud' },
+  { key: 'google', src: googleUrl, altKey: 'hero.logos.google' },
+  { key: 'microsoft', src: microsoftUrl, altKey: 'hero.logos.microsoft' },
+  { key: 'sap', src: sapUrl, altKey: 'hero.logos.sap' },
+  { key: 'huggingface', src: huggingfaceUrl, altKey: 'hero.logos.huggingface' },
+  { key: 'deepseek', src: deepseekUrl, altKey: 'hero.logos.deepseek' },
+  { key: 'groq', src: groqUrl, altKey: 'hero.logos.groq' },
+  { key: 'mistral', src: mistralUrl, altKey: 'hero.logos.mistral' },
+  { key: 'cohere', src: cohereUrl, altKey: 'hero.logos.cohere' },
+  { key: 'openrouter', src: openrouterUrl, altKey: 'hero.logos.openrouter' },
+  { key: 'ollama', src: ollamaUrl, altKey: 'hero.logos.ollama' },
+  { key: 'anyscale', src: anyscaleUrl, altKey: 'hero.logos.anyscale' },
+  { key: 'grok', src: grokUrl, altKey: 'hero.logos.grok' },
+] as const;
+
+const altFallbacks: Record<LogoKey, string> = {
+  sap: 'SAP Logo',
+  microsoft: 'Microsoft Logo',
+  googleCloud: 'Google Cloud Logo',
+  google: 'Google (Gemini) Logo',
+  openai: 'OpenAI Logo',
+  grok: 'Grok (xAI) Logo',
+  huggingface: 'Hugging Face Logo',
+  deepseek: 'DeepSeek Logo',
+  mistral: 'Mistral AI Logo',
+  cohere: 'Cohere Logo',
+  groq: 'Groq Logo',
+  openrouter: 'OpenRouter Logo',
+  ollama: 'Ollama Logo',
+  anyscale: 'Anyscale Logo',
+};
+
+// Logos, die in Bild+Filter gerendert werden (mehr Detailtreue als Mask)
+const filterModeLogos = new Set<LogoKey>([
+  'mistral',
+  'cohere',
+  'groq',
+  'openrouter',
+  'ollama',
+  'anyscale',
+]);
+
+// Einzelnes Logo (Mask = sauberer Flat-Look, Image+Filter = maximale Detailtreue)
+const LogoCard = ({
+  logo,
+  ariaHidden,
+  altText,
+  renderMode = 'mask',
+  onClick,
+  interactive = true,
+}: {
+  logo: Logo;
+  ariaHidden?: boolean;
+  altText: string;
+  renderMode?: 'mask' | 'image';
+  onClick?: () => void;
+  /** Render as button for keyboard access when interactive; otherwise static, aria-hidden */
+  interactive?: boolean;
+}) => {
+  const baseClass =
+    'hover:bg-white/7 relative w-auto shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-2 shadow-[0_0_0_1px_rgba(255,255,255,0.04)]';
+  const baseProps = {
+    style: {
+      minWidth: 'clamp(112px, 14vw, 180px)',
+      height: 'clamp(36px, 4vw, 60px)',
+    } as React.CSSProperties,
+  };
+  const inner =
+    renderMode === 'mask' ? (
+      <div
+        role="img"
+        aria-label={altText}
+        className="h-full w-full"
+        style={{
+          backgroundColor: 'rgba(209,213,219,0.9)',
+          WebkitMaskImage: `url(${logo.src})`,
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskSize: 'contain',
+          maskImage: `url(${logo.src})`,
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskSize: 'contain',
+        }}
+      />
+    ) : (
+      <img
+        src={logo.src}
+        alt={ariaHidden ? '' : altText}
+        className="h-full w-full object-contain"
+        decoding="async"
+        loading="lazy"
+        style={{
+          filter: 'grayscale(1) brightness(0.9) contrast(1.05)',
+          opacity: 0.98,
+        }}
+      />
+    );
+
+  return interactive ? (
+    <div role="listitem" className="inline-flex">
+      <button
+        type="button"
+        aria-label={altText}
+        onClick={onClick}
+        {...baseProps}
+        className={`${baseClass} cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent-ring))]`}
+      >
+        {inner}
+      </button>
+    </div>
+  ) : (
+    <div role="listitem" aria-hidden className={baseClass} {...baseProps}>
+      {inner}
+    </div>
+  );
+};
+
+export const HeroLogos = ({
+  className,
+  respectReducedMotion = false,
+  fullBleed = true,
+}: {
   className?: string;
-}
+  respectReducedMotion?: boolean;
+  fullBleed?: boolean;
+}) => {
+  const t = useT();
+  const prefersReducedMotion = useReducedMotion();
+  const shouldAnimate = respectReducedMotion ? !prefersReducedMotion : true;
+  const baseDuration = 54;
+  const variant = getVariantForKey('hero', 'base');
+  const rootRef = useRef<HTMLElement | null>(null);
 
-export const HeroLogos = ({ className }: HeroLogosProps) => {
-  const { t } = useTranslation('landing');
-  const prefersReducedMotion = useReducedMotion() ?? false;
-  
-  // Helper function to safely get translations with type assertion
-  const getTranslation = (key: string, defaultValue?: string): string => {
-    return (t(key as any, { defaultValue }) as unknown) as string;
+  const getEventContext = () => {
+    if (typeof window === 'undefined') {
+      return { locale: 'und', reduced_motion: false, screen_width: 0 } as const;
+    }
+    const locale =
+      (document && document.documentElement && document.documentElement.lang) ||
+      (navigator && (navigator as any).language) ||
+      'und';
+    const reduced = window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
+    const width = window.innerWidth || 0;
+    return { locale, reduced_motion: reduced, screen_width: width } as const;
   };
 
-  // Robust asset resolution respecting Vite's base path
-  const resolveAsset = (relativePath: string): string => {
-    const base = (import.meta as any).env?.BASE_URL ?? '/';
-    const baseClean = String(base).replace(/\/$/, '');
-    const relClean = String(relativePath).replace(/^\//, '');
-    return `${baseClean}/${relClean}`;
-  };
+  const tl = (key: string) => t(`landing.${key}` as any);
 
-  const rootAsset = (relativePath: string): string => {
-    const relClean = String(relativePath).replace(/^\//, '');
-    return `/${relClean}`;
-  };
+  useAIMetadata({
+    file: 'client/src/components/Landing/Sections/HeroLogos.tsx',
+    section: {
+      id: 'hero-logos',
+      title: tl('hero.logos.title'),
+      description: tl('hero.logos.description'),
+    },
+  });
 
-  // Statische Logos mit optimierten Werten
-  const logos: readonly Logo[] = [
-    { 
-      key: 'sap',
-      src: resolveAsset('assets/sap.svg'),
-      rawSrc: rootAsset('assets/sap.svg'), 
-      altKey: 'hero.logos.sap',
-      width: 100,
-      height: 40
-    },
-    { 
-      key: 'microsoft',
-      src: resolveAsset('assets/microsoft.svg'),
-      rawSrc: rootAsset('assets/microsoft.svg'), 
-      altKey: 'hero.logos.microsoft',
-      width: 140,
-      height: 30
-    },
-    { 
-      key: 'googleCloud',
-      src: resolveAsset('assets/google-cloud.svg'),
-      rawSrc: rootAsset('assets/google-cloud.svg'), 
-      altKey: 'hero.logos.googleCloud',
-      width: 140,
-      height: 30
-    },
-    {
-      key: 'openai',
-      src: resolveAsset('assets/openai.svg'),
-      rawSrc: rootAsset('assets/openai.svg'),
-      altKey: 'hero.logos.openai',
-      width: 120,
-      height: 30,
-    },
-    {
-      key: 'grok',
-      src: resolveAsset('assets/grok.svg'),
-      rawSrc: rootAsset('assets/grok.svg'),
-      altKey: 'hero.logos.grok',
-      width: 120,
-      height: 30,
-    },
-  ] as const;
+  // Continuous animation only; no Play/Pause state
 
-  // Fallback Alt-Texte pro Logo (falls i18n-Keys fehlen)
-  const altFallbacks: Record<LogoKey, string> = {
-    sap: 'SAP Logo',
-    microsoft: 'Microsoft Logo',
-    googleCloud: 'Google Cloud Logo',
-    openai: 'OpenAI Logo',
-    grok: 'Grok (xAI) Logo',
-  };
+  // Impression tracking once when the logo row becomes visible
+  useEffect(() => {
+    const node = rootRef.current;
+    if (!node || typeof window === 'undefined' || typeof IntersectionObserver === 'undefined')
+      return;
+    let fired = false;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!fired && e.isIntersecting && e.intersectionRatio >= 0.4) {
+            fired = true;
+            track({ name: 'hero_logos_impression', props: { variant, ...getEventContext() } });
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: [0, 0.25, 0.4, 0.6, 1] },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, [variant]);
+
+  const renderLogos = (ariaHidden = false) =>
+    logos.map((logo, i) => (
+      <LogoCard
+        key={`${ariaHidden ? 'b-' : ''}${logo.key}-${i}`}
+        logo={logo}
+        ariaHidden={ariaHidden}
+        altText={tl(`hero.logos.${logo.key}`) || altFallbacks[logo.key]}
+        renderMode={filterModeLogos.has(logo.key) ? 'image' : 'mask'}
+        onClick={
+          !ariaHidden
+            ? () =>
+                track({
+                  name: 'hero_logo_click',
+                  props: { brand: logo.key, variant, ...getEventContext() },
+                })
+            : undefined
+        }
+        interactive={!ariaHidden}
+      />
+    ));
 
   return (
-    <section className={cn('w-full py-10 md:py-12 overflow-hidden', className)}>
-      <h2 className="sr-only">Unsere Kunden</h2>
-      <motion.p 
-        className="text-center text-sm font-semibold uppercase tracking-wider text-gray-400 mb-6 md:mb-8"
+    <section
+      className={cn('w-full overflow-hidden overflow-x-clip', className)}
+      data-section="hero-logos"
+      data-ai-section="hero-logos"
+      ref={rootRef as any}
+      aria-label={tl('hero.logos.ariaLabel')}
+    >
+      {/* Play/Pause control removed intentionally */}
+      <motion.p
+        className="mb-5 text-center font-semibold uppercase tracking-[0.14em] text-gray-400 md:mb-7"
+        style={{ fontSize: 'clamp(0.75rem, 0.9vw, 0.875rem)' }}
         initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.6 }}
+        viewport={{ ...IN_VIEW_ONCE, amount: 0.6 }}
         transition={{ duration: 0.5 }}
       >
-        {getTranslation('hero.trustedBy', 'Vertrauen Sie den Besten')}
+        {tl('hero.trustedBy')}
       </motion.p>
-      
-      {/* Modernes Laufband mit automatischer Animation */}
-      <div className="relative w-full max-w-full mx-auto">
-        {/* Subtiler Gradient-Overlay für die Ränder */}
-        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-gray-900/90 to-transparent z-10" />
-        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-gray-900/90 to-transparent z-10" />
-        
-        <motion.div 
-          className="flex items-center gap-12 md:gap-16 py-4"
-          animate={prefersReducedMotion ? undefined : { x: ["0%", "-60%"] }}
-          transition={prefersReducedMotion ? undefined : { duration: 30, ease: "linear", repeat: Infinity, repeatType: "loop" }}
+
+      <div
+        className={cn(
+          'relative mx-auto overflow-hidden',
+          fullBleed
+            ? 'w-full max-w-[100vw] md:left-1/2 md:w-screen md:-translate-x-1/2'
+            : 'w-full max-w-[100vw]',
+        )}
+      >
+        <div
+          role="list"
+          aria-roledescription="logo carousel"
+          className="flex flex-nowrap items-center py-4"
+          style={{
+            columnGap: 'clamp(1.5rem, 4vw, 3.5rem)',
+            minWidth: 'max-content',
+            animation: shouldAnimate ? `hero-logos-marquee ${baseDuration}s linear infinite` : 'none',
+            willChange: shouldAnimate ? 'transform' : undefined,
+          }}
         >
-          {/* Verdoppelte Logos für nahtloses Scrollen */}
-          {[...logos, ...logos, ...logos].map((logo, index) => (
-            <motion.figure
-              key={`${logo.key}-${index}`}
-              className="relative h-8 w-auto grayscale opacity-70 transition-all hover:grayscale-0 hover:opacity-100"
-              whileHover={prefersReducedMotion ? undefined : { y: -1.5, scale: 1.03 }}
-            >
-              <img
-                src={logo.src}
-                alt={getTranslation(logo.altKey, altFallbacks[logo.key])}
-                width={logo.width}
-                height={logo.height}
-                className="h-full w-auto object-contain"
-                loading="lazy"
-                onError={(e) => {
-                  const img = e.currentTarget as HTMLImageElement & { dataset: DOMStringMap };
-                  if (img.dataset.fallbackApplied !== '1') {
-                    img.dataset.fallbackApplied = '1';
-                    // Fallback auf Root-Pfad
-                    img.src = logo.rawSrc;
-                    // Optionales Logging zur Diagnose
-                    if (typeof window !== 'undefined' && 'console' in window) {
-                      // eslint-disable-next-line no-console
-                      console.warn('[HeroLogos] Fallback to root asset for', logo.key, '->', logo.rawSrc);
-                    }
-                  }
-                }}
-              />
-              <span className="sr-only">{getTranslation(logo.altKey, altFallbacks[logo.key])}</span>
-              
-              {/* Subtiler Glow-Effekt beim Hover */}
-              <motion.div 
-                className="absolute inset-0 -z-10 bg-blue-500/0 blur-md rounded-full"
-                initial={false}
-                whileHover={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}
-              />
-            </motion.figure>
-          ))}
-        </motion.div>
+          {renderLogos(false)}
+          {renderLogos(true)}
+        </div>
+        {/* Weiche Gradient-Masken statt starkem Blur für bessere Performance */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 left-0 z-20 w-24 sm:w-28 md:w-32"
+          style={{
+            maskImage: 'linear-gradient(to right, black 0%, transparent 85%)',
+            WebkitMaskImage: 'linear-gradient(to right, black 0%, transparent 85%)',
+            background: 'linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0))',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 z-20 w-24 sm:w-28 md:w-32"
+          style={{
+            maskImage: 'linear-gradient(to left, black 0%, transparent 85%)',
+            WebkitMaskImage: 'linear-gradient(to left, black 0%, transparent 85%)',
+            background: 'linear-gradient(to left, rgba(0,0,0,0.85), rgba(0,0,0,0))',
+          }}
+        />
       </div>
     </section>
   );

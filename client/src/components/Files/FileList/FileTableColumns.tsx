@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { PlusIcon } from 'lucide-react';
-import { Button, Checkbox, DotsIcon, FileIcon } from '@librechat/client';
+import { Button, Checkbox, DotsIcon } from '@librechat/client';
+import { FileIcon } from '~/components/svg';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { TFile } from 'librechat-data-provider';
 import { formatDate, getFileType } from '~/utils';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 export const fileTableColumns: ColumnDef<TFile>[] = [
   {
@@ -54,8 +55,8 @@ export const fileTableColumns: ColumnDef<TFile>[] = [
     },
     accessorKey: 'filename',
     header: ({ column }) => {
-      const localize = useLocalize();
-      return <>{localize('com_ui_name')}</>;
+      const t = useT();
+      return <>{t('com_ui_name')}</>;
     },
     cell: ({ row }) => {
       const file = row.original;
@@ -68,7 +69,9 @@ export const fileTableColumns: ColumnDef<TFile>[] = [
       return 'Vector Stores';
     },
     cell: ({ row }) => {
-      const { vectorsAttached: attachedVectorStores } = row.original;
+      const original: any = row.original as any;
+      const attachedVectorStores: Array<{ name: string }> =
+        original?.vectorsAttached ?? original?.vectorStores ?? [];
       return (
         <>
           {attachedVectorStores.map((vectorStore, index) => {
@@ -100,10 +103,9 @@ export const fileTableColumns: ColumnDef<TFile>[] = [
   {
     accessorKey: 'updatedAt',
     header: () => {
-      const localize = useLocalize();
       return 'Modified';
     },
-    cell: ({ row }) => formatDate(row.original.updatedAt),
+    cell: ({ row }) => formatDate(String(row.original.updatedAt ?? '')),
   },
   {
     accessorKey: 'actions',

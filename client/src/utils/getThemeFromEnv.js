@@ -3,9 +3,11 @@
  * @returns {import('@librechat/client').IThemeRGB | undefined}
  */
 export function getThemeFromEnv() {
-  // Check if any theme environment variables are set
-  const hasThemeEnvVars = Object.keys(process.env).some((key) =>
-    key.startsWith('REACT_APP_THEME_'),
+  // Access env via Vite. Only whitelisted prefixes are exposed by Vite (see vite.config.ts envPrefix)
+  const env = import.meta.env || {};
+  // Check if any theme environment variables are set (supports VITE_THEME_* and REACT_APP_THEME_)
+  const hasThemeEnvVars = Object.keys(env).some(
+    (key) => key.startsWith('VITE_THEME_') || key.startsWith('REACT_APP_THEME_'),
   );
 
   if (!hasThemeEnvVars) {
@@ -15,8 +17,8 @@ export function getThemeFromEnv() {
   // Build theme object from environment variables
   const theme = {};
 
-  // Helper to get env value with prefix
-  const getEnv = (key) => process.env[`REACT_APP_THEME_${key}`];
+  // Helper: read VITE_ first, then REACT_APP_ (backward compatibility)
+  const getEnv = (key) => env[`VITE_THEME_${key}`] ?? env[`REACT_APP_THEME_${key}`];
 
   // Text colors
   if (getEnv('TEXT_PRIMARY')) theme['rgb-text-primary'] = getEnv('TEXT_PRIMARY');

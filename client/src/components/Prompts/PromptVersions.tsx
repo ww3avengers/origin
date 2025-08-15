@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { Layers3, Crown, Zap } from 'lucide-react';
 import { Tag, TooltipAnchor, Label } from '@librechat/client';
 import type { TPrompt, TPromptGroup } from 'librechat-data-provider';
-import { useLocalize } from '~/hooks';
+import { useLocalize, TranslationKeys } from '~/hooks';
 import { cn } from '~/utils';
 
 const CombinedStatusIcon = ({ description }: { description: string }) => (
@@ -20,12 +20,14 @@ const CombinedStatusIcon = ({ description }: { description: string }) => (
 
 const VersionTags = ({ tags }: { tags: string[] }) => {
   const localize = useLocalize();
+  const tl = (key: string, options?: Record<string, unknown>) =>
+    localize(key as unknown as TranslationKeys, options) as unknown as string;
   const isLatestAndProduction = tags.includes('latest') && tags.includes('production');
 
   if (isLatestAndProduction) {
     return (
       <span className="absolute bottom-3 right-3">
-        <CombinedStatusIcon description={localize('com_ui_latest_production_version')} />
+        <CombinedStatusIcon description={tl('com_ui_latest_production_version')} />
       </span>
     );
   }
@@ -35,44 +37,37 @@ const VersionTags = ({ tags }: { tags: string[] }) => {
       {tags.map((tag, i) => (
         <TooltipAnchor
           description={
-            tag === 'production'
-              ? localize('com_ui_currently_production')
-              : localize('com_ui_latest_version')
+            tag === 'production' ? tl('com_ui_currently_production') : tl('com_ui_latest_version')
           }
           key={`${tag}-${i}`}
           aria-label={
-            tag === 'production'
-              ? localize('com_ui_currently_production')
-              : localize('com_ui_latest_version')
+            tag === 'production' ? tl('com_ui_currently_production') : tl('com_ui_latest_version')
           }
           render={
-            <Tag
-              label={tag}
-              className={cn(
-                'w-24 justify-center border border-transparent',
-                tag === 'production'
-                  ? 'bg-green-100 text-green-500 dark:border-green-500 dark:bg-transparent dark:text-green-500'
-                  : 'bg-blue-100 text-blue-500 dark:border-blue-500 dark:bg-transparent dark:text-blue-500',
-              )}
-              labelClassName="flex items-center m-0 justify-center gap-1"
-              LabelNode={(() => {
-                if (tag === 'production') {
-                  return (
-                    <div className="flex items-center">
-                      <span className="slow-pulse size-2 rounded-full bg-green-400" />
-                    </div>
-                  );
-                }
-                if (tag === 'latest') {
-                  return (
-                    <div className="flex items-center">
-                      <Zap className="size-4" />
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-            />
+            <div className="badge--brand inline-block">
+              <Tag
+                label={tag}
+                className={cn('w-24 justify-center')}
+                labelClassName="flex items-center m-0 justify-center gap-1"
+                LabelNode={(() => {
+                  if (tag === 'production') {
+                    return (
+                      <div className="flex items-center">
+                        <span className="slow-pulse size-2 rounded-full bg-green-400" />
+                      </div>
+                    );
+                  }
+                  if (tag === 'latest') {
+                    return (
+                      <div className="flex items-center">
+                        <Zap className="size-4" />
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              />
+            </div>
           }
         ></TooltipAnchor>
       ))}
@@ -98,6 +93,8 @@ const VersionCard = ({
   tags: string[];
 }) => {
   const localize = useLocalize();
+  const tl = (key: string, options?: Record<string, unknown>) =>
+    localize(key as unknown as TranslationKeys, options) as unknown as string;
 
   return (
     <button
@@ -111,12 +108,12 @@ const VersionCard = ({
       onClick={onClick}
       aria-selected={isSelected}
       role="tab"
-      aria-label={localize('com_ui_version_var', { 0: `${totalVersions - index}` })}
+      aria-label={tl('com_ui_version_var', { 0: `${totalVersions - index}` })}
     >
       <div className="flex flex-col gap-2">
         <div className="flex items-start justify-between lg:flex-col xl:flex-row">
           <h3 className="font-bold text-text-primary">
-            {localize('com_ui_version_var', { 0: `${totalVersions - index}` })}
+            {tl('com_ui_version_var', { 0: `${totalVersions - index}` })}
           </h3>
           <time className="text-xs text-text-secondary" dateTime={prompt.createdAt}>
             {format(new Date(prompt.createdAt), 'yyyy-MM-dd HH:mm')}
@@ -147,13 +144,15 @@ const PromptVersions = ({
   setSelectionIndex: React.Dispatch<React.SetStateAction<number>>;
 }) => {
   const localize = useLocalize();
+  const tl = (key: string, options?: Record<string, unknown>) =>
+    localize(key as unknown as TranslationKeys, options) as unknown as string;
 
   return (
     <section className="my-6" aria-label="Prompt Versions">
       <header className="mb-6">
         <h2 className="flex items-center gap-2 text-base font-semibold text-text-primary">
           <Layers3 className="h-5 w-5 text-green-500" />
-          {localize('com_ui_versions')}
+          {tl('com_ui_versions')}
         </h2>
       </header>
 

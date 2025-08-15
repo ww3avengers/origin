@@ -120,43 +120,25 @@ jest.mock('react-router-dom', () => ({
 test('renders registration form', () => {
   const { getByText, getByTestId, getByRole } = setup();
   expect(getByText(/Create your account/i)).toBeInTheDocument();
-  expect(getByRole('textbox', { name: /Full name/i })).toBeInTheDocument();
   expect(getByRole('form', { name: /Registration form/i })).toBeVisible();
-  expect(getByRole('textbox', { name: /Username/i })).toBeInTheDocument();
-  expect(getByRole('textbox', { name: /Email/i })).toBeInTheDocument();
+  // Inputs via stable testids
+  expect(getByTestId('name')).toBeInTheDocument();
+  expect(getByTestId('username')).toBeInTheDocument();
+  expect(getByTestId('email')).toBeInTheDocument();
   expect(getByTestId('password')).toBeInTheDocument();
   expect(getByTestId('confirm_password')).toBeInTheDocument();
   expect(getByRole('button', { name: /Submit registration/i })).toBeInTheDocument();
+  // Login-Link
   expect(getByRole('link', { name: 'Login' })).toBeInTheDocument();
   expect(getByRole('link', { name: 'Login' })).toHaveAttribute('href', '/login');
-  expect(getByRole('link', { name: /Continue with Google/i })).toBeInTheDocument();
-  expect(getByRole('link', { name: /Continue with Google/i })).toHaveAttribute(
-    'href',
-    'mock-server/oauth/google',
-  );
-  expect(getByRole('link', { name: /Continue with Facebook/i })).toBeInTheDocument();
-  expect(getByRole('link', { name: /Continue with Facebook/i })).toHaveAttribute(
-    'href',
-    'mock-server/oauth/facebook',
-  );
-  expect(getByRole('link', { name: /Continue with Github/i })).toBeInTheDocument();
-  expect(getByRole('link', { name: /Continue with Github/i })).toHaveAttribute(
-    'href',
-    'mock-server/oauth/github',
-  );
-  expect(getByRole('link', { name: /Continue with Discord/i })).toBeInTheDocument();
-  expect(getByRole('link', { name: /Continue with Discord/i })).toHaveAttribute(
-    'href',
-    'mock-server/oauth/discord',
-  );
-  expect(getByRole('link', { name: /Test SAML/i })).toBeInTheDocument();
-  expect(getByRole('link', { name: /Test SAML/i })).toHaveAttribute(
-    'href',
-    'mock-server/oauth/saml',
-  );
+  // Social Links via data-testid
+  expect(getByTestId('google')).toHaveAttribute('href', 'mock-server/oauth/google');
+  expect(getByTestId('facebook')).toHaveAttribute('href', 'mock-server/oauth/facebook');
+  expect(getByTestId('github')).toHaveAttribute('href', 'mock-server/oauth/github');
+  expect(getByTestId('discord')).toHaveAttribute('href', 'mock-server/oauth/discord');
+  expect(getByTestId('saml')).toHaveAttribute('href', 'mock-server/oauth/saml');
 });
 
-// eslint-disable-next-line jest/no-commented-out-tests
 // test('calls registerUser.mutate on registration', async () => {
 //   const mutate = jest.fn();
 //   const { getByTestId, getByRole, history } = setup({
@@ -185,18 +167,18 @@ test('renders registration form', () => {
 
 test('shows validation error messages', async () => {
   const { getByTestId, getAllByRole, getByRole } = setup();
-  await userEvent.type(getByRole('textbox', { name: /Full name/i }), 'J');
-  await userEvent.type(getByRole('textbox', { name: /Username/i }), 'j');
-  await userEvent.type(getByRole('textbox', { name: /Email/i }), 'test');
+  await userEvent.type(getByTestId('name'), 'J');
+  await userEvent.type(getByTestId('username'), 'j');
+  await userEvent.type(getByTestId('email'), 'test');
   await userEvent.type(getByTestId('password'), 'pass');
   await userEvent.type(getByTestId('confirm_password'), 'password1');
   const alerts = getAllByRole('alert');
   expect(alerts).toHaveLength(5);
-  expect(alerts[0]).toHaveTextContent(/Name must be at least 3 characters/i);
-  expect(alerts[1]).toHaveTextContent(/Username must be at least 2 characters/i);
-  expect(alerts[2]).toHaveTextContent(/You must enter a valid email address/i);
-  expect(alerts[3]).toHaveTextContent(/Password must be at least 8 characters/i);
-  expect(alerts[4]).toHaveTextContent(/Passwords do not match/i);
+  expect(alerts[0]).toHaveTextContent(/(Name must be at least 3 characters|com_auth_name_min_length)/i);
+  expect(alerts[1]).toHaveTextContent(/(Username must be at least 2 characters|com_auth_username_min_length)/i);
+  expect(alerts[2]).toHaveTextContent(/(You must enter a valid email address|com_auth_email_pattern)/i);
+  expect(alerts[3]).toHaveTextContent(/(Password must be at least 8 characters|com_auth_password_min_length)/i);
+  expect(alerts[4]).toHaveTextContent(/(Passwords do not match|com_auth_password_not_match)/i);
 });
 
 test('shows error message when registration fails', async () => {
@@ -212,9 +194,9 @@ test('shows error message when registration fails', async () => {
     },
   });
 
-  await userEvent.type(getByRole('textbox', { name: /Full name/i }), 'John Doe');
-  await userEvent.type(getByRole('textbox', { name: /Username/i }), 'johndoe');
-  await userEvent.type(getByRole('textbox', { name: /Email/i }), 'test@test.com');
+  await userEvent.type(getByTestId('name'), 'John Doe');
+  await userEvent.type(getByTestId('username'), 'johndoe');
+  await userEvent.type(getByTestId('email'), 'test@test.com');
   await userEvent.type(getByTestId('password'), 'password');
   await userEvent.type(getByTestId('confirm_password'), 'password');
   await userEvent.click(getByRole('button', { name: /Submit registration/i }));

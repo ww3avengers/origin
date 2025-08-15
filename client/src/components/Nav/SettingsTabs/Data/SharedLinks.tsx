@@ -15,15 +15,16 @@ import {
   OGDialogTitle,
   TooltipAnchor,
   DataTable,
-  Spinner,
   Button,
   Label,
 } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { useDeleteSharedLinkMutation, useSharedLinksQuery } from '~/data-provider';
 import { useLocalize } from '~/hooks';
 import { NotificationSeverity } from '~/common';
 import { formatDate } from '~/utils';
 import store from '~/store';
+import { Row } from '@tanstack/react-table';
 
 const PAGE_SIZE = 25;
 
@@ -55,7 +56,7 @@ export default function SharedLinks() {
     });
 
   const handleSort = useCallback((sortField: string, sortOrder: 'asc' | 'desc') => {
-    setQueryParams((prev) => ({
+    setQueryParams((prev: SharedLinksListParams) => ({
       ...prev,
       sortBy: sortField as 'title' | 'createdAt',
       sortDirection: sortOrder,
@@ -64,7 +65,7 @@ export default function SharedLinks() {
 
   const handleFilterChange = useCallback((value: string) => {
     const encodedValue = encodeURIComponent(value.trim());
-    setQueryParams((prev) => ({
+    setQueryParams((prev: SharedLinksListParams) => ({
       ...prev,
       search: encodedValue,
     }));
@@ -95,7 +96,7 @@ export default function SharedLinks() {
       setDeleteRow(null);
       await refetch();
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
       console.error('Delete error:', error);
       showToast({
         message: localize('com_ui_share_delete_error'),
@@ -182,7 +183,7 @@ export default function SharedLinks() {
             </Button>
           );
         },
-        cell: ({ row }) => {
+        cell: ({ row }: { row: Row<SharedLinkItem> }) => {
           const { title, shareId } = row.original;
           return (
             <div className="flex items-center gap-2">
@@ -312,7 +313,7 @@ export default function SharedLinks() {
             onFilterChange={debouncedFilterChange}
             filterValue={queryParams.search}
             isLoading={isLoading}
-            enableSearch={isSearchEnabled}
+            enableSearch={Boolean(isSearchEnabled)}
           />
         </OGDialogContent>
       </OGDialog>
@@ -337,7 +338,11 @@ export default function SharedLinks() {
             selectClasses: `bg-red-700 dark:bg-red-600 hover:bg-red-800 dark:hover:bg-red-800 text-white ${
               deleteMutation.isLoading ? 'cursor-not-allowed opacity-80' : ''
             }`,
-            selectText: deleteMutation.isLoading ? <Spinner /> : localize('com_ui_delete'),
+            selectText: deleteMutation.isLoading ? (
+              <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading` as string} />
+            ) : (
+              localize('com_ui_delete')
+            ),
           }}
         />
       </OGDialog>

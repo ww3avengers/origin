@@ -1,11 +1,12 @@
 import React from 'react';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
-import { useAuthContext, useLocalize } from '~/hooks';
+import { useAuthContext } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import TokenCreditsItem from './TokenCreditsItem';
 import AutoRefillSettings from './AutoRefillSettings';
 
 function Balance() {
-  const localize = useLocalize();
+  const t = useT();
   const { isAuthenticated } = useAuthContext();
   const { data: startupConfig } = useGetStartupConfig();
 
@@ -46,14 +47,10 @@ function Balance() {
             refillIntervalValue={refillIntervalValue}
           />
         ) : (
-          <div className="text-sm text-red-600">
-            {localize('com_nav_balance_auto_refill_error')}
-          </div>
+          <div className="text-sm text-red-600">{t('com_nav_balance_auto_refill_error')}</div>
         )
       ) : (
-        <div className="text-sm text-gray-600">
-          {localize('com_nav_balance_auto_refill_disabled')}
-        </div>
+        <div className="text-sm text-gray-600">{t('com_nav_balance_auto_refill_disabled')}</div>
       )}
     </div>
   );

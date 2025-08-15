@@ -15,7 +15,8 @@ import {
   // DropdownMenuContent,
   // DropdownMenuTrigger,
 } from '@librechat/client';
-import { useLocalize, useCustomLink, useAuthContext } from '~/hooks';
+import { useCustomLink, useAuthContext } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import AdvancedSwitch from '~/components/Prompts/AdvancedSwitch';
 // import { RightPanel } from '../../components/Prompts/RightPanel';
 import AdminSettings from '~/components/Prompts/AdminSettings';
@@ -35,9 +36,7 @@ const getConversationId = (prevLocationPath: string) => {
 
 export default function DashBreadcrumb() {
   const location = useLocation();
-  const localize = useLocalize();
-  // Lokaler, flexibler Wrapper um starre Key-Unions zu umgehen und stets string zu liefern
-  const lz = localize as unknown as (key: string, options?: any) => string;
+  const t = useT();
   const { user } = useAuthContext();
   const { prevLocationPath } = useDashboardContext();
   const lastConversationId = useMemo(() => getConversationId(prevLocationPath), [prevLocationPath]);
@@ -70,8 +69,8 @@ export default function DashBreadcrumb() {
               onClick={chatLinkHandler}
             >
               <ArrowLeft className="icon-xs" aria-hidden="true" />
-              <span className="hidden md:flex">{lz('translation:com_ui_back_to_chat')}</span>
-              <span className="flex md:hidden">{lz('translation:com_ui_chat')}</span>
+              <span className="hidden md:flex">{t('com_ui_back_to_chat')}</span>
+              <span className="flex md:hidden">{t('com_ui_chat')}</span>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -101,7 +100,7 @@ export default function DashBreadcrumb() {
               onClick={promptsLinkHandler}
             >
               <MessageSquareQuote className="h-4 w-4 dark:text-gray-300" aria-hidden="true" />
-              {lz('translation:com_ui_prompts')}
+              {t('com_ui_prompts')}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>

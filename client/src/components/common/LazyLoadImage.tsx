@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
 interface LazyLoadImageProps {
@@ -20,44 +20,69 @@ const LazyLoadImage: FC<LazyLoadImageProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [imageSrc, setImageSrc] = useState(placeholderSrc);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const img = new Image();
-    img.src = src;
-    
+    if (typeof window === 'undefined') return;
+    let observer: IntersectionObserver | null = null;
+    let img: HTMLImageElement | null = null;
+    let cancelled = false;
+
+    const el = containerRef.current;
+    if (!el) return;
+
     const handleLoad = () => {
+      if (cancelled) return;
       setImageSrc(src);
       setIsLoaded(true);
     };
 
-    img.addEventListener('load', handleLoad);
-    
-    // Lazy load with Intersection Observer
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          img.src = src;
-          observer.disconnect();
-        }
-      });
-    });
+    const startLoading = () => {
+      // Nur beim Eintreten in Viewport starten
+      img = new Image();
+      img.addEventListener('load', handleLoad);
+      img.src = src;
+    };
 
-    const current = img;
-    observer.observe(current);
+    try {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (entry?.isIntersecting) {
+            startLoading();
+            observer?.disconnect();
+            observer = null;
+          }
+        },
+        { threshold: 0.1 },
+      );
+      observer.observe(el);
+    } catch {
+      // Fallback: wenn IO nicht verfügbar, sofort laden
+      startLoading();
+    }
 
     return () => {
-      current.removeEventListener('load', handleLoad);
-      observer.disconnect();
+      cancelled = true;
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      if (img) {
+        img.removeEventListener('load', handleLoad);
+        img = null;
+      }
     };
   }, [src]);
 
   return (
     <motion.div
+      ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: isLoaded ? 1 : 0.5 }}
       transition={{ duration: 0.5 }}
       className={`${className} transition-opacity duration-300 ${
-        !isLoaded ? 'bg-gray-700 animate-pulse' : ''
+        !isLoaded ? 'animate-pulse bg-gray-700' : ''
       }`}
       style={{
         width,
@@ -70,9 +95,7 @@ const LazyLoadImage: FC<LazyLoadImageProps> = ({
       <img
         src={imageSrc}
         alt={alt}
-        className={`w-full h-full object-cover ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`h-full w-full object-cover ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         loading="lazy"
         decoding="async"
       />

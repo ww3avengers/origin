@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Spinner } from '@librechat/client';
+// removed unused Spinner import
 import { useParams } from 'react-router-dom';
 import { Constants, EModelEndpoint } from 'librechat-data-provider';
 import { useGetModelsQuery } from 'librechat-data-provider/react-query';
@@ -8,6 +8,7 @@ import { useGetConvoIdQuery, useGetStartupConfig, useGetEndpointsQuery } from '~
 import { useNewConvo, useAppStartup, useAssistantListMap, useIdChangeEffect } from '~/hooks';
 import { getDefaultModelSpec, getModelSpecPreset, logger } from '~/utils';
 import { ToolCallsMapProvider } from '~/Providers';
+import LoadingState from '~/components/ui/LoadingState';
 import ChatView from '~/components/Chat/ChatView';
 import useAuthRedirect from './useAuthRedirect';
 import temporaryStore from '~/store/temporary';
@@ -122,11 +123,7 @@ export default function ChatRoute() {
   ]);
 
   if (endpointsQuery.isLoading || modelsQuery.isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center" aria-live="polite" role="status">
-        <Spinner className="text-text-primary" />
-      </div>
-    );
+    return <LoadingState fullScreen label="Loading..." />;
   }
 
   if (!isAuthenticated) {
@@ -148,7 +145,7 @@ export default function ChatRoute() {
 
   return (
     <ToolCallsMapProvider conversationId={conversation.conversationId ?? ''}>
-      <ChatView index={index} />
+      <ChatView />
     </ToolCallsMapProvider>
   );
 }

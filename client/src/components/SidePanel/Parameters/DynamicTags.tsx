@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useRef } from 'react';
 import type { DynamicSettingProps } from 'librechat-data-provider';
 import { Label, Input, HoverCard, HoverCardTrigger, Tag, useToastContext } from '@librechat/client';
 import { TranslationKeys, useLocalize, useParameterEffects } from '~/hooks';
+import { useTl } from '~/utils/i18n';
 import { useChatContext } from '~/Providers';
 import OptionHover from './OptionHover';
 import { ESide } from '~/common';
@@ -26,6 +27,7 @@ function DynamicTags({
   maxTags,
 }: DynamicSettingProps) {
   const localize = useLocalize();
+  const tl = useTl();
   const { preset } = useChatContext();
   const { showToast } = useToastContext();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +63,7 @@ function DynamicTags({
 
       if (minTags != null && currentTags.length <= minTags) {
         showToast({
-          message: localize('com_ui_min_tags', { 0: minTags + '' }),
+          message: tl('com_ui_min_tags', { 0: String(minTags) }),
           status: 'warning',
         });
         return;
@@ -80,7 +82,7 @@ function DynamicTags({
     let update = [...(currentTags ?? []), tagText];
     if (maxTags != null && update.length > maxTags) {
       showToast({
-        message: localize('com_ui_max_tags', { 0: maxTags + '' }),
+        message: tl('com_ui_max_tags', { 0: String(maxTags) }),
         status: 'warning',
       });
       update = update.slice(-maxTags);
@@ -112,13 +114,13 @@ function DynamicTags({
               htmlFor={`${settingKey}-dynamic-input`}
               className="text-left text-sm font-medium"
             >
-              {labelCode ? (localize(label as TranslationKeys) ?? label) : label || settingKey}{' '}
+              {labelCode ? (tl(label as TranslationKeys) ?? label) : label || settingKey}{' '}
               {showDefault && (
                 <small className="opacity-40">
                   (
                   {typeof defaultValue === 'undefined' || !(defaultValue as string).length
-                    ? localize('com_endpoint_default_blank')
-                    : `${localize('com_endpoint_default')}: ${defaultValue}`}
+                    ? tl('com_endpoint_default_blank')
+                    : `${tl('com_endpoint_default')}: ${defaultValue}`}
                   )
                 </small>
               )}
@@ -129,17 +131,18 @@ function DynamicTags({
               {currentTags && currentTags.length > 0 && (
                 <div className="flex w-full gap-1 p-1">
                   {currentTags.map((tag: string, index: number) => (
-                    <Tag
-                      key={`${tag}-${index}`}
-                      label={tag}
-                      onClick={onTagClick}
-                      onRemove={() => {
-                        onTagRemove(index);
-                        if (inputRef.current) {
-                          inputRef.current.focus();
-                        }
-                      }}
-                    />
+                    <div key={`${tag}-${index}`} className="badge--brand inline-block">
+                      <Tag
+                        label={tag}
+                        onClick={onTagClick}
+                        onRemove={() => {
+                          onTagRemove(index);
+                          if (inputRef.current) {
+                            inputRef.current.focus();
+                          }
+                        }}
+                      />
+                    </div>
                   ))}
                 </div>
               )}
@@ -162,7 +165,7 @@ function DynamicTags({
                 onChange={(e) => setTagText(e.target.value)}
                 placeholder={
                   placeholderCode
-                    ? (localize(placeholder as TranslationKeys) ?? placeholder)
+                    ? (tl(placeholder as TranslationKeys) ?? placeholder)
                     : placeholder
                 }
                 className={cn('flex h-10 max-h-10 border-none bg-surface-secondary px-3 py-2')}
@@ -173,9 +176,7 @@ function DynamicTags({
         {description && (
           <OptionHover
             description={
-              descriptionCode
-                ? (localize(description as TranslationKeys) ?? description)
-                : description
+              descriptionCode ? (tl(description as TranslationKeys) ?? description) : description
             }
             side={descriptionSide as ESide}
           />

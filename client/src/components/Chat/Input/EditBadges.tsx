@@ -42,7 +42,7 @@ const EditBadgesComponent = ({
           </div>
         </span>
         <span className="text-token-text-secondary line-clamp-3 flex-1 py-0.5 font-semibold">
-          {localize('com_ui_save_badge_changes')}
+          {String(localize('com_ui_save_badge_changes' as any))}
         </span>
         <div className="flex h-8 gap-2">
           <Button
@@ -68,7 +68,7 @@ const EditBadgesComponent = ({
       {unavailableBadges && unavailableBadges.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 p-2">
           {unavailableBadges.map((badge) => (
-            <div key={badge.id} className="badge-icon">
+            <div key={badge.id} className="badge-icon badge--brand">
               <Badge
                 icon={badge.icon as unknown as LucideIcon}
                 label={badge.label}

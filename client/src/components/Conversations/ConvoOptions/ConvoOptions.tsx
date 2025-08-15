@@ -1,7 +1,8 @@
 import { useState, useId, useRef, memo, useCallback, useMemo } from 'react';
 import * as Menu from '@ariakit/react/menu';
 import { useParams, useNavigate } from 'react-router-dom';
-import { DropdownPopup, Spinner, useToastContext } from '@librechat/client';
+import { DropdownPopup, useToastContext } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { Ellipsis, Share2, Copy, Archive, Pen, Trash } from 'lucide-react';
 import type { MouseEvent } from 'react';
 import {
@@ -10,6 +11,7 @@ import {
   useArchiveConvoMutation,
 } from '~/data-provider';
 import { useLocalize, useNavigateToConvo, useNewConvo } from '~/hooks';
+import type { TranslationKeys } from '@librechat/client';
 import { NotificationSeverity } from '~/common';
 import { useChatContext } from '~/Providers';
 import DeleteButton from './DeleteButton';
@@ -34,6 +36,8 @@ function ConvoOptions({
   isActiveConvo: boolean;
 }) {
   const localize = useLocalize();
+  // Helper für getaggte i18n-Keys
+  const t = (key: TranslationKeys) => localize([key] as unknown as TemplateStringsArray);
   const { index } = useChatContext();
   const { data: startupConfig } = useGetStartupConfig();
   const { navigateToConvo } = useNavigateToConvo(index);
@@ -54,20 +58,20 @@ function ConvoOptions({
     onSuccess: (data) => {
       navigateToConvo(data.conversation);
       showToast({
-        message: localize('com_ui_duplication_success'),
+        message: localize`com_ui_duplication_success`,
         status: 'success',
       });
       setIsPopoverActive(false);
     },
     onMutate: () => {
       showToast({
-        message: localize('com_ui_duplication_processing'),
+        message: localize`com_ui_duplication_processing`,
         status: 'info',
       });
     },
     onError: () => {
       showToast({
-        message: localize('com_ui_duplication_error'),
+        message: localize`com_ui_duplication_error`,
         status: 'error',
       });
     },
@@ -103,7 +107,7 @@ function ConvoOptions({
         },
         onError: () => {
           showToast({
-            message: localize('com_ui_archive_error'),
+            message: localize`com_ui_archive_error`,
             severity: NotificationSeverity.ERROR,
             showIcon: true,
           });
@@ -131,46 +135,46 @@ function ConvoOptions({
   const dropdownItems = useMemo(
     () => [
       {
-        label: localize('com_ui_share'),
+        label: t('com_ui_share'),
         onClick: handleShareClick,
         icon: <Share2 className="icon-sm mr-2 text-text-primary" />,
         show: startupConfig && startupConfig.sharedLinksEnabled,
         hideOnClick: false,
         ref: shareButtonRef,
-        render: (props) => <button {...props} />,
+        render: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />,
       },
       {
-        label: localize('com_ui_rename'),
+        label: t('com_ui_rename'),
         onClick: renameHandler,
         icon: <Pen className="icon-sm mr-2 text-text-primary" />,
       },
       {
-        label: localize('com_ui_duplicate'),
+        label: t('com_ui_duplicate'),
         onClick: handleDuplicateClick,
         hideOnClick: false,
         icon: isDuplicateLoading ? (
-          <Spinner className="size-4" />
+          <InlineSpinner size="xs" />
         ) : (
           <Copy className="icon-sm mr-2 text-text-primary" />
         ),
       },
       {
-        label: localize('com_ui_archive'),
+        label: t('com_ui_archive'),
         onClick: handleArchiveClick,
         hideOnClick: false,
         icon: isArchiveLoading ? (
-          <Spinner className="size-4" />
+          <InlineSpinner size="xs" />
         ) : (
           <Archive className="icon-sm mr-2 text-text-primary" />
         ),
       },
       {
-        label: localize('com_ui_delete'),
+        label: t('com_ui_delete'),
         onClick: handleDeleteClick,
         icon: <Trash className="icon-sm mr-2 text-text-primary" />,
         hideOnClick: false,
         ref: deleteButtonRef,
-        render: (props) => <button {...props} />,
+        render: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />,
       },
     ],
     [
@@ -200,7 +204,7 @@ function ConvoOptions({
         trigger={
           <Menu.MenuButton
             id={`conversation-menu-${conversationId}`}
-            aria-label={localize('com_nav_convo_menu_options')}
+            aria-label={localize`com_nav_convo_menu_options`}
             className={cn(
               'inline-flex h-7 w-7 items-center justify-center gap-2 rounded-md border-none p-0 text-sm font-medium ring-ring-primary transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50',
               isActiveConvo === true || isPopoverActive

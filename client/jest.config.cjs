@@ -26,7 +26,10 @@ module.exports = {
     '\\.(css)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       'jest-file-loader',
+    // Compat: alte Tests importieren noch 'extend-expect' – leite um auf neues Entrypoint
+    '^@testing-library/jest-dom/extend-expect$': '@testing-library/jest-dom',
     '^test/(.*)$': '<rootDir>/test/$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
     '^~/(.*)$': '<rootDir>/src/$1',
     '^librechat-data-provider/react-query$': '<rootDir>/../node_modules/librechat-data-provider/src/react-query',
   },
@@ -40,6 +43,6 @@ module.exports = {
   },
   transformIgnorePatterns: ['node_modules/?!@zattoo/use-double-click'],
   preset: 'ts-jest',
-  setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect', '<rootDir>/test/setupTests.js'],
+  setupFilesAfterEnv: ['@testing-library/jest-dom', '<rootDir>/test/setupTests.js'],
   clearMocks: true,
 };

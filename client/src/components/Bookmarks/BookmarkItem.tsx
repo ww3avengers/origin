@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Spinner } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { MenuItem } from '@headlessui/react';
 import { BookmarkFilledIcon, BookmarkIcon } from '@radix-ui/react-icons';
 import type { FC } from 'react';
@@ -36,7 +36,7 @@ const BookmarkItem: FC<MenuItemProps> = ({ tag, selected, handleSubmit, icon, ..
     }
 
     if (isLoading) {
-      return <Spinner className="size-4" />;
+      return <InlineSpinner size="xs" />;
     }
 
     if (selected) {

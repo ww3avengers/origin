@@ -9,6 +9,9 @@ import {
 import type * as t from 'librechat-data-provider';
 import type { LocalizeFunction, IconsRecord } from '~/common';
 
+// Lokaler Typalias: Keys der EModelEndpoint-Value-Map
+type TEndpointKey = keyof typeof EModelEndpoint;
+
 export const getEntityName = ({
   name = '',
   localize,
@@ -41,16 +44,16 @@ export const getAvailableEndpoints = (
   endpointsConfig: t.TEndpointsConfig,
 ) => {
   const defaultSet = new Set(defaultEndpoints);
-  const availableEndpoints: EModelEndpoint[] = [];
+  const availableEndpoints: TEndpointKey[] = [];
 
   for (const endpoint in endpointsConfig) {
     // Check if endpoint is in the filter or its type is in defaultEndpoints
     if (
       filter[endpoint] ||
       (endpointsConfig[endpoint]?.type &&
-        defaultSet.has(endpointsConfig[endpoint]?.type as EModelEndpoint))
+        defaultSet.has(endpointsConfig[endpoint]?.type as TEndpointKey))
     ) {
-      availableEndpoints.push(endpoint as EModelEndpoint);
+      availableEndpoints.push(endpoint as TEndpointKey);
     }
   }
 
@@ -60,7 +63,7 @@ export const getAvailableEndpoints = (
 /** Get the specified field from the endpoint config */
 export function getEndpointField<K extends keyof t.TConfig>(
   endpointsConfig: t.TEndpointsConfig | undefined | null,
-  endpoint: EModelEndpoint | string | null | undefined,
+  endpoint: TEndpointKey | string | null | undefined,
   property: K,
 ): t.TConfig[K] | undefined {
   if (!endpointsConfig || endpoint === null || endpoint === undefined) {
@@ -116,7 +119,7 @@ export function updateLastSelectedModel({
 
 interface ConversationInitParams {
   conversation: t.TConversation | null;
-  newEndpoint: EModelEndpoint | string | null;
+  newEndpoint: TEndpointKey | string | null;
   endpointsConfig: t.TEndpointsConfig;
   modularChat?: boolean;
 }
@@ -127,7 +130,7 @@ interface InitiatedTemplateResult {
   isExistingConversation: boolean;
   isCurrentModular: boolean;
   isNewModular: boolean;
-  newEndpointType: EModelEndpoint | undefined;
+  newEndpointType: TEndpointKey | undefined;
 }
 
 /** Get the conditional logic for switching conversations */
@@ -153,7 +156,7 @@ export function getConvoSwitchLogic(params: ConversationInitParams): InitiatedTe
     getEndpointField(endpointsConfig, currentEndpoint, 'type') ?? currentEndpoint;
   const newEndpointType =
     getEndpointField(endpointsConfig, newEndpoint, 'type') ??
-    (newEndpoint as EModelEndpoint | undefined);
+    (newEndpoint as TEndpointKey | undefined);
 
   const hasEndpoint = modularEndpoints.has(currentEndpoint ?? '');
   const hasCurrentEndpointType = modularEndpoints.has(currentEndpointType ?? '');
@@ -186,10 +189,10 @@ export function getDefaultModelSpec(startupConfig?: t.TStartupConfig) {
   if (!list) {
     return;
   }
-  const defaultSpec = list?.find((spec) => spec.default);
+  const defaultSpec = list?.find((spec: t.TModelSpec) => spec.default);
   if (prioritize === true || !interfaceConfig?.modelSelect) {
     const lastSelectedSpecName = localStorage.getItem(LocalStorageKeys.LAST_SPEC);
-    const lastSelectedSpec = list?.find((spec) => spec.name === lastSelectedSpecName);
+    const lastSelectedSpec = list?.find((spec: t.TModelSpec) => spec.name === lastSelectedSpecName);
     return defaultSpec || lastSelectedSpec || list?.[0];
   } else if (defaultSpec) {
     return defaultSpec;
@@ -200,7 +203,7 @@ export function getDefaultModelSpec(startupConfig?: t.TStartupConfig) {
   if (!lastConversationSetup.spec) {
     return;
   }
-  return list?.find((spec) => spec.name === lastConversationSetup.spec);
+  return list?.find((spec: t.TModelSpec) => spec.name === lastConversationSetup.spec);
 }
 
 export function getModelSpecPreset(modelSpec?: t.TModelSpec) {
@@ -252,8 +255,8 @@ export function getIconKey({
 }): keyof IconsRecord {
   const endpointType = _eType ?? getEndpointField(endpointsConfig, endpoint, 'type') ?? '';
   const endpointIconURL = iconURL ?? getEndpointField(endpointsConfig, endpoint, 'iconURL') ?? '';
-  if (endpointIconURL && EModelEndpoint[endpointIconURL] != null) {
-    return endpointIconURL;
+  if (endpointIconURL && Object.prototype.hasOwnProperty.call(EModelEndpoint, endpointIconURL)) {
+    return endpointIconURL as keyof IconsRecord;
   }
   return endpointType ? 'unknown' : (endpoint ?? 'unknown');
 }
@@ -265,7 +268,7 @@ export const getEntity = ({
   agentsMap,
   assistantMap,
 }: {
-  endpoint: EModelEndpoint | string | null | undefined;
+  endpoint: TEndpointKey | string | null | undefined;
   assistant_id: string | undefined;
   agent_id: string | undefined;
   agentsMap: t.TAgentsMap | undefined;

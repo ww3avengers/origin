@@ -3,11 +3,10 @@ import path from 'path';
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, mode }) => ({
   server: {
     host: 'localhost',
     port: 3090,
@@ -25,10 +24,9 @@ export default defineConfig(({ command }) => ({
   },
   // Set the directory where environment variables are loaded from and restrict prefixes
   envDir: '../',
-  envPrefix: ['VITE_', 'SCRIPT_', 'DOMAIN_', 'ALLOW_'],
+  envPrefix: ['VITE_'],
   plugins: [
     react(),
-    nodePolyfills(),
     VitePWA({
       injectRegister: 'auto', // 'auto' | 'manual' | 'disabled'
       registerType: 'autoUpdate', // 'prompt' | 'autoUpdate'
@@ -93,7 +91,8 @@ export default defineConfig(({ command }) => ({
       threshold: 10240,
     }),
   ],
-  publicDir: command === 'serve' ? './public' : false,
+  // Ensure public assets (icons, manifest, etc.) are copied in both dev and build
+  publicDir: './public',
   build: {
     sourcemap: process.env.NODE_ENV === 'development',
     outDir: './dist',
@@ -234,6 +233,13 @@ export default defineConfig(({ command }) => ({
       '~': path.join(__dirname, 'src/'),
       $fonts: path.resolve(__dirname, 'public/fonts'),
       'micromark-extension-math': 'micromark-extension-llm-math',
+      // Force alias to local no-op shim to bypass broken package resolution
+      'react-helmet-async': path.resolve(
+        __dirname,
+        'src/shims/react-helmet-async.tsx',
+      ),
+      // Restore process alias used by some dependencies in PWA build
+      'unenv/node/process': 'process',
     },
   },
 }));

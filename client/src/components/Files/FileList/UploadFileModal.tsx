@@ -1,10 +1,8 @@
 import React, { useState, ChangeEvent } from 'react';
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, Input } from '@librechat/client';
-import { useLocalize } from '~/hooks';
 import { cn } from '~/utils';
 
 const UploadFileModal = ({ open, onOpenChange }) => {
-  const localize = useLocalize();
   const [file, setFile] = useState<File | null>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {

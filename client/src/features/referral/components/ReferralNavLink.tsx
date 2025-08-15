@@ -20,7 +20,7 @@ const ReferralNavLink: React.FC<ReferralNavLinkProps> = ({ onClose }) => {
 
   return (
     <a
-      className={`flex py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-500/10 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 ${
+      className={`mb-2 flex flex-shrink-0 cursor-pointer items-center gap-3 rounded-md px-3 py-3 text-sm text-white transition-colors duration-200 hover:bg-gray-500/10 ${
         isActive ? 'bg-gray-800' : ''
       }`}
       onClick={handleClick}
@@ -28,7 +28,7 @@ const ReferralNavLink: React.FC<ReferralNavLinkProps> = ({ onClose }) => {
       <UsersIcon className="h-4 w-4" />
       <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">Empfehlungen</span>
       {isActive && (
-        <span className="w-2 h-2 rounded-full bg-indigo-500 ml-auto mr-1 flex-shrink-0" />
+        <span className="ml-auto mr-1 h-2 w-2 flex-shrink-0 rounded-full bg-indigo-500" />
       )}
     </a>
   );

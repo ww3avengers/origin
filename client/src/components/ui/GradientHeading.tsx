@@ -32,25 +32,18 @@ const weightClasses = {
 };
 
 export const GradientHeading = forwardRef<HTMLHeadingElement, GradientHeadingProps>(
-  ({
-    as: Tag = 'h1',
-    size = '4xl',
-    weight = 'bold',
-    className,
-    children,
-    ...props
-  }, ref) => {
+  ({ as: Tag = 'h1', size = '4xl', weight = 'bold', className, children, ...props }, ref) => {
     return (
-      <div className="inline-block relative group">
+      <div className="group relative inline-block">
         <Tag
           ref={ref}
           className={cn(
-            'font-sans tracking-tight text-transparent bg-clip-text',
-            'bg-gradient-to-r from-white via-blue-50 to-blue-300',
-            'relative z-10',
+            'bg-clip-text font-sans tracking-tight text-transparent',
+            'bg-gradient-to-r from-gray-100 via-gray-300 to-gray-400 dark:from-blue-50 dark:via-blue-100 dark:to-blue-200',
+            'relative z-10 transition-all duration-700',
             sizeClasses[size],
             weightClasses[weight],
-            className
+            className,
           )}
           style={{
             textShadow: '0 0 8px rgba(147, 197, 253, 0.5)', // Subtiler Leuchteffekt
@@ -76,19 +69,19 @@ export const GradientHeading = forwardRef<HTMLHeadingElement, GradientHeadingPro
             initial={{ x: '-100%' }}
             whileHover={{
               x: '100%',
-              transition: { 
-                duration: 1.2, 
+              transition: {
+                duration: 1.2,
                 ease: 'easeInOut',
                 repeat: Infinity,
                 repeatType: 'loop',
-                repeatDelay: 0.5
+                repeatDelay: 0.5,
               },
             }}
           />
         </Tag>
       </div>
     );
-  }
+  },
 );
 
 GradientHeading.displayName = 'GradientHeading';

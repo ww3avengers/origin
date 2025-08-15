@@ -34,7 +34,7 @@ export type Subscription = {
 export const PLANS = {
   FREE: 'free',
   PRO: 'pro',
-  ENTERPRISE: 'enterprise'
+  ENTERPRISE: 'enterprise',
 } as const;
 
 export type PlanType = keyof typeof PLANS;

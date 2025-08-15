@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <!-- Soft dark gradient background for good contrast in light and dark themes -->
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#1a2233"/>
+      <stop offset="60%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0b0f1a"/>
+    </radialGradient>
+    <!-- Subtle rim light like header title glow -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.67  0 0 0 0 0.84  0 0 0 0 1  0 0 0 0.35 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Light sheen band reminiscent of the wave effect (very subtle) -->
+    <linearGradient id="sheen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="48%" stop-color="#9bd8ff" stop-opacity="0.32"/>
+      <stop offset="52%" stop-color="#b9e6ff" stop-opacity="0.48"/>
+      <stop offset="56%" stop-color="#9bd8ff" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background with gentle rounding to look crisp at small sizes -->
+  <rect x="32" y="32" width="448" height="448" rx="96" ry="96" fill="url(#bg)"/>
+
+  <!-- Sigma glyph: clean geometric form, centered -->
+  <g filter="url(#glow)">
+    <!-- The Σ is drawn as text for pixel crispness across sizes -->
+    <text x="50%" y="58%" text-anchor="middle" dominant-baseline="middle"
+          font-family="ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+          font-weight="800" font-size="300" fill="#ffffff" letter-spacing="2">
+      Σ
+    </text>
+  </g>
+
+  <!-- Sheen overlay band across the glyph -->
+  <rect x="32" y="32" width="448" height="448" rx="96" ry="96" fill="url(#sheen)" opacity="0.35"/>
+</svg>

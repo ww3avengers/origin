@@ -7,7 +7,7 @@ import { useRegisterUserMutation } from 'librechat-data-provider/react-query';
 import type { TRegisterUser, TError } from 'librechat-data-provider';
 import type { TLoginLayoutContext } from '~/common';
 import { useLocalize, TranslationKeys } from '~/hooks';
-import { ErrorMessage } from './ErrorMessage';
+import { ErrorMessage } from '~/components/ui/ErrorMessage';
 
 const Registration: React.FC = () => {
   const navigate = useNavigate();
@@ -99,7 +99,7 @@ const Registration: React.FC = () => {
     <>
       {errorMessage && (
         <ErrorMessage>
-          {localize('com_auth_error_create')} {errorMessage}
+          {String((localize as any)('translation:com_auth_error_create'))} {errorMessage}
         </ErrorMessage>
       )}
       {registerUser.isSuccess && countdown > 0 && (
@@ -107,13 +107,19 @@ const Registration: React.FC = () => {
           className="rounded-md border border-green-500 bg-green-500/10 px-3 py-2 text-sm text-gray-600 dark:text-gray-200"
           role="alert"
         >
-          {localize(
-            startupConfig?.emailEnabled
-              ? 'com_auth_registration_success_generic'
-              : 'com_auth_registration_success_insecure',
+          {String(
+            (localize as any)(
+              startupConfig?.emailEnabled
+                ? 'translation:com_auth_registration_success_generic'
+                : 'translation:com_auth_registration_success_insecure',
+            ),
           ) +
             ' ' +
-            localize('com_auth_email_verification_redirecting', { 0: countdown.toString() })}
+            String(
+              (localize as any)('translation:com_auth_email_verification_redirecting', {
+                0: countdown.toString(),
+              }),
+            )}
         </div>
       )}
       {!startupConfigError && !isFetching && (
@@ -127,55 +133,56 @@ const Registration: React.FC = () => {
             )}
           >
             {renderInput('name', 'com_auth_full_name', 'text', {
-              required: localize('com_auth_name_required'),
+              required: String((localize as any)('translation:com_auth_name_required')),
               minLength: {
                 value: 3,
-                message: localize('com_auth_name_min_length'),
+                message: String((localize as any)('translation:com_auth_name_min_length')),
               },
               maxLength: {
                 value: 80,
-                message: localize('com_auth_name_max_length'),
+                message: String((localize as any)('translation:com_auth_name_max_length')),
               },
             })}
             {renderInput('username', 'com_auth_username', 'text', {
               minLength: {
                 value: 2,
-                message: localize('com_auth_username_min_length'),
+                message: String((localize as any)('translation:com_auth_username_min_length')),
               },
               maxLength: {
                 value: 80,
-                message: localize('com_auth_username_max_length'),
+                message: String((localize as any)('translation:com_auth_username_max_length')),
               },
             })}
             {renderInput('email', 'com_auth_email', 'email', {
-              required: localize('com_auth_email_required'),
+              required: String((localize as any)('translation:com_auth_email_required')),
               minLength: {
                 value: 1,
-                message: localize('com_auth_email_min_length'),
+                message: String((localize as any)('translation:com_auth_email_min_length')),
               },
               maxLength: {
                 value: 120,
-                message: localize('com_auth_email_max_length'),
+                message: String((localize as any)('translation:com_auth_email_max_length')),
               },
               pattern: {
                 value: /\S+@\S+\.\S+/,
-                message: localize('com_auth_email_pattern'),
+                message: String((localize as any)('translation:com_auth_email_pattern')),
               },
             })}
             {renderInput('password', 'com_auth_password', 'password', {
-              required: localize('com_auth_password_required'),
+              required: String((localize as any)('translation:com_auth_password_required')),
               minLength: {
                 value: 8,
-                message: localize('com_auth_password_min_length'),
+                message: String((localize as any)('translation:com_auth_password_min_length')),
               },
               maxLength: {
                 value: 128,
-                message: localize('com_auth_password_max_length'),
+                message: String((localize as any)('translation:com_auth_password_max_length')),
               },
             })}
             {renderInput('confirm_password', 'com_auth_password_confirm', 'password', {
               validate: (value: string) =>
-                value === password || localize('com_auth_password_not_match'),
+                value === password ||
+                String((localize as any)('translation:com_auth_password_not_match')),
             })}
 
             {startupConfig?.turnstile?.siteKey && (
@@ -205,19 +212,23 @@ const Registration: React.FC = () => {
                 variant="submit"
                 className="h-12 w-full rounded-2xl"
               >
-                {isSubmitting ? <Spinner /> : localize('com_auth_continue')}
+                {isSubmitting ? (
+                  <Spinner />
+                ) : (
+                  String((localize as any)('translation:com_auth_continue'))
+                )}
               </Button>
             </div>
           </form>
 
           <p className="my-4 text-center text-sm font-light text-gray-700 dark:text-white">
-            {localize('com_auth_already_have_account')}{' '}
+            {String((localize as any)('translation:com_auth_already_have_account'))}{' '}
             <a
               href="/login"
               aria-label="Login"
               className="inline-flex p-1 text-sm font-medium text-green-600 transition-colors hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
             >
-              {localize('com_auth_login')}
+              {String((localize as any)('translation:com_auth_login'))}
             </a>
           </p>
         </>

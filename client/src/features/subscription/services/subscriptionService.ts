@@ -2,7 +2,15 @@ import apiClient from '~/lib/api';
 
 export interface Subscription {
   id: string;
-  status: 'active' | 'canceled' | 'past_due' | 'unpaid' | 'incomplete' | 'incomplete_expired' | 'trialing' | 'paused';
+  status:
+    | 'active'
+    | 'canceled'
+    | 'past_due'
+    | 'unpaid'
+    | 'incomplete'
+    | 'incomplete_expired'
+    | 'trialing'
+    | 'paused';
   plan: string;
   currentPeriodEnd: string;
   cancelAtPeriodEnd: boolean;

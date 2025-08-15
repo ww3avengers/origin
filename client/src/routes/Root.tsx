@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import type { ContextType } from '~/common';
 import {
   useAuthContext,
@@ -20,6 +20,7 @@ import { Nav, MobileNav } from '~/components/Nav';
 import { useHealthCheck } from '~/data-provider';
 import { Banner } from '~/components/Banners';
 import Meta from '~/components/Seo/Meta';
+import { trackPageView } from 'oprojekte-analytics-sdk';
 
 export default function Root() {
   const [showTerms, setShowTerms] = useState(false);
@@ -39,6 +40,7 @@ export default function Root() {
   const fileMap = useFileMap({ isAuthenticated });
 
   const { data: config } = useGetStartupConfig();
+  const location = useLocation();
   const { data: termsData } = useUserTermsQuery({
     enabled: isAuthenticated && config?.interface?.termsOfService?.modalAcceptance === true,
   });
@@ -59,6 +61,11 @@ export default function Root() {
     setShowTerms(false);
     logout('/login?redirect=false');
   };
+
+  // Track page views on route changes in the authenticated app area
+  useEffect(() => {
+    trackPageView();
+  }, [location.pathname, location.search, location.hash]);
 
   if (!isAuthenticated) {
     return null;

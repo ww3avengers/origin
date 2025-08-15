@@ -1,28 +1,45 @@
-import { FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { FC, memo, useEffect, useMemo, useState } from 'react';
+import { trackEvent } from 'oprojekte-analytics-sdk';
+import { useT } from '~/utils/i18n';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import LandingSection, { IN_VIEW_ONCE } from './LandingSection';
+import { SectionHeader } from '@/components/ui/typography/SectionHeader';
+import { Button } from '~/components/ui';
+import { useAIMetadata } from '@/lib/ai-explain/useAIMetadata';
+import { tString, type TFunc } from '@/locales/helpers';
 
 // Utility function to combine class names
 const cn = (...classes: (string | undefined)[]) => {
   return classes.filter(Boolean).join(' ');
 };
 
-// Define valid translation keys for FAQ section
-type FAQTranslationKey = 
-  | 'landing.faq.q1' | 'landing.faq.a1'
-  | 'landing.faq.q2' | 'landing.faq.a2'
-  | 'landing.faq.q3' | 'landing.faq.a3'
-  | 'landing.faq.q4' | 'landing.faq.a4'
-  | 'landing.faq.q5' | 'landing.faq.a5'
-  | 'landing.faq.title' | 'landing.faq.subtitle'
-  | 'landing.faq.description' | 'landing.faq.more_questions'
-  | 'landing.faq.contact_us';
-
 // Interface for FAQ item data structure
-interface FAQItemData {
+export interface FAQItemData {
+  id: string; // stabile Anchor-ID pro Frage
   question: string;
   answer: string;
 }
+
+// HTML zu Plaintext (für JSON-LD)
+const stripHtml = (html: string) =>
+  html
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+// JSON-LD für FAQPage generieren
+const buildFAQJsonLd = (items: FAQItemData[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((it) => ({
+    '@type': 'Question',
+    name: stripHtml(it.question),
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: stripHtml(it.answer),
+    },
+  })),
+});
 
 /**
  * FAQItem component that renders a single FAQ question and answer
@@ -33,27 +50,37 @@ const FAQItem: FC<{
   isOpen: boolean;
   onToggle: () => void;
   index: number;
-}> = ({ question, answer, isOpen, onToggle, index }) => {
+  anchorId?: string;
+  idSlug: string;
+}> = ({ question, answer, isOpen, onToggle, index, anchorId, idSlug }) => {
+  const questionId = `faq-q-${idSlug}`;
+  const buttonId = `faq-btn-${idSlug}`;
+  const panelId = `faq-panel-${idSlug}`;
   return (
     <motion.div
+      id={anchorId}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={IN_VIEW_ONCE}
       transition={{ duration: 0.5 }}
-      className="border-b border-gray-700 last:border-0"
+      className="transition-colors duration-200"
     >
       <button
-        className="w-full py-5 px-4 flex justify-between items-center hover:bg-gray-800/30 transition-colors duration-200 rounded-lg"
+        id={buttonId}
+        className="flex w-full items-center justify-between rounded-xl px-3.5 py-3 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-purple/40 md:px-4 md:py-4"
         onClick={onToggle}
         aria-expanded={isOpen}
-        aria-controls={`faq-answer-${index}`}
+        aria-controls={panelId}
+        aria-labelledby={questionId}
       >
-        <span className="text-left font-medium text-lg text-white">{question}</span>
-        <span className="flex-shrink-0 ml-4">
+        <span id={questionId} className="text-left text-sm font-medium text-white md:text-[0.95rem]">
+          {question}
+        </span>
+        <span className="ml-4 flex-shrink-0">
           <motion.svg
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.3 }}
-            className="w-5 h-5 text-indigo-400"
+            className="h-4 w-4 text-[rgb(var(--accent))]"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
@@ -70,17 +97,18 @@ const FAQItem: FC<{
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            id={`faq-answer-${index}`}
+            id={panelId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
             role="region"
+            aria-labelledby={questionId}
             aria-live="polite"
           >
-            <div 
-              className="px-4 pb-5 text-gray-300" 
+            <div
+              className="px-3 pb-2 text-[0.9rem] leading-snug text-gray-300 md:text-[0.93rem]"
               dangerouslySetInnerHTML={{ __html: answer }}
             />
           </motion.div>
@@ -93,113 +121,312 @@ const FAQItem: FC<{
 /**
  * FAQSection component that displays a list of frequently asked questions
  */
-// Get FAQ items with translations
-const getFAQItems = (t: (key: string) => string): FAQItemData[] => [
+// Get FAQ items with translations (SEO-optimiert)
+export const getFAQItems = (t: TFunc): FAQItemData[] => [
   {
-    question: t('landing.faq.q1') || 'What is SIGMACODE AI?',
-    answer: t('landing.faq.a1') || 'SIGMACODE AI is an advanced AI platform that combines powerful language models with enterprise-specific customization to deliver real business results.'
+    id: 'pricing',
+    question: tString(t, 'landing.faq.q_pricing'),
+    answer: tString(t, 'landing.faq.a_pricing'),
   },
   {
-    question: t('landing.faq.q2') || 'How is SIGMACODE AI different?',
-    answer: t('landing.faq.a2') || 'SIGMACODE AI offers enterprise-grade security, local processing options, and customizable models tailored to specific business needs.'
+    id: 'trial',
+    question: tString(t, 'landing.faq.q_trial'),
+    answer: tString(t, 'landing.faq.a_trial'),
   },
   {
-    question: t('landing.faq.q3') || 'Is my data secure with SIGMACODE AI?',
-    answer: t('landing.faq.a3') || 'Yes, your data security is our top priority. We implement industry-standard encryption and security measures to protect your information.'
+    id: 'security',
+    question: tString(t, 'landing.faq.q_security'),
+    answer: tString(t, 'landing.faq.a_security'),
   },
   {
-    question: t('landing.faq.q4') || 'Can I customize the AI models?',
-    answer: t('landing.faq.a4') || 'Yes! SIGMACODE AI is built with customization in mind. You can fine-tune models, add custom knowledge bases, and integrate with your existing systems.'
+    id: 'deployment',
+    question: tString(t, 'landing.faq.q_deployment'),
+    answer: tString(t, 'landing.faq.a_deployment'),
   },
   {
-    question: t('landing.faq.q5') || 'What kind of support do you offer?',
-    answer: t('landing.faq.a5') || 'We offer comprehensive support including documentation, community forums, and premium support plans.'
-  }
+    id: 'integrations',
+    question: tString(t, 'landing.faq.q_integrations'),
+    answer: tString(t, 'landing.faq.a_integrations'),
+  },
+  {
+    id: 'customization',
+    question: tString(t, 'landing.faq.q_customization'),
+    answer: tString(t, 'landing.faq.a_customization'),
+  },
+  {
+    id: 'quality',
+    question: tString(t, 'landing.faq.q_accuracy'),
+    answer: tString(t, 'landing.faq.a_accuracy'),
+  },
+  {
+    id: 'compliance',
+    question: tString(t, 'landing.faq.q_compliance'),
+    answer: tString(t, 'landing.faq.a_compliance'),
+  },
+  {
+    id: 'models',
+    question: tString(t, 'landing.faq.q_models'),
+    answer: tString(t, 'landing.faq.a_models'),
+  },
+  {
+    id: 'sla',
+    question: tString(t, 'landing.faq.q_sla'),
+    answer: tString(t, 'landing.faq.a_sla'),
+  },
+  {
+    id: 'cancellation',
+    question: tString(t, 'landing.faq.q_cancellation'),
+    answer: tString(t, 'landing.faq.a_cancellation'),
+  },
+  {
+    id: 'mas',
+    question: tString(t, 'landing.faq.q_mas'),
+    answer: tString(t, 'landing.faq.a_mas'),
+  },
+  {
+    id: 'agents-vs-mas',
+    question: tString(t, 'landing.faq.q_agents_vs_mas'),
+    answer: tString(t, 'landing.faq.a_agents_vs_mas'),
+  },
+  {
+    id: 'billing',
+    question: tString(t, 'landing.faq.q_billing'),
+    answer: tString(t, 'landing.faq.a_billing'),
+  },
+  {
+    id: 'limits',
+    question: tString(t, 'landing.faq.q_limits'),
+    answer: tString(t, 'landing.faq.a_limits'),
+  },
+  {
+    id: 'data-residency',
+    question: tString(t, 'landing.faq.q_data_residency'),
+    answer: tString(t, 'landing.faq.a_data_residency'),
+  },
+  {
+    id: 'api-sdk',
+    question: tString(t, 'landing.faq.q_api_sdk'),
+    answer: tString(t, 'landing.faq.a_api_sdk'),
+  },
+  {
+    id: 'onboarding',
+    question: tString(t, 'landing.faq.q_onboarding'),
+    answer: tString(t, 'landing.faq.a_onboarding'),
+  },
 ];
 
 // Get section texts with translations
-const getSectionTexts = (t: (key: string) => string) => ({
-  title: t('landing.faq.title') || 'Frequently Asked Questions',
-  subtitle: t('landing.faq.subtitle') || 'Everything You Need to Know',
-  description: t('landing.faq.description') || 'Got questions? We\'ve got answers. If you can\'t find what you\'re looking for, please contact our support team.',
-  moreQuestions: t('landing.faq.more_questions') || 'Still have questions?',
-  contactUs: t('landing.faq.contact_us') || 'Contact Us'
+const getSectionTexts = (t: TFunc) => ({
+  title: tString(t, 'landing.faq.title'),
+  subtitle: tString(t, 'landing.faq.subtitle'),
+  description: tString(t, 'landing.faq.description'),
+  moreQuestions: tString(t, 'landing.faq.more_questions'),
+  contactUs: tString(t, 'landing.faq.contact_us'),
 });
 
 const FAQSection: FC = () => {
-  const { t } = useTranslation();
+  const t = useT();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  
-  // Get translated content
-  const faqItems = getFAQItems(t);
-  const sectionTexts = getSectionTexts(t);
+  const prefersReduced = useReducedMotion() ?? false;
+
+  // Get translated content (sicher via i18n-Helper)
+  const faqItems = useMemo(() => getFAQItems(t as unknown as TFunc), [t]);
+  const sectionTexts = useMemo(() => getSectionTexts(t as unknown as TFunc), [t]);
+  const faqJsonLd = useMemo(() => buildFAQJsonLd(faqItems), [faqItems]);
+
+  // Hilfsfunktion: Anchor-ID für Item
+  const getAnchorId = (idx: number) => `faq-${faqItems[idx].id}`;
+
+  // Kompakter: Zwei Spalten ab MD, dafür benötigen wir Original-Indizes
+  const entries = useMemo(() => faqItems.map((it, idx) => ({ it, idx })), [faqItems]);
+  const columns = useMemo(
+    () => [entries.filter((e) => e.idx % 2 === 0), entries.filter((e) => e.idx % 2 === 1)],
+    [entries],
+  );
+
+  // Register AI Explainability metadata
+  useAIMetadata({
+    file: 'client/src/components/Landing/Sections/FAQSection.tsx',
+    section: {
+      id: 'faq-section',
+      title: sectionTexts.title,
+      description: sectionTexts.description,
+      actions: ['accordion-toggle', 'navigate-contact'],
+      breakpoints: {
+        sm: { layout: 'stack', notes: 'Akkordeon, vertikal gestapelt.' },
+        lg: { layout: 'stack', notes: 'Akkordeon, großzügige Abstände.' },
+      },
+    },
+  });
 
   const toggleFAQ = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
+    const willOpen = openIndex !== index;
+    setOpenIndex(willOpen ? index : null);
+    try {
+      const newHash = willOpen ? `#${getAnchorId(index)}` : '#faq';
+      if (typeof window !== 'undefined') {
+        if (window.location.hash !== newHash) {
+          window.history.pushState(null, '', newHash);
+        }
+      }
+      // Analytics: manuelles Öffnen/Schließen tracken (SDK-Objekt-API)
+      const idSlug = faqItems[index]?.id;
+      if (idSlug) {
+        trackEvent({
+          type: 'faq_toggle',
+          payload: {
+            id: idSlug,
+            action: willOpen ? 'open' : 'close',
+            hash: newHash,
+            source: 'click',
+          },
+        });
+      }
+    } catch {
+      // Hash-Update ist optional; bei CSP/SSR-Edge-Cases einfach still ignorieren
+    }
   };
 
+  // Hash-Handling: #faq-<id> öffnet passende Frage und scrollt zur Section
+  useEffect(() => {
+    const applyHash = () => {
+      const hash = window.location.hash;
+      if (!hash || !hash.startsWith('#faq-')) return;
+      const targetId = hash.slice(1); // ohne '#'
+      const idx = faqItems.findIndex((f) => `faq-${f.id}` === targetId);
+      if (idx >= 0) {
+        setOpenIndex(idx);
+        // Analytics: Auto-Open via Hash (SDK-Objekt-API)
+        const idSlug = faqItems[idx]?.id;
+        if (idSlug) {
+          trackEvent({
+            type: 'faq_hash_open',
+            payload: {
+              id: idSlug,
+              hash,
+              source: 'hash',
+            },
+          });
+        }
+      }
+      const target = document.getElementById(targetId) || document.getElementById('faq');
+      if (target?.scrollIntoView) {
+        target.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+      }
+    };
+
+    // Initial anwenden und bei Hash-Änderung reagieren
+    applyHash();
+    window.addEventListener('hashchange', applyHash);
+    return () => window.removeEventListener('hashchange', applyHash);
+  }, [faqItems, prefersReduced]);
+
+  // Fokus auf den geöffneten FAQ-Button setzen (A11y)
+  useEffect(() => {
+    if (openIndex == null || openIndex < 0) return;
+    const idSlug = faqItems[openIndex]?.id;
+    if (!idSlug) return;
+    const btn = document.getElementById(`faq-btn-${idSlug}`) as HTMLButtonElement | null;
+    btn?.focus({ preventScroll: true });
+  }, [openIndex, faqItems]);
+
   return (
-    <section className="py-16 md:py-24 bg-gray-900" id="faq">
-      <div className="container mx-auto px-4">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              {sectionTexts.title}
-            </h2>
-            <p className="text-xl text-gray-300 mb-6">
-              {sectionTexts.subtitle}
-            </p>
-            <p className="text-gray-400 mb-8">
-              {sectionTexts.description}
-            </p>
+    <LandingSection
+      className="bg-transparent overflow-hidden"
+      bleed={false}
+      divider="none"
+      ariaLabel={sectionTexts.title}
+      aria-labelledby="faq-heading"
+      dataSection="faq-section"
+      data-ai-section="faq-section"
+      data-ai-title={sectionTexts.title}
+      data-ai-purpose={sectionTexts.subtitle}
+      accentTopGlow
+    >
+      <motion.div
+        className={`text-center`}
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={IN_VIEW_ONCE}
+        transition={{ duration: 0.5 }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 420px' }}
+      >
+        <div className="mx-auto mb-1 max-w-4xl text-center">
+          <SectionHeader
+            align="center"
+            size="h2"
+            title={sectionTexts.title}
+            subtitle={sectionTexts.subtitle}
+          />
+        </div>
+        {/* JSON-LD für FAQ Rich Results */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+        <p className="hidden text-sm leading-snug text-gray-400 md:mb-4 md:block lg:mb-6">
+          {sectionTexts.description}
+        </p>
+      </motion.div>
+
+      <motion.div
+        className="mx-auto mt-1 grid max-w-5xl grid-cols-1 gap-3 md:mt-2 md:grid-cols-2 md:gap-4 lg:gap-5"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={IN_VIEW_ONCE}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 560px' }}
+      >
+        {columns.map((col, colIdx) => (
+          <div key={`faq-col-${colIdx}`} className="space-y-2 md:space-y-3 lg:space-y-3.5">
+            {col.map(({ it, idx }) => (
+              <FAQItem
+                key={idx}
+                question={it.question}
+                answer={it.answer}
+                isOpen={openIndex === idx}
+                onToggle={() => toggleFAQ(idx)}
+                index={idx}
+                anchorId={getAnchorId(idx)}
+                idSlug={it.id}
+              />
+            ))}
           </div>
-        </motion.div>
+        ))}
+      </motion.div>
 
-        <motion.div 
-          className="max-w-3xl mx-auto space-y-4"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+      <motion.div
+        className="mt-6 text-center md:mt-8"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={IN_VIEW_ONCE}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 120px' }}
+      >
+        <p className="mb-1 text-sm font-medium text-gray-300 md:text-base">
+          {sectionTexts.moreQuestions}
+        </p>
+        <Button
+          asChild
+          size="lg"
+          className="inline-flex"
+          data-ai-element="cta-contact"
+          data-ai-label={sectionTexts.contactUs}
+          onClick={() => {
+            try {
+              trackEvent({
+                type: 'faq_contact_click',
+                payload: { section: 'faq', label: sectionTexts.contactUs },
+              });
+            } catch {}
+          }}
+          aria-label={sectionTexts.contactUs}
         >
-          {faqItems.map((faq, index) => (
-            <FAQItem
-              key={index}
-              question={faq.question}
-              answer={faq.answer}
-              isOpen={openIndex === index}
-              onToggle={() => toggleFAQ(index)}
-              index={index}
-            />
-          ))}
-        </motion.div>
-
-        <motion.div 
-          className="text-center mt-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <p className="text-lg font-medium text-gray-300 mb-4">
-            {sectionTexts.moreQuestions}
-          </p>
-          <a
-            href="#contact"
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200"
-          >
-            {sectionTexts.contactUs}
-          </a>
-        </motion.div>
-      </div>
-    </section>
+          <a href="#contact">{sectionTexts.contactUs}</a>
+        </Button>
+      </motion.div>
+    </LandingSection>
   );
 };
 
-export default FAQSection;
+export default memo(FAQSection);

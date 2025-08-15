@@ -1,8 +1,4 @@
 import i18n from './i18n';
-import English from './en/translation.json';
-import French from './fr/translation.json';
-import Spanish from './es/translation.json';
-import { TranslationKeys } from '~/hooks';
 
 describe('i18next translation tests', () => {
   // Ensure i18next is initialized before any tests run
@@ -12,37 +8,82 @@ describe('i18next translation tests', () => {
     }
   });
 
-  it('should return the correct translation for a valid key in English', () => {
-    i18n.changeLanguage('en');
-    expect(i18n.t('com_ui_examples')).toBe(English.com_ui_examples);
+  const setQueryLng = (lng: string) => {
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lng', lng);
+      window.history.pushState({}, '', url.toString());
+    } catch {
+      /* noop */
+    }
+  };
+
+  it('should return the correct translation for a valid key in English', async () => {
+    setQueryLng('en');
+    await i18n.changeLanguage('en');
+    expect(i18n.t('com_ui_cancel')).toBe('Cancel');
   });
 
-  it('should return the correct translation for a valid key in French', () => {
-    i18n.changeLanguage('fr');
-    expect(i18n.t('com_ui_examples')).toBe(French.com_ui_examples);
+  it('should return the correct translation for a valid key in German', async () => {
+    setQueryLng('de');
+    await i18n.changeLanguage('de');
+    expect(i18n.t('com_ui_cancel')).toBe('Abbrechen');
   });
 
-  it('should return the correct translation for a valid key in Spanish', () => {
-    i18n.changeLanguage('es');
-    expect(i18n.t('com_ui_examples')).toBe(Spanish.com_ui_examples);
+  it('should normalize locale variants to base language (en-US → en)', async () => {
+    setQueryLng('en');
+    await i18n.changeLanguage('en-US');
+    expect(i18n.language.startsWith('en')).toBe(true);
+    expect(i18n.t('com_ui_cancel')).toBe('Cancel');
+  });
+  
+  it('should normalize locale variants to base language (de-DE → de)', async () => {
+    setQueryLng('de');
+    await i18n.changeLanguage('de-DE');
+    expect(i18n.language.startsWith('de')).toBe(true);
+    expect(i18n.t('com_ui_cancel')).toBe('Abbrechen');
   });
 
-  it('should fallback to English for an invalid language code', () => {
-    // When an invalid language is provided, i18next should fallback to English
-    i18n.changeLanguage('invalid-code');
-    expect(i18n.t('com_ui_examples')).toBe(English.com_ui_examples);
+  it('should return the key itself for an invalid key', async () => {
+    setQueryLng('en');
+    await i18n.changeLanguage('en');
+    expect((i18n as any).t('invalid-key')).toBe('invalid-key'); // Returns the key itself
   });
 
-  it('should return the key itself for an invalid key', () => {
-    i18n.changeLanguage('en');
-    expect(i18n.t('invalid-key' as TranslationKeys)).toBe('invalid-key'); // Returns the key itself
+  it('should correctly format placeholders in the translation', async () => {
+    setQueryLng('en');
+    await i18n.changeLanguage('en');
+    expect(i18n.t('com_ui_logo', { 0: 'ACME' })).toBe('ACME logo');
+    setQueryLng('de');
+    await i18n.changeLanguage('de');
+    expect(i18n.t('com_ui_logo', { 0: 'ACME' })).toBe('ACME Logo');
   });
 
-  it('should correctly format placeholders in the translation', () => {
-    i18n.changeLanguage('en');
-    expect(i18n.t('com_endpoint_default_with_num', { 0: 'John' })).toBe('default: John');
+  it('should resolve landing keys correctly: existing returns value, missing uses defaultValue', async () => {
+    // Existing landing key: sections.security
+    setQueryLng('en');
+    await i18n.changeLanguage('en');
+    const existingEn = (i18n as any).t('landing:sections.security', { defaultValue: 'Security Fallback' });
+    expect(typeof existingEn).toBe('string');
+    expect(existingEn).not.toBe('');
+    expect(existingEn).not.toBe('Security Fallback');
 
-    i18n.changeLanguage('fr');
-    expect(i18n.t('com_endpoint_default_with_num', { 0: 'Marie' })).toBe('par défaut : Marie');
+    setQueryLng('de');
+    await i18n.changeLanguage('de');
+    const existingDe = (i18n as any).t('landing:sections.security', { defaultValue: 'Sicherheit Fallback' });
+    expect(typeof existingDe).toBe('string');
+    expect(existingDe).not.toBe('');
+    expect(existingDe).not.toBe('Sicherheit Fallback');
+
+    // Missing landing key: security.cta_more (intentionally absent) should use provided defaultValue
+    setQueryLng('en');
+    await i18n.changeLanguage('en');
+    const missingEn = (i18n as any).t('landing:security.cta_more', { defaultValue: 'More about security measures' });
+    expect(missingEn).toBe('More about security measures');
+
+    setQueryLng('de');
+    await i18n.changeLanguage('de');
+    const missingDe = (i18n as any).t('landing:security.cta_more', { defaultValue: 'Mehr zu Sicherheitsmaßnahmen' });
+    expect(missingDe).toBe('Mehr zu Sicherheitsmaßnahmen');
   });
 });

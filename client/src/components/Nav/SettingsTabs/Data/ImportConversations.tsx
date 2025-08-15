@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Import } from 'lucide-react';
-import { Spinner, useToastContext } from '@librechat/client';
+import { useToastContext } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import type { TError } from 'librechat-data-provider';
 import { useUploadConversationsMutation } from '~/data-provider';
 import { useLocalize } from '~/hooks';
@@ -87,7 +88,7 @@ function ImportConversations() {
         {allowImport ? (
           <Import className="mr-1 flex h-4 w-4 items-center stroke-1" />
         ) : (
-          <Spinner className="mr-1 w-4" />
+          <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading` as string} />
         )}
         <span>{localize('com_ui_import')}</span>
       </button>

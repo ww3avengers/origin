@@ -1,8 +1,10 @@
-// Definiere die Schnittstelle für die Übersetzungen (abgeleitet aus JSON-Dateien)
-export interface Resources {
-  translation: typeof import('./en/translation.json');
-  landing: typeof import('./en/landing.json');
-}
+// Typen an die Package-Lokalisierungen anbinden (Single Source of Truth)
+import type { Resources as PackageResources } from '../../../packages/client/src/locales/i18n';
+
+// Sprache->Namespaces (z. B. { en: { translation, landing }, de: { ... } })
+export type Resources = PackageResources;
+// Namespaces-Shape extrahieren (z. B. { translation, landing })
+export type NamespaceResources = PackageResources[keyof PackageResources];
 
 // Hilfstypen für die Verwendung in Komponenten
 export type FeatureItem = {
@@ -15,6 +17,7 @@ export type FeatureItem = {
 declare module 'i18next' {
   interface CustomTypeOptions {
     defaultNS: 'translation';
-    resources: Resources;
+    // i18next erwartet hier die NAMESPACE-Struktur, nicht die Sprachenwurzel
+    resources: NamespaceResources;
   }
 }

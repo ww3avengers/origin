@@ -3,9 +3,8 @@ import debounce from 'lodash/debounce';
 import { useRecoilState } from 'recoil';
 import { Constants, LocalStorageKeys } from 'librechat-data-provider';
 import type { VerifyToolAuthResponse } from 'librechat-data-provider';
-import type { UseQueryOptions } from '@tanstack/react-query';
 import { useVerifyAgentToolAuth } from '~/data-provider';
-import useLocalStorage from '~/hooks/useLocalStorageAlt';
+import useLocalStorage from '~/hooks/useLocalStorage';
 import { ephemeralAgentByConvoId } from '~/store';
 
 const storageCondition = (value: unknown, rawCurrentValue?: string | null) => {
@@ -33,7 +32,8 @@ interface UseToolToggleOptions {
   /** Options for auth verification */
   authConfig?: {
     toolId: string;
-    queryOptions?: UseQueryOptions<VerifyToolAuthResponse>;
+    // align with the hook's second parameter type
+    queryOptions?: Parameters<typeof useVerifyAgentToolAuth>[1];
   };
 }
 
@@ -72,7 +72,8 @@ export function useToolToggle({
 
   // The actual current value comes from ephemeralAgent
   const toolValue = useMemo(() => {
-    return ephemeralAgent?.[toolKey] ?? false;
+    const agent = ephemeralAgent as unknown as Record<string, ToolValue> | undefined;
+    return agent?.[toolKey] ?? false;
   }, [ephemeralAgent, toolKey]);
 
   const isToolEnabled = useMemo(() => {
@@ -85,7 +86,8 @@ export function useToolToggle({
 
   // Sync to localStorage when ephemeralAgent changes
   useEffect(() => {
-    const value = ephemeralAgent?.[toolKey];
+    const agent = ephemeralAgent as unknown as Record<string, ToolValue> | undefined;
+    const value = agent?.[toolKey];
     if (value !== undefined) {
       setLocalStorageValue(value);
     }
@@ -102,10 +104,14 @@ export function useToolToggle({
       }
 
       // Update ephemeralAgent (localStorage will sync automatically via effect)
-      setEphemeralAgent((prev) => ({
-        ...(prev || {}),
-        [toolKey]: value,
-      }));
+      setEphemeralAgent((prev) => {
+        const next = {
+          ...((prev as unknown as Record<string, ToolValue>) || {}),
+          [toolKey]: value,
+        } as Record<string, ToolValue>;
+        // Cast back to the store type; keys are string-indexed feature flags
+        return next as unknown as typeof prev;
+      });
     },
     [setIsDialogOpen, isAuthenticated, setEphemeralAgent, toolKey],
   );

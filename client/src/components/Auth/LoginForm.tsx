@@ -5,7 +5,7 @@ import { ThemeContext, Spinner, Button } from '@librechat/client';
 import type { TLoginUser, TStartupConfig } from 'librechat-data-provider';
 import type { TAuthContext } from '~/common';
 import { useResendVerificationEmail, useGetStartupConfig } from '~/data-provider';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 type TLoginFormProps = {
   onSubmit: (data: TLoginUser) => void;
@@ -15,7 +15,7 @@ type TLoginFormProps = {
 };
 
 const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, setError }) => {
-  const localize = useLocalize();
+  const t = useT();
   const { theme } = useContext(ThemeContext);
   const {
     register,
@@ -69,14 +69,14 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
     <>
       {showResendLink && (
         <div className="mt-2 rounded-md border border-green-500 bg-green-500/10 px-3 py-2 text-sm text-gray-600 dark:text-gray-200">
-          {localize('com_auth_email_verification_resend_prompt')}
+          {t('com_auth_email_verification_resend_prompt')}
           <button
             type="button"
             className="ml-2 text-blue-600 hover:underline"
             onClick={handleResendEmail}
             disabled={resendLinkMutation.isLoading}
           >
-            {localize('com_auth_email_resend_link')}
+            {t('com_auth_email_resend_link')}
           </button>
         </div>
       )}
@@ -92,13 +92,13 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
               type="text"
               id="email"
               autoComplete={useUsernameLogin ? 'username' : 'email'}
-              aria-label={localize('com_auth_email')}
+              aria-label={t('com_auth_email')}
               {...register('email', {
-                required: localize('com_auth_email_required'),
-                maxLength: { value: 120, message: localize('com_auth_email_max_length') },
+                required: t('com_auth_email_required'),
+                maxLength: { value: 120, message: t('com_auth_email_max_length') },
                 pattern: {
                   value: useUsernameLogin ? /\S+/ : /\S+@\S+\.\S+/,
-                  message: localize('com_auth_email_pattern'),
+                  message: t('com_auth_email_pattern'),
                 },
               })}
               aria-invalid={!!errors.email}
@@ -110,8 +110,8 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
               className="absolute start-3 top-1.5 z-10 origin-[0] -translate-y-4 scale-75 transform bg-surface-primary px-2 text-sm text-text-secondary-alt duration-200 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-1.5 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-green-600 dark:peer-focus:text-green-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
             >
               {useUsernameLogin
-                ? localize('com_auth_username').replace(/ \(.*$/, '')
-                : localize('com_auth_email_address')}
+                ? t('com_auth_username').replace(/ \(.*$/, '')
+                : t('com_auth_email_address')}
             </label>
           </div>
           {renderError('email')}
@@ -122,11 +122,11 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
               type="password"
               id="password"
               autoComplete="current-password"
-              aria-label={localize('com_auth_password')}
+              aria-label={t('com_auth_password')}
               {...register('password', {
-                required: localize('com_auth_password_required'),
-                minLength: { value: 8, message: localize('com_auth_password_min_length') },
-                maxLength: { value: 128, message: localize('com_auth_password_max_length') },
+                required: t('com_auth_password_required'),
+                minLength: { value: 8, message: t('com_auth_password_min_length') },
+                maxLength: { value: 128, message: t('com_auth_password_max_length') },
               })}
               aria-invalid={!!errors.password}
               className="webkit-dark-styles transition-color peer w-full rounded-2xl border border-border-light bg-surface-primary px-3.5 pb-2.5 pt-3 text-text-primary duration-200 focus:border-green-500 focus:outline-none"
@@ -136,7 +136,7 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
               htmlFor="password"
               className="absolute start-3 top-1.5 z-10 origin-[0] -translate-y-4 scale-75 transform bg-surface-primary px-2 text-sm text-text-secondary-alt duration-200 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-1.5 peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-green-600 dark:peer-focus:text-green-500 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
             >
-              {localize('com_auth_password')}
+              {t('com_auth_password')}
             </label>
           </div>
           {renderError('password')}
@@ -146,7 +146,7 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
             href="/forgot-password"
             className="inline-flex p-1 text-sm font-medium text-green-600 transition-colors hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
           >
-            {localize('com_auth_password_forgot')}
+            {t('com_auth_password_forgot')}
           </a>
         )}
 
@@ -167,14 +167,14 @@ const LoginForm: React.FC<TLoginFormProps> = ({ onSubmit, startupConfig, error, 
 
         <div className="mt-6">
           <Button
-            aria-label={localize('com_auth_continue')}
+            aria-label={t('com_auth_continue')}
             data-testid="login-button"
             type="submit"
             disabled={(requireCaptcha && !turnstileToken) || isSubmitting}
             variant="submit"
             className="h-12 w-full rounded-2xl"
           >
-            {isSubmitting ? <Spinner /> : localize('com_auth_continue')}
+            {isSubmitting ? <Spinner /> : t('com_auth_continue')}
           </Button>
         </div>
       </form>

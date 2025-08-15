@@ -15,7 +15,7 @@ import debounce from 'lodash/debounce';
 import type { EndpointFileConfig, TEndpointsConfig, TError } from 'librechat-data-provider';
 import type { ExtendedFile, FileSetter } from '~/common';
 import { useGetFileConfig, useUploadFileMutation } from '~/data-provider';
-import useLocalize, { TranslationKeys } from '~/hooks/useLocalize';
+import { useT } from '~/utils/i18n';
 import { useDelayedUploadToast } from './useDelayedUploadToast';
 import { processFileForUpload } from '~/utils/heicConverter';
 import { useChatContext } from '~/Providers/ChatContext';
@@ -32,7 +32,7 @@ type UseFileHandling = {
 };
 
 const useFileHandling = (params?: UseFileHandling) => {
-  const localize = useLocalize();
+  const t = useT();
   const queryClient = useQueryClient();
   const { showToast } = useToastContext();
   const [errors, setErrors] = useState<string[]>([]);
@@ -62,7 +62,7 @@ const useFileHandling = (params?: UseFileHandling) => {
     if (errors.length > 1) {
       // TODO: this should not be a dynamic localize input!!
       const errorList = Array.from(new Set(errors))
-        .map((e, i) => `${i > 0 ? '• ' : ''}${localize(e as TranslationKeys) || e}\n`)
+        .map((e, i) => `${i > 0 ? '• ' : ''}${t(e) || e}\n`)
         .join('');
       showToast({
         message: errorList,
@@ -71,7 +71,7 @@ const useFileHandling = (params?: UseFileHandling) => {
       });
     } else if (errors.length === 1) {
       // TODO: this should not be a dynamic localize input!!
-      const message = localize(errors[0] as TranslationKeys) || errors[0];
+      const message = t(errors[0]) || errors[0];
       showToast({
         message,
         status: 'error',
@@ -80,7 +80,7 @@ const useFileHandling = (params?: UseFileHandling) => {
     }
 
     setErrors([]);
-  }, [errors, showToast, localize]);
+  }, [errors, showToast, t]);
 
   const debouncedDisplayToast = debounce(displayToast, 250);
 
@@ -299,7 +299,7 @@ const useFileHandling = (params?: UseFileHandling) => {
 
         if (isHEIC) {
           showToast({
-            message: localize('com_info_heic_converting'),
+            message: t('com_info_heic_converting'),
             status: 'info',
             duration: 3000,
           });

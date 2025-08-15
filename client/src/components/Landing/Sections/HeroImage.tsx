@@ -1,7 +1,10 @@
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import { motion, useScroll, useTransform, useReducedMotion, useSpring } from 'framer-motion';
+import { useT } from '~/utils/i18n';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+
+// Konstant: Spring-Config außerhalb der Komponente, um Re-Instanziierung zu vermeiden
+const SPRING_SMOOTH = { stiffness: 120, damping: 24, mass: 0.4 } as const;
 
 interface HeroImageProps {
   className?: string;
@@ -9,26 +12,38 @@ interface HeroImageProps {
 }
 
 export const HeroImage = ({ className, scrollYProgress }: HeroImageProps) => {
-  const { t } = useTranslation(['translation', 'landing']);
+  const t = useT();
   const prefersReducedMotion = useReducedMotion() ?? false;
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
+  // Raw transform values (kleine Amplituden, subtil) mit Clamp
+  const rawY = useTransform(scrollYProgress, [0, 1], ['0%', '12%'], { clamp: true });
+  const rawScale = useTransform(scrollYProgress, [0, 1], [1, 1.02], { clamp: true });
+  // Sanft geglättete Werte via Spring (ruhig, ohne Bounce)
+  const y = useSpring(rawY, SPRING_SMOOTH);
+  const scale = useSpring(rawScale, SPRING_SMOOTH);
 
   return (
     <motion.div
-      className={cn('relative w-full h-full', className)}
+      className={cn('relative h-full w-full transform-gpu will-change-transform', className)}
       style={prefersReducedMotion ? undefined : { y, scale }}
+      data-testid="hero-image-motion"
+      aria-label={
+        prefersReducedMotion
+          ? t('landing.hero.image_alt', { defaultValue: 'SIGMACODE AI Dashboard Vorschau' })
+          : undefined
+      }
     >
-      <div className="relative w-full h-full rounded-2xl overflow-hidden border border-gray-700/50 bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm">
+      <div
+        className="relative h-full w-full overflow-hidden rounded-2xl bg-transparent ring-1 ring-inset ring-white/10"
+        aria-hidden={false}
+      >
         <Image
           src="/images/hero-dashboard.png"
-          alt={t('landing.hero.image_alt' as any, {
-            defaultValue: 'SIGMACODE AI Dashboard Vorschau'
-          }) as unknown as string}
+          alt={t('landing.hero.image_alt')}
           width={1200}
           height={800}
           priority
-          className="w-full h-auto object-cover opacity-90"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+          className="h-auto w-full object-cover opacity-90"
         />
       </div>
     </motion.div>

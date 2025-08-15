@@ -12,7 +12,8 @@ export const detectVariables = (text: string): boolean => {
   );
 
   // Check if any non-special variables exist
-  return matches.some((variable) => !specialVariables[variable]);
+  const sv = specialVariables as Record<string, boolean>;
+  return matches.some((variable) => !sv[variable]);
 };
 
 export const wrapVariable = (variable: string) => `{{${variable}}}`;

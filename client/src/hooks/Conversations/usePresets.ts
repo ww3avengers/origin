@@ -18,11 +18,11 @@ import { useAuthContext } from '~/hooks/AuthContext';
 import { NotificationSeverity } from '~/common';
 import useNewConvo from '~/hooks/useNewConvo';
 import { useChatContext } from '~/Providers';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import store from '~/store';
 
 export default function usePresets() {
-  const localize = useLocalize();
+  const t = useT();
   const hasLoaded = useRef(false);
   const queryClient = useQueryClient();
   const { showToast } = useToastContext();
@@ -91,7 +91,7 @@ export default function usePresets() {
       queryClient.invalidateQueries([QueryKeys.presets]);
       console.error('Error deleting the preset:', error);
       showToast({
-        message: localize('com_endpoint_preset_delete_error'),
+        message: t('com_endpoint_preset_delete_error'),
         severity: NotificationSeverity.ERROR,
       });
     },
@@ -99,15 +99,15 @@ export default function usePresets() {
   const createPresetMutation = useCreatePresetMutation();
   const updatePreset = useUpdatePresetMutation({
     onSuccess: (data, preset) => {
-      const toastTitle = data.title ? `"${data.title}"` : localize('com_endpoint_preset_title');
-      let message = `${toastTitle} ${localize('com_ui_saved')}`;
+      const toastTitle = data.title ? `"${data.title}"` : t('com_endpoint_preset_title');
+      let message = `${toastTitle} ${t('com_ui_saved')}`;
       if (data.defaultPreset && data.presetId !== _defaultPreset?.presetId) {
-        message = `${toastTitle} ${localize('com_endpoint_preset_default')}`;
+        message = `${toastTitle} ${t('com_endpoint_preset_default')}`;
         setDefaultPreset(data);
         newConversation({ preset: data, disableParams: true });
       } else if (preset.defaultPreset === false) {
         setDefaultPreset(null);
-        message = `${toastTitle} ${localize('com_endpoint_preset_default_removed')}`;
+        message = `${toastTitle} ${t('com_endpoint_preset_default_removed')}`;
       }
       showToast({
         message,
@@ -117,7 +117,7 @@ export default function usePresets() {
     onError: (error) => {
       console.error('Error updating the preset:', error);
       showToast({
-        message: localize('com_endpoint_preset_save_error'),
+        message: t('com_endpoint_preset_save_error'),
         severity: NotificationSeverity.ERROR,
       });
     },
@@ -131,14 +131,14 @@ export default function usePresets() {
       {
         onSuccess: () => {
           showToast({
-            message: localize('com_endpoint_preset_import'),
+            message: t('com_endpoint_preset_import'),
           });
           queryClient.invalidateQueries([QueryKeys.presets]);
         },
         onError: (error) => {
           console.error('Error uploading the preset:', error);
           showToast({
-            message: localize('com_endpoint_preset_import_error'),
+            message: t('com_endpoint_preset_import_error'),
             severity: NotificationSeverity.ERROR,
           });
         },
@@ -158,12 +158,10 @@ export default function usePresets() {
 
     const newPreset = removeUnavailableTools(_newPreset, availableTools);
 
-    const toastTitle = newPreset.title
-      ? `"${newPreset.title}"`
-      : localize('com_endpoint_preset_title');
+    const toastTitle = newPreset.title ? `"${newPreset.title}"` : t('com_endpoint_preset_title');
 
     showToast({
-      message: `${toastTitle} ${localize('com_endpoint_preset_selected_title')}`,
+      message: `${toastTitle} ${t('com_endpoint_preset_selected_title')}`,
       showIcon: false,
       duration: 750,
     });
@@ -224,7 +222,7 @@ export default function usePresets() {
   const clearAllPresets = () => deletePresetsMutation.mutate(undefined);
 
   const onDeletePreset = (preset: TPreset) => {
-    if (!confirm(localize('com_endpoint_preset_delete_confirm'))) {
+    if (!confirm(t('com_endpoint_preset_delete_confirm'))) {
       return;
     }
     deletePresetsMutation.mutate(preset);

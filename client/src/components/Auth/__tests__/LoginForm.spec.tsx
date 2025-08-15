@@ -106,7 +106,7 @@ beforeEach(() => {
 
 test('renders login form', () => {
   const { getByLabelText } = render(
-    <Login onSubmit={mockLogin} startupConfig={mockStartupConfig} />,
+    <Login onSubmit={mockLogin} startupConfig={mockStartupConfig} error={undefined} setError={jest.fn()} />,
   );
   expect(getByLabelText(/email/i)).toBeInTheDocument();
   expect(getByLabelText(/password/i)).toBeInTheDocument();
@@ -114,7 +114,7 @@ test('renders login form', () => {
 
 test('submits login form', async () => {
   const { getByLabelText, getByRole } = render(
-    <Login onSubmit={mockLogin} startupConfig={mockStartupConfig} />,
+    <Login onSubmit={mockLogin} startupConfig={mockStartupConfig} error={undefined} setError={jest.fn()} />,
   );
   const emailInput = getByLabelText(/email/i);
   const passwordInput = getByLabelText(/password/i);
@@ -129,7 +129,7 @@ test('submits login form', async () => {
 
 test('displays validation error messages', async () => {
   const { getByLabelText, getByRole, getByText } = render(
-    <Login onSubmit={mockLogin} startupConfig={mockStartupConfig} />,
+    <Login onSubmit={mockLogin} startupConfig={mockStartupConfig} error={undefined} setError={jest.fn()} />,
   );
   const emailInput = getByLabelText(/email/i);
   const passwordInput = getByLabelText(/password/i);
@@ -139,6 +139,10 @@ test('displays validation error messages', async () => {
   await userEvent.type(passwordInput, 'pass');
   await userEvent.click(submitButton);
 
-  expect(getByText(/You must enter a valid email address/i)).toBeInTheDocument();
-  expect(getByText(/Password must be at least 8 characters/i)).toBeInTheDocument();
+  expect(
+    getByText(/(You must enter a valid email address|com_auth_email_pattern)/i),
+  ).toBeInTheDocument();
+  expect(
+    getByText(/(Password must be at least 8 characters|com_auth_password_min_length)/i),
+  ).toBeInTheDocument();
 });

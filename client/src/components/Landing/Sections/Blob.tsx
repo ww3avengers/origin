@@ -1,7 +1,19 @@
 import { FC } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
-type AnimationEasing = 'linear' | 'easeIn' | 'easeOut' | 'easeInOut' | 'circIn' | 'circOut' | 'circInOut' | 'backIn' | 'backOut' | 'backInOut' | 'anticipate' | number[];
+type AnimationEasing =
+  | 'linear'
+  | 'easeIn'
+  | 'easeOut'
+  | 'easeInOut'
+  | 'circIn'
+  | 'circOut'
+  | 'circInOut'
+  | 'backIn'
+  | 'backOut'
+  | 'backInOut'
+  | 'anticipate'
+  | number[];
 
 interface AnimationConfig {
   duration: number;
@@ -35,12 +47,12 @@ export const Blob: FC<BlobProps> = ({
   animation,
 }) => {
   const reducedMotion = useReducedMotion();
-  
+
   const getPosition = (pos: string | number | undefined): string | number | undefined => {
     if (!pos) return undefined;
     return pos;
   };
-  
+
   return (
     <motion.div
       className={`absolute rounded-full bg-gradient-to-r ${color} ${size} ${className}`}
@@ -53,17 +65,21 @@ export const Blob: FC<BlobProps> = ({
         zIndex: -1,
       }}
       initial={reducedMotion ? false : { scale: 0.8, opacity: 0 }}
-      animate={reducedMotion ? {} : { 
-        scale: 1, 
-        opacity,
-        transition: {
-          duration: animation.duration,
-          delay: animation.delay + (delay || 0),
-          ease: animation.ease,
-          repeat: Infinity,
-          repeatType: 'reverse' as const,
-        }
-      }}
+      animate={
+        reducedMotion
+          ? {}
+          : {
+              scale: 1,
+              opacity,
+              transition: {
+                duration: animation.duration,
+                delay: animation.delay + (delay || 0),
+                ease: animation.ease,
+                repeat: Infinity,
+                repeatType: 'reverse' as const,
+              },
+            }
+      }
     />
   );
 };

@@ -2,13 +2,13 @@ import React from 'react';
 import FileSidePanel from './FileList/FileSidePanel';
 import { Outlet, useNavigate, useParams } from 'react-router-dom';
 import FilesSectionSelector from './FilesSectionSelector';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import { Button } from '../ui';
 
 export default function FilesListView() {
   const params = useParams();
   const navigate = useNavigate();
-  const localize = useLocalize();
+  const t = useT();
   return (
     <div className="bg-[#f9f9f9] p-0 lg:p-7">
       <div className="m-4 flex w-full flex-row justify-between md:m-2">
@@ -22,7 +22,7 @@ export default function FilesListView() {
               navigate('/d/files');
             }}
           >
-            {localize('com_ui_go_back')}
+            {t('com_ui_go_back')}
           </Button>
         )}
       </div>

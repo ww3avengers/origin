@@ -12,5 +12,5 @@ export {
   generateReferralUrl,
   formatCurrency,
   type ReferralData,
-  type ReferralStats
+  type ReferralStats,
 } from './services/referralService';

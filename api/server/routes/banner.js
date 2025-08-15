@@ -1,4 +1,5 @@
 const express = require('express');
+const { logger } = require('@librechat/data-schemas');
 
 const { getBanner } = require('~/models/Banner');
 const optionalJwtAuth = require('~/server/middleware/optionalJwtAuth');
@@ -6,9 +7,13 @@ const router = express.Router();
 
 router.get('/', optionalJwtAuth, async (req, res) => {
   try {
-    res.status(200).send(await getBanner(req.user));
+    const banner = await getBanner(req.user);
+    // Always return 200 with either a banner object or null
+    res.status(200).send(banner ?? null);
   } catch (error) {
-    res.status(500).json({ message: 'Error getting banner' });
+    logger.error('Error getting banner', error);
+    // Do not block app startup for banner issues; return null gracefully
+    res.status(200).send(null);
   }
 });
 

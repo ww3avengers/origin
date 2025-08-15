@@ -1,12 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { TypeAnimation } from 'react-type-animation';
-import CodeMasterDemo from '../AgentDemo/CodeMaster/CodeMasterDemo.fixed';
-import { PDFUploader } from '../AgentDemo/PDFUploader';
-import { DataAnalysis } from '../AgentDemo/DataAnalysis';
+import React, { useEffect, useMemo, useState, useCallback, useRef, Suspense } from 'react';
+import LandingSection from './LandingSection';
+import { SectionHeader } from '@/components/ui/typography/SectionHeader';
+import { useT } from '~/utils/i18n';
+// removed SectionHeading in favor of SectionHeader
+import { getIcon, type IconKey } from '~/components/ui/icons';
+import AgentDemoPanel from '../AgentDemoNew/AgentDemoPanel';
+import { agentsRegistry, type AgentId } from '../AgentDemo/agentsConfig';
+import { track } from '~/lib/analytics/track';
+import { Badge } from '~/components/ui/Badge';
+import { Briefcase, Users, Star } from 'lucide-react';
 
-interface Agent {
-  id: string;
+interface ResolvedAgent {
+  id: AgentId;
   name: string;
   avatar: string;
   color: string;
@@ -18,344 +23,410 @@ interface Agent {
   };
 }
 
-const AgentDemoSection = () => {
-  const prefersReducedMotion = useReducedMotion() ?? false;
-  const [activeAgent, setActiveAgent] = useState<string>('codeMaster');
-  const [isTyping, setIsTyping] = useState<boolean>(false);
-  const [showResponse, setShowResponse] = useState<boolean>(false);
-  const [hasAnimated, setHasAnimated] = useState<boolean>(false);
-  const sectionRef = useRef<HTMLElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+const AgentDemoSection: React.FC = () => {
+  const t = useT();
 
-  // Intersection Observer für zukünftige Verwendung
+  const [activeAgent, setActiveAgent] = useState<AgentId>('codeMaster');
+  const [runKey, setRunKey] = useState<number>(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const impressionSentRef = useRef<boolean>(false);
+  const [vhPx, setVhPx] = useState<number | null>(null);
+  const vvDebounceRef = useRef<number | null>(null);
+
+  // Agents aus Registry + i18n auflösen (Single Source of Truth)
+  const agents: Record<AgentId, ResolvedAgent> = useMemo(() => {
+    const entries = Object.entries(agentsRegistry) as [AgentId, typeof agentsRegistry[AgentId]][];
+    const resolved: Partial<Record<AgentId, ResolvedAgent>> = {};
+    for (const [id, meta] of entries) {
+      resolved[id] = {
+        id,
+        name: t(meta.i18n.name),
+        avatar: meta.avatar,
+        color: meta.color,
+        specialty: t(meta.i18n.specialty),
+        description: t(meta.i18n.description),
+        demo: {
+          question: t(meta.i18n.demoQ),
+          response: t(meta.i18n.demoA),
+        },
+      };
+    }
+    return resolved as Record<AgentId, ResolvedAgent>;
+  }, [t]);
+
+  const agentKeys = useMemo(() => Object.keys(agents) as AgentId[], [agents]);
+
+  // Persistenz: aktiven Agenten aus localStorage lesen/schreiben
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem('agentDemo.active');
+      if (saved && saved in agents) setActiveAgent(saved as AgentId);
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // State-of-the-art Mobile-Viewport-Höhe via visualViewport (Fallback: innerHeight)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const run = () => {
+      const vv = (window as any).visualViewport;
+      const h = Math.round(vv?.height ?? window.innerHeight);
+      setVhPx(h);
+    };
+    const calcVh = () => {
+      if (vvDebounceRef.current) window.clearTimeout(vvDebounceRef.current);
+      vvDebounceRef.current = window.setTimeout(run, 80);
+    };
+    calcVh();
+    window.addEventListener('resize', calcVh);
+    window.addEventListener('orientationchange', calcVh);
+    const vv = (window as any).visualViewport as VisualViewport | undefined;
+    vv?.addEventListener('resize', calcVh);
+    return () => {
+      window.removeEventListener('resize', calcVh);
+      window.removeEventListener('orientationchange', calcVh);
+      vv?.removeEventListener('resize', calcVh);
+    };
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('agentDemo.active', activeAgent);
+    } catch {}
+  }, [activeAgent]);
+
+  // Impression Tracking via IntersectionObserver (einmalig)
+  useEffect(() => {
+    if (!sectionRef.current || impressionSentRef.current) return;
+    const el = sectionRef.current;
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-          // Kein automatisches Starten der Frage mehr
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.25 && !impressionSentRef.current) {
+            impressionSentRef.current = true;
+            try {
+              track({ name: 'agent_demo_impression', props: { visibleRatio: entry.intersectionRatio } });
+            } catch {}
+            observer.disconnect();
+            break;
+          }
         }
       },
-      { threshold: 0.1 }
+      { root: null, rootMargin: '0px', threshold: [0, 0.25, 0.5, 0.75, 1] },
     );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+  const handleAskQuestion = useCallback(() => {
+    setRunKey((k) => k + 1);
+    try {
+      track({ name: 'agent_demo_start', props: { agent: activeAgent } });
+    } catch {}
+  }, [activeAgent]);
 
-    return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
-    };
-  }, [hasAnimated]);
-
-  // Scrollt zum Ende der Nachrichten
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Simuliert das Tippen des Agenten
-  useEffect(() => {
-    if (isTyping) {
-      const timer = setTimeout(() => {
-        setShowResponse(true);
-        setIsTyping(false);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [isTyping]);
-
-  // Behandelt das Stellen einer Frage an den Agenten
-  const handleAskQuestion = () => {
-    setShowResponse(false);
-    setIsTyping(true);
-  };
-
-  // Scrollt nur, wenn der Benutzer interagiert hat
-  useEffect(() => {
-    if (hasAnimated) {
-      scrollToBottom();
-    }
-  }, [isTyping, showResponse, hasAnimated]);
-
-  const agents: Record<string, Agent> = {
-    codeMaster: {
-      id: 'codeMaster',
-      name: 'CodeMaster',
-      avatar: '/assets/agents/codemaster.svg',
-      color: 'from-blue-500 to-indigo-600',
-      specialty: 'Code-Generierung & -Optimierung',
-      description: 'Automatisiertes Schreiben, Debuggen und Optimieren von Code in über 50 Programmiersprachen',
-      demo: {
-        question: 'Wie kann ich diese Funktion in React optimieren?',
-        response: 'Ich analysiere deinen Code und optimiere ihn mit modernen React-Techniken...',
-      },
-    },
-    marketingMind: {
-      id: 'marketingMind',
-      name: 'MarketingMind',
-      avatar: '/assets/agents/marketingmind.svg',
-      color: 'from-purple-500 to-pink-600',
-      specialty: 'Content-Erstellung & Kampagnen',
-      description: 'Erstellt ansprechende Marketinginhalte und optimiert Kampagnen für maximale Reichweite',
-      demo: {
-        question: 'Erstelle einen Social Media Post für unser neues Produkt',
-        response: 'Hier ist ein ansprechender Social Media Post für dein neues Produkt...',
-      },
-    },
-    dataAnalyst: {
-      id: 'dataAnalyst',
-      name: 'DataAnalyst',
-      avatar: '/assets/agents/dataanalyst.svg',
-      color: 'from-green-500 to-teal-600',
-      specialty: 'Datenanalyse & Visualisierung',
-      description: 'Analysiert komplexe Datensätze und erstellt verständliche Visualisierungen',
-      demo: {
-        question: 'Analysiere diese Verkaufsdaten und zeige wichtige Trends',
-        response: 'Ich habe die Verkaufsdaten analysiert und folgende Trends identifiziert...',
-      },
-    },
-  };
+  const sectionTitle = t('landing.agentDemo.title');
+  const sectionDescription = t('landing.agentDemo.description');
 
   return (
-    <section 
+    <LandingSection
+      id="agent-demo"
+      aria-label={sectionTitle}
+      className="relative mt-[80px] px-4 py-0 sm:px-4 sm:py-0"
+      padding="none"
+      divider="none"
+      dataSection="agent-demo"
+      data-ai-section="agent-demo"
+      data-ai-title="Agent Demo"
       ref={sectionRef}
-      className="py-20 bg-gradient-to-b from-gray-900 to-gray-800 relative overflow-hidden"
+      containerClassName="relative mx-auto max-w-none sm:max-w-7xl"
+      accentTopGlow
     >
-      {/* Parallax Hintergrund-Elemente */}
-      {!prefersReducedMotion && (
-        <div className="absolute inset-0 overflow-hidden">
-          {[...Array(12)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full bg-white/5"
-              style={{
-                width: Math.random() * 80 + 40,
-                height: Math.random() * 80 + 40,
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+      {/* Mini-Übersicht */}
+      <div className="hidden sm:grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-12 md:mb-16 lg:mb-20">
+        {(
+          [
+            { key: 'business', bg: 'from-blue-500 to-indigo-600' },
+            { key: 'agents', bg: 'from-emerald-500 to-teal-600' },
+            { key: 'mas', bg: 'from-sky-500 to-cyan-600' },
+          ] as const
+        ).map((l) => {
+          const shortTitle = t(`landing.system.layers.${l.key}.short`);
+          const desc = t(`landing.system.layers.${l.key}.desc`);
+          const hintRaw = t(`landing.system.layers.${l.key}.hint`);
+          const hint =
+            hintRaw && !hintRaw.toLowerCase().startsWith(shortTitle.toLowerCase()) ? hintRaw : '';
+          const badges = t(`landing.system.layers.${l.key}.badges`, {
+            returnObjects: true,
+          } as any) as unknown as string[] | undefined;
+          const Icon = getIcon(l.key as IconKey);
+          // Badge-Variant & Icon pro Layer bestimmen
+          const badgeVariant: import('~/components/ui/Badge').BadgeVariant =
+            l.key === 'business' ? 'info' : l.key === 'agents' ? 'agent' : 'system';
+          const LeadingIcon = l.key === 'business' ? Briefcase : l.key === 'agents' ? Users : Star;
+
+          return (
+            <div
+              key={`mini-${l.key}`}
+              className="relative h-full overflow-hidden rounded-2xl border border-white/10 p-5 transition-colors"
+              role="region"
+              aria-label={shortTitle}
+            >
+              <div className="mb-3 flex h-10 items-center gap-3">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white/5 ring-1 ring-white/15">
+                  <Icon className="h-4 w-4 text-white/90" strokeWidth={1.5} />
+                </div>
+                <div className="flex min-w-0 flex-col justify-center">
+                  <h3 className="truncate text-[clamp(0.82rem,1.2vw,0.98rem)] font-semibold leading-none text-white">
+                    {shortTitle}
+                  </h3>
+                  {hint && (
+                    <p className="truncate text-[clamp(0.66rem,1.05vw,0.76rem)] leading-tight text-gray-200/85">
+                      {hint}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <p className="mb-3 line-clamp-3 text-[clamp(0.7rem,1.1vw,0.85rem)] leading-relaxed text-gray-200/90">
+                {desc}
+              </p>
+              {Array.isArray(badges) && badges.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {badges.map((b, i) => (
+                    <Badge
+                      key={`${l.key}-chip-${i}`}
+                      size="sm"
+                      tone="soft"
+                      variant={badgeVariant}
+                      className="whitespace-nowrap py-1 sm:py-1"
+                      leadingIcon={<LeadingIcon className="h-3.5 w-3.5" aria-hidden />}
+                    >
+                      {b}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Überschrift */}
+      <div className={"text-center mt-0 mb-6 sm:mb-8 lg:mb-10"}>
+        <SectionHeader
+          align="center"
+          size="h2"
+          title={sectionTitle}
+          subtitle={sectionDescription}
+          className="mx-auto max-w-4xl"
+        />
+      </div>
+
+      {/* Mobile: horizontale Agenten-Auswahl */}
+      <div
+        role="tablist"
+        aria-label={sectionTitle}
+        aria-orientation="horizontal"
+        className="sm:hidden -mx-4 mb-4 overflow-x-auto pb-2 scrollbar-hide [scrollbar-width:none] [-ms-overflow-style:none]"
+        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+          const keys = agentKeys;
+          const idx = keys.indexOf(activeAgent);
+          if (e.key === 'ArrowRight') {
+            const next = keys[(idx + 1) % keys.length];
+            setActiveAgent(next);
+            try { track({ name: 'agent_demo_select', props: { agent: next } }); } catch {}
+            setTimeout(() => handleAskQuestion(), 250);
+            e.preventDefault();
+          } else if (e.key === 'ArrowLeft') {
+            const prev = keys[(idx - 1 + keys.length) % keys.length];
+            setActiveAgent(prev);
+            try { track({ name: 'agent_demo_select', props: { agent: prev } }); } catch {}
+            setTimeout(() => handleAskQuestion(), 250);
+            e.preventDefault();
+          }
+        }}
+        style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+      >
+        <div className="flex gap-2 px-4 [mask-image:linear-gradient(to_right,transparent,black_12px,black_calc(100%-12px),transparent)]">
+          {agentKeys.map((agentId) => (
+            <button
+              key={`m-${agentId}`}
+              type="button"
+              onClick={() => {
+                setActiveAgent(agentId);
+                try { track({ name: 'agent_demo_select', props: { agent: agentId } }); } catch {}
+                setTimeout(() => handleAskQuestion(), 250);
               }}
-              animate={{
-                y: [0, Math.random() * 80 - 40, 0],
-                x: [0, Math.random() * 80 - 40, 0],
-                opacity: [0.15, 0.35, 0.15],
-              }}
-              transition={{
-                duration: Math.random() * 16 + 8,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-            />
+              role="tab"
+              id={`agent-tab-m-${agentId}`}
+              aria-selected={activeAgent === agentId}
+              aria-controls={`agent-panel-${agentId}`}
+              aria-label={agents[agentId].name}
+              tabIndex={activeAgent === agentId ? 0 : -1}
+              className={`flex items-center gap-2 rounded-full px-3 py-2 text-xs ring-1 transition-all duration-200 ${
+                activeAgent === agentId
+                  ? 'bg-white/[0.10] text-white ring-white/30 shadow-sm shadow-sky-400/15'
+                  : 'bg-white/[0.04] text-white/90 ring-white/15'
+              }`}
+            >
+              <img src={agents[agentId].avatar} alt="" className="h-4 w-4 rounded" loading="lazy" />
+              <span className="whitespace-nowrap">{agents[agentId].name}</span>
+            </button>
           ))}
         </div>
-      )}
+      </div>
 
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+      {/* Grid: Linke Liste + Rechte Demo */}
+      <div className="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
+        {/* Linke Spalte: Agentenliste */}
+        <div
+          role="tablist"
+          aria-label={sectionTitle}
+          aria-orientation="vertical"
+          tabIndex={0}
+          className="hidden sm:block space-y-3"
+          onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+            const keys = agentKeys;
+            const idx = keys.indexOf(activeAgent);
+            if (e.key === 'ArrowDown') {
+              const next = keys[(idx + 1) % keys.length];
+              setActiveAgent(next);
+              try {
+                track({ name: 'agent_demo_select', props: { agent: next } });
+              } catch {}
+              setTimeout(() => handleAskQuestion(), 250);
+              e.preventDefault();
+            } else if (e.key === 'ArrowUp') {
+              const prev = keys[(idx - 1 + keys.length) % keys.length];
+              setActiveAgent(prev);
+              try {
+                track({ name: 'agent_demo_select', props: { agent: prev } });
+              } catch {}
+              setTimeout(() => handleAskQuestion(), 250);
+              e.preventDefault();
+            } else if (e.key === 'Home') {
+              const first = keys[0];
+              setActiveAgent(first);
+              try {
+                track({ name: 'agent_demo_select', props: { agent: first } });
+              } catch {}
+              setTimeout(() => handleAskQuestion(), 250);
+              e.preventDefault();
+            } else if (e.key === 'End') {
+              const last = keys[keys.length - 1];
+              setActiveAgent(last);
+              try {
+                track({ name: 'agent_demo_select', props: { agent: last } });
+              } catch {}
+              setTimeout(() => handleAskQuestion(), 250);
+              e.preventDefault();
+            }
+          }}
         >
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-100 mb-6">
-            Unsere KI-Agenten in Aktion
-          </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Entdecke, wie unsere spezialisierten KI-Agenten dir bei deinen täglichen Aufgaben helfen können.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Agenten-Auswahl */}
-          <div className="space-y-4">
-            {Object.entries(agents).map(([key, agent]) => (
-              <motion.button
-                key={key}
-                whileHover={prefersReducedMotion ? undefined : { scale: 1.015 }}
-                whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
-                onClick={() => {
-                  setActiveAgent(key);
-                  handleAskQuestion();
-                }}
-                className={`w-full p-4 rounded-xl text-left transition-all ${
-                  activeAgent === key
-                    ? 'bg-gradient-to-r ' + agent.color + ' shadow-lg shadow-blue-500/20'
-                    : 'bg-gray-800 hover:bg-gray-700/80'
-                }`}
-              >
-                <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mr-4">
-                    <img src={agent.avatar} alt={agent.name} className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">{agent.name}</h3>
-                    <p className="text-sm text-gray-300">{agent.specialty}</p>
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-
-          {/* Demo-Bereich */}
-          <div className="lg:col-span-2 flex flex-col bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-700">
-            <div className="p-4 bg-gray-900 border-b border-gray-700 flex items-center">
-              <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500 mr-2"></div>
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <div className="ml-4 text-sm text-gray-400">
-                {agents[activeAgent].name} - {agents[activeAgent].specialty}
-              </div>
-            </div>
-
-            <div className="flex-1 flex flex-col">
-              {/* Demo-Bereich für die spezifische Interaktion */}
-              <div className="flex-1 overflow-hidden">
-                {activeAgent === 'codeMaster' && (
-                  <CodeMasterDemo 
-                    isActive={activeAgent === 'codeMaster'}
-                    onComplete={() => {
-                      // Optional: Callback nach Abschluss der Demo
-                    }}
+          {agentKeys.map((agentId) => (
+            <button
+              key={agentId}
+              type="button"
+              onClick={() => {
+                setActiveAgent(agentId);
+                try {
+                  track({ name: 'agent_demo_select', props: { agent: agentId } });
+                } catch {}
+                setTimeout(() => handleAskQuestion(), 300);
+              }}
+              role="tab"
+              id={`agent-tab-${agentId}`}
+              aria-selected={activeAgent === agentId}
+              aria-controls={`agent-panel-${agentId}`}
+              aria-label={agents[agentId].name}
+              tabIndex={activeAgent === agentId ? 0 : -1}
+              className={`group relative flex h-[4.5rem] w-full items-center rounded-2xl px-4 py-3 text-left transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent-ring))] focus-visible:ring-offset-0 ${
+                activeAgent === agentId
+                  ? 'bg-white/[0.06] text-white shadow-md shadow-sky-400/20 ring-1 ring-white/20'
+                  : 'ring-white/12 text-white ring-1 hover:bg-white/[0.045] hover:ring-white/20 hover:shadow-sm hover:shadow-sky-400/15'
+              }`}
+              style={{ WebkitTapHighlightColor: 'transparent' } as React.CSSProperties}
+            >
+              <div className="relative z-10 flex w-full items-center gap-3">
+                <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-white/5 ring-1 ring-white/15">
+                  <img
+                    src={agents[agentId].avatar}
+                    alt={agents[agentId].name}
+                    className="h-5 w-5"
+                    loading="lazy"
+                    decoding="async"
                   />
-                )}
-                
-                {activeAgent === 'marketingMind' && (
-                  <div className="p-6">
-                    <div className="bg-gray-900 rounded-xl p-6 border border-gray-700">
-                      <h3 className="text-xl font-semibold text-white mb-4">
-                        Social Media Post Generator
-                      </h3>
-                      <div className="space-y-4">
-                        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                          <p className="text-gray-300 text-sm mb-2">Thema:</p>
-                          <input 
-                            type="text" 
-                            className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Worüber soll der Post handeln?"
-                          />
-                        </div>
-                        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                          <p className="text-gray-300 text-sm mb-2">Plattform:</p>
-                          <select className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>Twitter</option>
-                            <option>LinkedIn</option>
-                            <option>Instagram</option>
-                            <option>Facebook</option>
-                          </select>
-                        </div>
-                        <button 
-                          className="w-full bg-gradient-to-r from-purple-500 to-pink-600 text-white py-2 px-4 rounded-md hover:opacity-90 transition-opacity"
-                          onClick={handleAskQuestion}
-                        >
-                          Post generieren
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeAgent === 'dataAnalyst' && (
-                  <div className="p-6">
-                    <DataAnalysis isActive={true} />
-                  </div>
-                )}
-              </div>
-
-              {/* Chat-Interface */}
-              <div className="border-t border-gray-700 bg-gray-900 p-4">
-                <div className="max-h-40 overflow-y-auto mb-4 space-y-3" style={{ minHeight: '100px' }}>
-                  <div className="flex items-start">
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex-shrink-0 flex items-center justify-center text-white font-bold mr-3">
-                      Q
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3 text-sm text-white">
-                      {agents[activeAgent].demo.question}
-                    </div>
-                  </div>
-
-                  {isTyping && (
-                    <div className="flex items-start">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex-shrink-0 flex items-center justify-center text-white font-bold mr-3">
-                        A
-                      </div>
-                      <div className="bg-gray-800 rounded-lg p-3 text-sm text-gray-300 flex space-x-1">
-                        {!prefersReducedMotion ? (
-                          <>
-                            <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                            <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                            <div className="w-2 h-2 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                          </>
-                        ) : (
-                          <span>Antwort wird generiert …</span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {showResponse && (
-                    <div className="flex items-start">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex-shrink-0 flex items-center justify-center text-white font-bold mr-3">
-                        A
-                      </div>
-                      <div className="bg-gray-800 rounded-lg p-3 text-sm text-gray-300">
-                        {prefersReducedMotion ? (
-                          <span>{agents[activeAgent].demo.response}</span>
-                        ) : (
-                          <TypeAnimation
-                            sequence={[agents[activeAgent].demo.response]}
-                            wrapper="span"
-                            cursor={false}
-                            speed={65}
-                            style={{ display: 'inline-block' }}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  <div ref={messagesEndRef} />
                 </div>
-
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    placeholder="Stelle eine Frage..."
-                    className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && !isTyping) {
-                        handleAskQuestion();
-                      }
-                    }}
-                  />
-                  <button
-                    onClick={handleAskQuestion}
-                    disabled={isTyping}
-                    className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                <div className="min-w-0">
+                  <h3
+                    className={`truncate text-[clamp(0.95rem,1.22vw,1.06rem)] font-semibold leading-tight tracking-[-0.01em] ${activeAgent === agentId ? 'text-white' : 'text-white/90'}`}
                   >
-                    Senden
-                  </button>
+                    {agents[agentId].name}
+                  </h3>
+                  <p
+                    className={`truncate text-[clamp(0.69rem,1.02vw,0.8rem)] leading-snug ${activeAgent === agentId ? 'text-slate-100/85' : 'text-slate-200/80'}`}
+                  >
+                    {agents[agentId].specialty}
+                  </p>
                 </div>
               </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Rechte Spalte: Demo */}
+        <div className="relative lg:col-span-2">
+          <div
+            className="relative mt-2 sm:mt-0 flex flex-col overflow-hidden bg-transparent w-full h-auto sm:rounded-2xl min-h-[280px] sm:min-h-[300px] aspect-[4/3] sm:aspect-[3/2] md:aspect-[16/9] sm:max-h-[min(85svh,640px)] transition-[height,width,padding] duration-300 ease-out"
+            role="tabpanel"
+            id={`agent-panel-${activeAgent}`}
+            aria-labelledby={`agent-tab-${activeAgent}`}
+            style={{
+              paddingLeft: 'calc(env(safe-area-inset-left) + 8px)',
+              paddingRight: 'calc(env(safe-area-inset-right) + 8px)',
+              paddingTop: 'calc(env(safe-area-inset-top) + 0px)',
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 0px)',
+              height: undefined,
+            }}
+          >
+            <div className="flex min-h-0 flex-1 flex-col">
+              {(() => {
+                const entry = agentsRegistry[activeAgent];
+                const Loader = entry?.loader ? React.lazy(entry.loader) : null;
+                if (!Loader) {
+                  return (
+                    <AgentDemoPanel
+                      key={`${activeAgent}-${runKey}`}
+                      command={agents[activeAgent].demo.question}
+                      output={agents[activeAgent].demo.response}
+                      autoStart
+                      typingSpeedMs={28}
+                    />
+                  );
+                }
+                return (
+                  <Suspense
+                    fallback={
+                      <AgentDemoPanel
+                        key={`fb-${activeAgent}-${runKey}`}
+                        command={agents[activeAgent].demo.question}
+                        output={agents[activeAgent].demo.response}
+                        autoStart
+                        typingSpeedMs={28}
+                      />
+                    }
+                  >
+                    <div className="mx-auto w-full h-full max-w-none sm:max-w-[900px] px-0 sm:px-2">
+                      <Loader isActive key={`${activeAgent}-${runKey}`} />
+                    </div>
+                  </Suspense>
+                );
+              })()}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Parallax Scrolling Effekt */}
-      {prefersReducedMotion ? (
-        <div 
-          className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-gray-900 to-transparent z-20 pointer-events-none"
-        />
-      ) : (
-        <motion.div 
-          className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-gray-900 to-transparent z-20 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        />
-      )}
-    </section>
+    </LandingSection>
   );
 };
 

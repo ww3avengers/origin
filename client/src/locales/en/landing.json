@@ -1,85 +1,321 @@
 {
-  "hero": {
-    "badge": "🚀 NEW: Now with AI Agents",
-    "title": "SIGMACODE AI",
-    "subtitle": {
-      "line1": "Innovative AI solutions for your business",
-      "line2": "",
-      "highlight": "simple, secure and powerful"
+  "sections": {
+    "hero": "Hero",
+    "agentHero": "Agent Hero",
+    "superTeam": "Super Team",
+    "agentDemo": "Agent Demo",
+    "useCases": "Use Cases",
+    "security": "Security",
+    "dataPrivacy": "Data Privacy",
+    "compare": "Comparison",
+    "pricing": "Pricing",
+    "pricingEnterprise": "Enterprise",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cta": "Get Started"
+  },
+  "nav": {
+    "aria": "Main navigation",
+    "primary": "Primary navigation",
+    "home": "Home",
+    "useCases": "Use Cases",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "dashboard": "Dashboard",
+    "analytics": "Analytics",
+    "chat": "SIGMACODE AI Chat",
+    "chatAria": "Go to SIGMACODE AI Chat",
+    "aiChat": "AI Chat",
+    "menu": "Open menu",
+    "close": "Close menu"
+  },
+  "pages": {
+    "blog": {
+      "title": "Blog",
+      "description": "News, guides and product updates from SIGMACODE AI."
     },
-    "microtrust": "No credit card required · Ready in 2 minutes",
-    "description": "Discover the future of artificial intelligence with tailored solutions for your business.",
+    "careers": {
+      "title": "Careers",
+      "description": "Join SIGMACODE AI. Help us bring production‑grade AI to everyone."
+    },
+    "status": {
+      "title": "Status",
+      "description": "System status, availability and incident history of SIGMACODE AI."
+    },
+    "changelog": {
+      "title": "Changelog",
+      "description": "All changes, releases and improvements of SIGMACODE AI."
+    },
+    "about": {
+      "title": "About",
+      "description": "Get to know SIGMACODE AI – mission, values and team."
+    },
+    "docs": {
+      "title": "Documentation",
+      "description": "Documentation overview: Getting Started, Guides & References."
+    },
+    "api": {
+      "title": "API & SDK",
+      "description": "API reference, SDKs and examples for integrating SIGMACODE AI."
+    }
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mainContent": "Main content",
+    "loading": "Loading..."
+  },
+  "loading": "Loading...",
+  "site": {
+    "breadcrumb_home": "Home"
+  },
+  "hero": {
+    "badge": " NEW: Autonomous AI Agents & MAS",
+    "badgeNewAgents": "NEW: Autonomous AI Agents & MAS",
+    "title": "SIGMACODE AI",
+    "title_left": "SIGMACODE",
+    "title_right": "AI",
+    "subtitle": {
+      "line1": "Agentic enterprise AI for real workflows – controllable, auditable, scalable.",
+      "line2": "",
+      "highlight": "AI agents & multi‑agent systems for productive teams"
+    },
+    "microtrust": "No data sharing · EU hosting & self‑hosting · On‑premises available",
+    "description": "Orchestrate specialized AI agents into resilient workflows with checkpoints, audit trails and clear governance. GDPR‑ready, audit‑friendly and deployable in cloud or on‑premises.",
     "cta": {
-      "primary": "Start free trial",
-      "secondary": "Learn more",
-      "secondaryAria": "Learn more about SIGMACODE AI"
+      "primary": "Try for free",
+      "secondary": "Documentation",
+      "secondaryAria": "Learn more about SIGMACODE AI",
+      "groupLabel": "Primary actions"
     },
     "trustedBy": "Trusted by the best",
     "image_alt": "AI assistant in action",
     "logos": {
       "sap": "SAP",
       "microsoft": "Microsoft",
-      "googleCloud": "Google Cloud"
+      "googleCloud": "Google Cloud",
+      "google": "Google",
+      "openai": "OpenAI",
+      "grok": "Grok",
+      "huggingface": "Hugging Face",
+      "deepseek": "DeepSeek",
+      "mistral": "Mistral AI",
+      "cohere": "Cohere",
+      "groq": "Groq",
+      "openrouter": "OpenRouter",
+      "ollama": "Ollama",
+      "anyscale": "Anyscale",
+      "title": "Trusted by leading AI providers",
+      "description": "Works seamlessly with leading AI providers and platforms.",
+      "ariaLabel": "Trusted by logos",
+      "pause": "Pause",
+      "play": "Play"
+    },
+    "usps": [
+      "Build repeatable AI workflows",
+      "Deploy specialized AI agents",
+      "Orchestrate MAS teams for complex tasks"
+    ]
+  },
+  "target": {
+    "title": "Your audience, our expertise",
+    "subtitle": "For leadership teams, CTOs and regulated industries",
+    "description": "We deliver production‑ready AI: from secure workflows to MAS orchestration – precisely tuned to your domain.",
+    "cta": {
+      "contact": "Contact us",
+      "demo": "Open agent demo",
+      "pricing": "View pricing"
+    },
+    "social": {
+      "title": "Social media professionals",
+      "description": "Plan, produce and publish faster – with consistent outcomes.",
+      "features": {
+        "1": "Create & manage content calendars",
+        "2": "Automated post creation for all platforms",
+        "3": "Develop hashtag strategies",
+        "4": "Boost engagement with AI‑optimized content",
+        "5": "Generate multilingual content"
+      }
+    },
+    "business": {
+      "title": "Companies & agencies",
+      "description": "Automate processes and increase productivity – secure and auditable.",
+      "features": {
+        "1": "Automated customer support",
+        "2": "Search internal knowledge bases",
+        "3": "Create brand‑compliant content",
+        "4": "Data analysis & reporting",
+        "5": "Scalable AI solutions"
+      }
+    },
+    "developers": {
+      "title": "Developers & tech teams",
+      "description": "Integrate AI seamlessly – from code assistance to agent workflows.",
+      "features": {
+        "1": "Code generation & optimization",
+        "2": "Create technical documentation",
+        "3": "Simplify API integrations",
+        "4": "Bug fixing & code review",
+        "5": "Build custom AI assistants & agents"
+      }
+    },
+    "creators": {
+      "title": "Content creators & creatives",
+      "description": "From idea to release – publish faster with consistent quality.",
+      "features": {
+        "1": "Ideation & concept development",
+        "2": "Generate image and video descriptions",
+        "3": "Plan social media content",
+        "4": "Multilingual translations",
+        "5": "Creative writing & storytelling"
+      }
+    },
+    "ecommerce": {
+      "title": "E‑commerce & shops",
+      "description": "Automate product data, boost conversions and reduce support load – end‑to‑end.",
+      "features": {
+        "1": "Auto‑generate product descriptions & variants",
+        "2": "On‑site search & recommendation AI",
+        "3": "Assistants for orders, returns and shipping",
+        "4": "SEO copy for categories, snippets & rich results",
+        "5": "Auditable customer support (chat, email, social)",
+        "6": "Pricing/promo automation and A/B experiments"
+      }
+    },
+    "saas": {
+      "title": "SaaS & startups",
+      "description": "Accelerate go‑to‑market with agents for docs, support, changelog and growth.",
+      "features": {
+        "1": "Interactive docs & API guides with search",
+        "2": "Automatically generate release notes & changelogs",
+        "3": "Product tours & onboarding flows",
+        "4": "Community support & triage in GitHub/Discord",
+        "5": "Lead scoring, nurturing & outreach automation",
+        "6": "Playbooks for sales, success & renewals"
+      }
+    },
+    "healthcare": {
+      "title": "Healthcare & MedTech",
+      "description": "Secure, auditable assistants for findings, guidelines and patient communication.",
+      "features": {
+        "1": "Findings assistants with versioning & audit trail",
+        "2": "Guideline/SOP navigation & decision trees",
+        "3": "Document extraction (labs, letters, OCR)",
+        "4": "Multilingual patient education & consent flows",
+        "5": "Compliance with GDPR/ISO/NIS2, access controls",
+        "6": "Scheduling, triage and routing automation"
+      }
+    },
+    "fintech": {
+      "title": "FinTech & banking",
+      "description": "KYC/AML automation, risk scoring and auditable support – secure & traceable.",
+      "features": {
+        "1": "KYC/AML document checks & extraction",
+        "2": "Transaction monitoring & anomaly detection",
+        "3": "Regulatory reports (MiFID, Basel, ESG)",
+        "4": "Secure customer communication with audit trail",
+        "5": "Risk scoring & credit pre‑assessment",
+        "6": "Policy enforcement, RBAC & data masking"
+      }
+    },
+    "legal": {
+      "title": "Legal & compliance",
+      "description": "Contract analysis, clause search and compliance reports – fast, consistent, verifiable.",
+      "features": {
+        "1": "Contract analysis & clause comparison",
+        "2": "Template creation for NDAs, DPAs, SLAs",
+        "3": "Due‑diligence document review",
+        "4": "Knowledge base for precedents & guides",
+        "5": "Compliance checks & policy enforcement",
+        "6": "Auditable collaboration & approval workflows"
+      }
     }
   },
-  "features": {
-    "title": "Powerful features",
-    "subtitle": "Everything you need in one place",
-    "cta": "Explore all features",
-    "categories": {
-      "all": "All",
-      "ai": "AI",
-      "collaboration": "Collaboration",
-      "integration": "Integration",
-      "security": "Security"
+  "testimonials": {
+    "1": {
+      "quote": "AI has transformed our workflows. We now save several hours every day!",
+      "author": "Max Mustermann",
+      "role": "CTO, TechStartup GmbH"
     },
-    "ai": {
-      "title": "AI-Powered",
-      "description": "Advanced AI for better assistance"
-    },
-    "security": {
-      "title": "Security first",
-      "description": "Your data is always protected"
-    },
-    "collaboration": {
-      "title": "Collaboration",
-      "description": "Work together seamlessly"
-    },
-    "integration": {
-      "title": "Integrations",
-      "description": "Connect your favorite tools"
-    },
-    "code": {
-      "title": "Code Intelligence",
-      "description": "Understand and generate high‑quality code"
-    },
-    "analytics": {
-      "title": "Analytics",
-      "description": "Gain insights with dashboards and metrics"
-    }
+    "title": "Social proof & voices",
+    "subtitle": "What others say about SIGMACODE AI"
   },
   "agents": {
     "hero": {
-      "badge": "Autonomous AI Agents",
-      "title": "Let agents work for you",
-      "subtitle": "Design task-driven agents that research, analyze and execute multi-step workflows end-to-end.",
+      "badge": "Autonomous AI agents for enterprises",
+      "title": "Agents that take ownership",
+      "subtitle": "Task‑driven agents with clear ownership, policies and audit trail – transparent, controllable, and scalable.",
       "features": [
-        { "title": "Multi-step workflows", "description": "Automate complex tasks with reliable step chains and retry logic." },
-        { "title": "Tool integrations", "description": "Connect APIs, knowledge bases and internal tools to extend agent skills." },
-        { "title": "Human-in-the-loop", "description": "Keep control with approvals and checkpoints where it matters." }
+        {
+          "title": "Multi‑step workflows",
+          "description": "Step chains with retry, schedules and ownership."
+        },
+        {
+          "title": "Tool integrations",
+          "description": "Integrate APIs, databases, files & knowledge bases."
+        },
+        {
+          "title": "Human‑in‑the‑loop",
+          "description": "Approval gates & checkpoints at critical steps."
+        }
       ]
+    },
+    "usps": {
+      "title": "Why our agents stand out",
+      "subtitle": "Reliable outcomes, governance and speed – from single agent to MAS orchestration."
+    }
+  },
+  "system": {
+    "title": "From idea to results – in three layers",
+    "subtitle": "One platform, three layers: Business AI, agent workflows, multi-agent coordination.",
+    "description": "Design once, operationalize everywhere: standardize knowledge, automate workflows and coordinate multi‑agent teams for reliable outcomes.",
+    "aria": "System layers visualization",
+    "ariaDesc": "Three concentric rings representing Business AI, Agents, and Multi‑Agent System.",
+    "badges_aria": "Core capabilities",
+    "layers": {
+      "business": {
+        "title": "Business AI (standards & knowledge)",
+        "desc": "Establish standards, connect knowledge sources and enforce compliance and security across teams.",
+        "short": "Business AI",
+        "hint": "Define policies, data sources and goals centrally",
+        "link": "Talk to us",
+        "badges": ["Policies", "Datasets"]
+      },
+      "agents": {
+        "title": "Agent workflows (automate processes)",
+        "desc": "Model step‑by‑step processes with approvals, retries and SLAs to produce consistent outcomes.",
+        "short": "Agents",
+        "hint": "Execute workflows with checkpoints",
+        "avatars": "Active agents",
+        "badges": ["Workflows", "Checkpoints"],
+        "link": "Learn more about agents"
+      },
+      "mas": {
+        "title": "Multi‑agent system (AI teamwork)",
+        "desc": "Specialized agents collaborate in parallel with handoffs and arbitration to deliver faster, higher‑quality outcomes under clear governance.",
+        "link": "What is MAS?",
+        "short": "MAS",
+        "hint": "Coordinate agents and govern results",
+        "badges": ["Governance", "Orchestration"]
+      }
     }
   },
   "security": {
+    "badge": "Security & Control",
     "subtitle": "Security & Control",
     "title": "Your data. Your control.",
-    "description": "SIGMACODE AI is built with privacy, security and maximum control in mind.",
+    "description": "Privacy by design, self‑hosting, RBAC, audit logs – built in.",
+    "icon_label": "Security shield",
     "learn_more": "Learn more about our security measures",
     "stats": {
       "open_source": "Open Source",
       "auth": "Authentication",
+      "auth_title": "OAuth2 – Single Sign‑On via OAuth 2.0 / OIDC",
       "two_factor": "Two-Factor",
-      "directory": "Directory"
+      "two_factor_title": "Two‑factor authentication (2FA)",
+      "directory": "Directory",
+      "directory_title": "LDAP – Directory service integration"
     },
     "features": {
       "selfhosting": {
@@ -112,11 +348,37 @@
       "content_filter": "Integratable content filter"
     }
   },
+  "dataprivacy": {
+    "aria": "Privacy & data sovereignty",
+    "badge": "No data storage",
+    "title": "We do not store personal data. Period.",
+    "subtitle": "Unlike ChatGPT, your personal data is session‑based. You stay in control and can permanently delete everything at any time.",
+    "items": {
+      "session_only": {
+        "title": "Session‑only – no persistent storage",
+        "description": "Personal data is only used for the current session and not persisted. No silent long‑term storage."
+      },
+      "delete_forever": {
+        "title": "Permanent deletion – no recovery",
+        "description": "When you delete, it's gone. Irrevocably removed from the server – no backups, no shadow copies."
+      },
+      "no_training": {
+        "title": "No training on your data",
+        "description": "Your content is not used for model training or analytics. No profiling, no resale."
+      },
+      "self_hosting": {
+        "title": "Self‑hosting for maximum control",
+        "description": "Run SIGMACODE AI in your own infrastructure (VPC/on‑prem) – data sovereignty and compliance by design."
+      }
+    },
+    "disclaimer": "Note: Technical telemetry may be used in anonymized form for stability and abuse prevention – never for content analysis of personal data."
+  },
   "pricing": {
     "subtitle": "Pricing",
     "title": "Simple and transparent pricing",
-    "description": "Choose the plan that fits your needs. All plans provide access to the full SIGMACODE AI experience.",
+    "description": "Choose what you need – from open source to enterprise. All plans support agent workflows and integrations.",
     "billing": {
+      "aria_label": "Toggle billing period",
       "monthly": "Monthly",
       "yearly": "Yearly"
     },
@@ -128,10 +390,21 @@
     "enterprise_description": "Contact us for tailored solutions, custom deployments and dedicated support options for larger teams and enterprises.",
     "contact_sales": "Contact sales",
     "enterprise_docs": "Enterprise documentation",
+    "enterprise_bullets": {
+      "sla": "Enterprise SLA & response times",
+      "sso": "SSO/LDAP integration & RBAC",
+      "onprem": "On‑premises & VPC deployment",
+      "dpa": "DPA/AVV & compliance packages",
+      "audit": "Audit trail & approval workflows",
+      "support": "Dedicated support & success"
+    },
     "plans": {
       "community": {
         "title": "Community",
-        "price": { "monthly": "Free", "yearly": "Free" },
+        "price": {
+          "monthly": "Free",
+          "yearly": "Free"
+        },
         "description": "Open source, self-hosted",
         "features": {
           "1": "Unlimited conversations",
@@ -144,29 +417,52 @@
       },
       "professional": {
         "title": "Professional",
-        "price": { "monthly": "$19.99", "yearly": "$16.99" },
-        "description": "Managed cloud hosting",
+        "price": {
+          "monthly": "$19.99",
+          "yearly": "$16.99"
+        },
+        "description": "Managed cloud hosting with agent workflows",
         "features": {
           "1": "Everything from Community",
           "2": "100 code interpreter credits/month",
           "3": "Premium AI model access",
-          "4": "Web search & image analysis",
+          "4": "Web search & image analysis (vision)",
           "5": "Priority support",
           "6": "Team collaboration (up to 5 users)"
         },
         "cta": "Get started"
       },
+      "team": {
+        "title": "Team",
+        "price": {
+          "monthly": "$79.00",
+          "yearly": "$65.00"
+        },
+        "description": "For teams: full model suite, BYO keys, knowledge bases",
+        "features": {
+          "1": "Everything from Professional",
+          "2": "Full model suite + BYO keys",
+          "3": "Agent orchestration (multi‑LLM, ensembles)",
+          "4": "Knowledge bases & vector search",
+          "5": "Team spaces, approvals & handoffs",
+          "6": "Advanced integrations & automations"
+        },
+        "cta": "Try Team"
+      },
       "enterprise": {
         "title": "Enterprise",
-        "price": { "monthly": "$99.99", "yearly": "$79.99" },
+        "price": {
+          "monthly": "$99.99",
+          "yearly": "$79.99"
+        },
         "description": "For teams & enterprises",
         "features": {
           "1": "Everything from Professional",
           "2": "Unlimited code interpreter credits",
           "3": "Custom AI assistants & agents",
-          "4": "LDAP/SSO integration",
+          "4": "LDAP/SSO integration (RBAC & audit ready)",
           "5": "Dedicated support manager",
-          "6": "Custom deployment options",
+          "6": "Custom deployment (cloud/on‑prem)",
           "7": "Unlimited team members",
           "8": "Custom branding"
         },
@@ -174,38 +470,547 @@
       }
     }
   },
-  "techstack": {
-    "title": "Built with cutting‑edge technology",
-    "subtitle": "Technology stack",
-    "description": "SIGMACODE AI uses a flexible, modular architecture for maximum performance and adaptability.",
-    "deployment_guide": "View deployment guide",
-    "features": {}
+  "metaphor": {
+    "superteam_title": "Super‑team of agents",
+    "superteam_subtitle": "Multiple specialized agents orchestrated into one super‑agent",
+    "superteam_badge": "MAS metaphor",
+    "super_agent": "Super‑agent",
+    "super_agent_label": "Super‑Agent",
+    "agent_avatar": "Agent avatar",
+    "bullets": {
+      "1": "Specialized roles (research, extraction, code, review)",
+      "2": "Orchestration: delegation, handoffs, parallelism",
+      "3": "Governance: approvals, checkpoints, auditability",
+      "4": "Deploy anywhere: cloud or on‑prem"
+    },
+    "avatar": {
+      "1": "A1",
+      "2": "A2",
+      "3": "A3",
+      "4": "A4",
+      "5": "A5",
+      "6": "A6"
+    }
   },
   "comparison": {
     "badge": "Comparison",
-    "title": "Comparison with other solutions",
-    "subtitle": "Why SIGMACODE AI is the better choice for you",
+    "title": "SIGMACODE AI vs. ChatGPT & Co.",
+    "subtitle": "Agents & MAS instead of just chat – real workflows, governance & deployment",
     "features": "Features",
+    "available": "available",
+    "unavailable": "not available",
     "sigmacode_tagline": "The modern AI solution for businesses",
     "chatgpt_tagline": "General purpose AI chat",
+    "mas_tagline": "Teams of specialized agents (MAS)",
+    "columns": ["ChatGPT", "SIGMACODE AI (Agents)", "SIGMACODE AI (MAS)"],
+    "rows": {
+      "multi_models": "Multi‑models (OpenAI, Grok, local LLMs)",
+      "agents_workflows": "Agents & workflows (steps, retry, scheduling)",
+      "mas_orchestration": "MAS orchestration (delegation, handoffs, parallelism)",
+      "integrations": "Integrations (APIs, databases, files, knowledge)",
+      "security_deployment": "Security & deployment (self‑hosting, RBAC, audit)",
+      "governance_hitl": "Governance & HITL (approvals, checkpoints)",
+      "extensibility": "Extensibility (open source, tools/plugins)"
+    },
+    "colA": {
+      "title": "ChatGPT",
+      "badge": "General purpose AI chat",
+      "cta": "Visit ChatGPT"
+    },
+    "colC": {
+      "title": "SIGMACODE AI (MAS)",
+      "badge": "Teams of specialized agents (MAS)",
+      "cta": "Get started now"
+    },
+    "points": {
+      "multi_models": {
+        "chatgpt": "Limited to OpenAI models",
+        "mas": "Supports all major LLM providers and local models"
+      },
+      "agents_workflows": {
+        "chatgpt": "Basic chat interface only",
+        "mas": "Full workflow automation with steps and retries"
+      },
+      "mas_orchestration": {
+        "chatgpt": "Not available",
+        "mas": "Advanced multi-agent coordination"
+      },
+      "integrations": {
+        "chatgpt": "Limited API access",
+        "mas": "Full API, database, and tool integration"
+      },
+      "security_deployment": {
+        "chatgpt": "Cloud-only, limited control",
+        "mas": "Self-hosting, RBAC, and audit logs"
+      },
+      "governance_hitl": {
+        "chatgpt": "Basic moderation",
+        "mas": "Full governance with human-in-the-loop"
+      },
+      "extensibility": {
+        "chatgpt": "Limited plugins",
+        "mas": "Fully extensible with custom tools"
+      }
+    },
     "cta": "Get started now",
     "visit_chatgpt": "Visit ChatGPT"
   },
   "faq": {
     "title": "Frequently asked questions",
     "subtitle": "Everything you need to know",
-    "description": "Got questions? We've got answers. If you can't find what you're looking for, please contact our support team.",
+    "description": "Quick answers to common questions. If anything's missing, reach out to support.",
     "more_questions": "Still have questions?",
     "contact_us": "Contact us",
-    "q1": "What is SIGMACODE AI?",
-    "a1": "SIGMACODE AI is a modern AI platform that combines powerful models with enterprise features like security, self‑hosting and integrations.",
-    "q2": "How is SIGMACODE AI different?",
-    "a2": "We focus on privacy, extensibility and real workflows. Run locally or in the cloud, integrate tools and build agents for your business.",
-    "q3": "Is my data secure?",
-    "a3": "Yes. We support self‑hosting, role‑based access control, encryption and audit logs to protect your data.",
-    "q4": "Can I customize the models and agents?",
-    "a4": "Yes. You can use different models, add knowledge sources, connect APIs and design task‑specific agents.",
-    "q5": "Do you offer support?",
-    "a5": "Yes. We provide documentation, community resources and optional premium support plans."
+    "q_pricing": "How much does SIGMACODE AI cost?",
+    "a_pricing": "Flexible pricing for teams and enterprises: usage‑based or fixed enterprise plans with SLAs. Talk to sales for a custom quote.",
+    "q_trial": "Do you offer a free trial?",
+    "a_trial": "Yes. Start free to evaluate core features, models and integrations. Upgrade anytime without data loss.",
+    "q_security": "How secure is my data?",
+    "a_security": "Encryption at rest/in transit, RBAC, audit logs, data minimization. GDPR support and EU‑only processing on request.",
+    "q_deployment": "Can I deploy in my cloud/VPC or on‑prem?",
+    "a_deployment": "Yes: managed cloud or self‑hosting in your VPC/on‑prem. Hybrid setups with private networking and your own KMS are supported.",
+    "q_integrations": "What integrations are available?",
+    "a_integrations": "Native connectors (GitHub, Slack, Notion, Jira), webhooks, REST/GraphQL API. SDKs for TypeScript & Python.",
+    "q_customization": "Can I customize or fine‑tune models?",
+    "a_customization": "Yes. Domain knowledge, retrieval, guardrails, fine‑tuning (tone, structure, compliance). Versioning & A/B tests included.",
+    "q_accuracy": "How accurate are the results?",
+    "a_accuracy": "Evaluation suites, benchmarks and human‑in‑the‑loop. Track precision/recall, latency & cost per task in the dashboard.",
+    "q_compliance": "Which compliance standards do you support?",
+    "a_compliance": "GDPR by design; processes aligned with SOC 2 and ISO 27001. Data residency & DPA available for enterprise.",
+    "q_models": "Which models and languages are supported?",
+    "a_models": "Leading foundation models and multilingual use cases. Bring‑your‑own‑model, switch providers without code rewrite.",
+    "q_sla": "What support options and SLAs are available?",
+    "a_sla": "From community support to dedicated success managers and 99.9% uptime SLAs. Prioritized incident response in enterprise.",
+    "q_cancellation": "Can I cancel anytime? Who owns my data?",
+    "a_cancellation": "Yes. You retain full ownership; export projects securely before closing your account.",
+    "q_mas": "What are MAS agents?",
+    "a_mas": "MAS stands for Multi‑Agent Systems: multiple specialized agents work together (delegation, handoffs, parallelism) to complete complex tasks end‑to‑end – with governance (approvals, checkpoints) and auditability.",
+    "q_agents_vs_mas": "What's the difference between an agent and MAS?",
+    "a_agents_vs_mas": "A single agent handles a well‑defined task. MAS orchestrates several specialized agents as a team – for larger initiatives with aligned roles, escalation paths and quality controls.",
+    "q_billing": "How does billing work?",
+    "a_billing": "Choose usage‑based (tokens/interpreter credits) or plan‑based (seats, limits). Enterprise: fixed SLAs, custom quotas and contract options.",
+    "q_limits": "Are there any limits?",
+    "a_limits": "Yes, fair‑use via rate limits, credits and plan quotas. In enterprise, limits can be adjusted or lifted.",
+    "q_data_residency": "Where is my data stored? (Data residency)",
+    "a_data_residency": "EU/region hosting available. Alternatively, self‑host in your own VPC/on‑prem with full data control.",
+    "q_api_sdk": "Do you provide an API & SDK?",
+    "a_api_sdk": "Yes. Clean REST/GraphQL API, webhooks and SDKs for TypeScript & Python for fast integration.",
+    "q_onboarding": "What's the best way to get started?",
+    "a_onboarding": "Create an account, connect data sources, pick a template (e.g., support bot, content pipeline), test an agent and deploy. Our guide walks you through step by step."
+  },
+  "cta": {
+    "subtitle": "Ready for the next step?",
+    "title": "Experience the future of AI with SIGMACODE AI",
+    "description": "Start today with SIGMACODE AI and discover how modern AI tools can elevate your productivity and creativity.",
+    "groupLabel": "Primary actions – Get started or open GitHub",
+    "badge": "Get started fast",
+    "note": "No risk: cancel anytime. Privacy‑friendly – self‑hosting available.",
+    "features": {
+      "open_source": {
+        "title": "Open Source",
+        "description": "100% transparent code you can adapt and extend."
+      },
+      "privacy": {
+        "title": "Privacy",
+        "description": "Self‑hosting for maximum control over your data."
+      },
+      "performance": {
+        "title": "Performance",
+        "description": "Optimized for speed and scalability."
+      },
+      "agents": {
+        "title": "Agents & MAS",
+        "description": "From single agent to team orchestration – transparent and auditable."
+      }
+    },
+    "stats": {
+      "github_stars": "GitHub stars",
+      "active_users": "Active users",
+      "contributors": "Contributors",
+      "conversations": "Conversations",
+      "values": {
+        "github_stars": "3,500+",
+        "active_users": "15,000+",
+        "contributors": "50+",
+        "conversations": "1M+"
+      }
+    }
+  },
+  "stats": {
+    "users": "Active users",
+    "satisfaction": "Satisfaction",
+    "support": "Support",
+    "integrations": "Integrations",
+    "values": {
+      "users": "10,000+",
+      "satisfaction": "98%",
+      "support": "24/7",
+      "integrations": "50+"
+    }
+  },
+  "agentDemo": {
+    "title": "Our AI agents in action",
+    "description": "Discover how our specialized AI agents help you with everyday tasks.",
+    "intro": "Watch agents solve real tasks end‑to‑end – with logs, steps and progress.",
+    "askPlaceholder": "Ask a question…",
+    "send": "Send",
+    "typing": "Generating answer …",
+    "selectAgent": "Select agent",
+    "toolDock": {
+      "minimize": "Minimize dock",
+      "maximize": "Maximize dock",
+      "close": "Close dock"
+    },
+    "visual": {
+      "title": "Agent tools visual",
+      "progress": "Pipeline progress",
+      "agent_label": "AI Agent",
+      "live_catch": "Tool received",
+      "servers": {
+        "mcpA": "MCP‑A",
+        "mcpB": "MCP‑B",
+        "mcpC": "MCP‑C",
+        "mcpD": "MCP‑D",
+        "vector": "VectorDB",
+        "funcs": "Functions",
+        "billing": "Billing",
+        "logs": "Logs",
+        "cache": "Cache",
+        "llm": "LLM",
+        "gateway": "Gateway",
+        "monitor": "Monitor",
+        "auth": "AuthSrv",
+        "queue": "Queue"
+      }
+    },
+    "enable3D": "Enable 3D",
+    "labels": {
+      "workflow": "Workflow",
+      "logs": "Logs",
+      "hint": "Drag or use arrow keys to snap the PDF into the agent",
+      "progress": "Progress",
+      "progressText": "Step {{current}} of {{total}}"
+    },
+    "data": {
+      "title": "Data pipeline",
+      "running": "Processing data…",
+      "progressAria": "Data pipeline progress",
+      "labels": {
+        "qreport": "Quarterly report",
+        "revenue": "Revenue",
+        "market": "Market share",
+        "ctr": "CTR"
+      },
+      "steps": {
+        "load": "Loading data…",
+        "clean": "Cleaning data…",
+        "aggregate": "Aggregating…",
+        "visualize": "Visualizing…",
+        "insights": "Generating insights…"
+      },
+      "logs": {
+        "start": "Starting data job…",
+        "fetch": "Fetching sources…",
+        "rows": "{{count}} rows loaded",
+        "nulls": "Removing nulls…",
+        "normalize": "Normalizing fields…",
+        "groupby": "Grouping by dimensions…",
+        "metrics": "Calculating metrics…",
+        "render": "Rendering charts…",
+        "done": "Data pipeline complete",
+        "summary": "Summary ready"
+      }
+    },
+    "asm": {
+      "perception": "Perception",
+      "plan": "Plan",
+      "act": "Act",
+      "review": "Review",
+      "learn": "Learn",
+      "observe": "Observe",
+      "analyze": "Analyze",
+      "execute": "Execute",
+      "validate": "Validate",
+      "optimize": "Optimize"
+    },
+    "code": {
+      "title": "Code pipeline",
+      "running": "Running code workflow…",
+      "steps": {
+        "analyze": "Analyzing repository…",
+        "deps": "Resolving dependencies…",
+        "generate": "Generating code…",
+        "quality": "Running quality checks…",
+        "summary": "Summarizing results…"
+      },
+      "logs": {
+        "scan": "Scanning files and structure…",
+        "stack": "Detecting framework & stack…",
+        "ts": "TypeScript config detected",
+        "deps": "Parsing package.json and lockfiles…",
+        "libs": "Inspecting libraries…",
+        "audit": "Security audit…",
+        "gen": "Generating components and hooks…",
+        "refactor": "Refactoring legacy patterns…",
+        "clean": "Applying cleanup & formatting…",
+        "lint": "Running linter…",
+        "tests": "Executing tests…",
+        "summary": "Creating final summary…",
+        "ok": "All checks passed ✅"
+      }
+    },
+    "research": {
+      "title": "Research browser",
+      "address": "Enter address…",
+      "search": "Search term…",
+      "go": "Search",
+      "running": "Researching…",
+      "progress_aria": "Research progress"
+    },
+    "researchAd": {
+      "badge": "Ad"
+    },
+    "marketing": {
+      "title": "Marketing pipeline",
+      "running": "Generating marketing content…",
+      "progressAria": "Marketing pipeline progress",
+      "preview": {
+        "label": "Preview",
+        "v1": "Variant A",
+        "v2": "Variant B"
+      },
+      "steps": {
+        "brief": "Parsing brief…",
+        "tone": "Setting tone & voice…",
+        "draft": "Writing draft…",
+        "seo": "Optimizing SEO…",
+        "polish": "Polishing copy…"
+      },
+      "logs": {
+        "start": "Starting marketing job…",
+        "parseBrief": "Parsing goals and constraints…",
+        "goals": "Extracted goals",
+        "tone": "Tone selected",
+        "hooks": "Generating hooks…",
+        "draft": "Draft created",
+        "variants": "Creating variants…",
+        "keywords": "SEO keywords generated",
+        "hashtags": "Hashtags generated",
+        "readability": "Improving readability & style…",
+        "final": "Final copy ready"
+      }
+    },
+    "steps": {
+      "scan": "Scanning repository…",
+      "deps": "Checking dependencies…",
+      "generate": "Generating components…",
+      "lint": "Lint & tests…",
+      "summary": "Summary…",
+      "ok": "All checks passed ✅",
+      "s1": "Connecting APIs…",
+      "s2": "Querying DB…",
+      "s3": "Scanning Knowledge…",
+      "s4": "Validating…",
+      "s5": "Synthesizing…"
+    },
+    "agents": {
+      "opsAgent": {
+        "name": "OpsAgent",
+        "specialty": "Operations & processes",
+        "description": "Monitors systems, orchestrates workflows and reacts automatically to incidents",
+        "demo": {
+          "question": "Monitor API latencies and scale when needed",
+          "response": "I monitor metrics, trigger alerts and scale services when thresholds are exceeded."
+        }
+      },
+      "codeMaster": {
+        "name": "CodeMaster",
+        "specialty": "Code generation & optimization",
+        "description": "Automated writing, debugging and optimization across 50+ programming languages",
+        "demo": {
+          "question": "How can I optimize this function in React?",
+          "response": "I will analyze your code and optimize it using modern React techniques..."
+        }
+      },
+      "marketingMind": {
+        "name": "MarketingMind",
+        "specialty": "Content creation & campaigns",
+        "description": "Creates engaging marketing content and optimizes campaigns for maximum reach",
+        "demo": {
+          "question": "Create a social media post for our new product",
+          "response": "Here is an engaging social media post for your new product..."
+        }
+      },
+      "dataAnalyst": {
+        "name": "DataAnalyst",
+        "specialty": "Data analysis & visualization",
+        "description": "Analyzes complex datasets and creates understandable visualizations",
+        "demo": {
+          "question": "Analyze these sales data and show key trends",
+          "response": "I've analyzed the sales data and identified the following trends..."
+        }
+      },
+      "researchAgent": {
+        "name": "Researcher",
+        "specialty": "Web research & fact checking",
+        "description": "Opens browser tools, researches sources and extracts reliable facts",
+        "demo": {
+          "question": "Find reliable sources on ‘state-of-the-art AI Agent Chat UX 2025’",
+          "response": "I've reviewed multiple trustworthy sources. Key elements: true token streaming, transparent tool docking (browser/code/DB), live status & logs, accessible ARIA-live regions, consistent motion and error/retry flows."
+        }
+      }
+    }
+  },
+  "uspDeepDive": {
+    "title": "What you use us for",
+    "subtitle": "Business AI, Agents, MAS – depending on your needs",
+    "cards": [
+      {
+        "title": "AI solutions for business",
+        "bullets": ["Connect tools & knowledge", "Harden processes", "Measure outcomes"]
+      },
+      {
+        "title": "AI agents",
+        "bullets": ["Steps & retry", "Schedules & triggers", "Approval & audit"]
+      },
+      {
+        "title": "MAS agents (teams)",
+        "bullets": ["Delegation & handoffs", "Roles & goals", "APIs & data integrated"]
+      }
+    ]
+  },
+  "footer": {
+    "aria": "Footer",
+    "nav": "Footer navigation",
+    "brand": {
+      "tagline": "Agents & MAS for real workflows – secure, scalable, auditable."
+    },
+    "columns": {
+      "product": {
+        "title": "Product",
+        "features": "Features",
+        "pricing": "Pricing",
+        "faq": "FAQ",
+        "docs": "Docs"
+      },
+      "company": {
+        "title": "Company",
+        "careers": "Careers",
+        "about": "About"
+      },
+      "resources": {
+        "title": "Resources",
+        "blog": "Blog",
+        "changelog": "Changelog",
+        "status": "Status",
+        "api": "API & SDK"
+      },
+      "legal": {
+        "title": "Legal"
+      }
+    },
+    "links": {
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "imprint": "Imprint",
+      "contact": "Contact"
+    },
+    "social": {
+      "github": "GitHub",
+      "x": "X",
+      "discord": "Discord"
+    },
+    "backToTop": "Back to top",
+    "copyright": "© {{year}} SIGMACODE AI. All rights reserved."
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "updated": "Updated on {date}",
+      "intro": "We take your privacy seriously. This policy explains what data we process and for what purposes.",
+      "sections": {
+        "responsible": {
+          "title": "Controller",
+          "content": "SIGMACODE AI – Contact: privacy@sigmacode.ai"
+        },
+        "processing": {
+          "title": "Purposes of Processing",
+          "content": "Providing the service, product quality improvements, security, fraud prevention, and compliance with legal obligations."
+        },
+        "legalBasis": {
+          "title": "Legal Bases",
+          "content": "Art. 6(1) a, b, c and f GDPR – consent, performance of contract, legal obligation, legitimate interests."
+        },
+        "retention": {
+          "title": "Retention",
+          "content": "We retain personal data only as long as necessary for the respective purposes or as required by law."
+        },
+        "rights": {
+          "title": "Your Rights",
+          "content": "You have the right to access, rectification, erasure, restriction, data portability, and to object. Contact privacy@sigmacode.ai."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "updated": "Updated on {date}",
+      "intro": "These terms govern your use of SIGMACODE AI. By using the service, you agree to them.",
+      "sections": {
+        "use": {
+          "title": "Acceptable Use",
+          "content": "You agree not to misuse the service, infringe third-party rights, or violate applicable laws."
+        },
+        "accounts": {
+          "title": "Accounts & Security",
+          "content": "You are responsible for the security of your account and keeping your credentials confidential."
+        },
+        "billing": {
+          "title": "Billing",
+          "content": "Fees may apply based on plan or usage. Cancellations take effect at the end of the billing period."
+        }
+      }
+    },
+    "imprint": {
+      "title": "Imprint",
+      "company": "SIGMACODE AI",
+      "address": "Musterstraße 1, 10115 Berlin, Germany",
+      "contact": "Email: contact@sigmacode.ai",
+      "vat": "VAT ID: DE123456789",
+      "ceo": "Managing Director: Max Mustermann"
+    },
+    "contact": {
+      "title": "Contact",
+      "intro": "We look forward to your message.",
+      "email": "Email: contact@sigmacode.ai",
+      "support": "Support: support@sigmacode.ai"
+    },
+    "errors": {
+      "name_min": "Please enter at least 2 characters.",
+      "name_max": "Maximum 120 characters.",
+      "email_invalid": "Please enter a valid email.",
+      "email_max": "Maximum 180 characters.",
+      "company_max": "Maximum 180 characters.",
+      "subject_min": "Subject: at least 3 characters.",
+      "subject_max": "Subject: maximum 160 characters.",
+      "message_min": "Message: at least 10 characters.",
+      "message_max": "Message: maximum 4000 characters.",
+      "source_max": "Source: maximum 200 characters."
+    }
+  },
+  "contact": {
+    "form": {
+      "name": "Name",
+      "name_placeholder": "Your name",
+      "email": "Business email",
+      "email_placeholder": "name@company.com",
+      "company": "Company",
+      "company_placeholder": "Company name",
+      "message": "Use case / Message",
+      "message_placeholder": "Briefly outline your use case…",
+      "consent": "I agree to be contacted and to the processing of my data according to the Privacy Policy.",
+      "submit": "Send request",
+      "prefill_title": "Your request",
+      "prefill_hint": "The data below comes from your request and can be sent via email."
+    }
   }
 }

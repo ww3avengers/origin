@@ -3,7 +3,8 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import type { TStartupConfig } from 'librechat-data-provider';
 import { useGetStartupConfig } from '~/data-provider';
 import AuthLayout from '~/components/Auth/AuthLayout';
-import { TranslationKeys, useLocalize } from '~/hooks';
+import { TranslationKeys } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 const headerMap: Record<string, TranslationKeys> = {
   '/login': 'com_auth_welcome_back',
@@ -24,7 +25,7 @@ export default function StartupLayout({ isAuthenticated }: { isAuthenticated?: b
   } = useGetStartupConfig({
     enabled: isAuthenticated ? startupConfig === null : true,
   });
-  const localize = useLocalize();
+  const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -58,7 +59,7 @@ export default function StartupLayout({ isAuthenticated }: { isAuthenticated?: b
 
   return (
     <AuthLayout
-      header={headerText ? localize(headerText) : localize(headerMap[location.pathname])}
+      header={headerText ? t(headerText) : t(headerMap[location.pathname])}
       isFetching={isFetching}
       startupConfig={startupConfig}
       startupConfigError={startupConfigError}

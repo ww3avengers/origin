@@ -4,7 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { TMessage } from 'librechat-data-provider';
 import { QueryKeys, Constants } from 'librechat-data-provider';
 import { NewChatIcon, MobileSidebar, Sidebar, TooltipAnchor, Button } from '@librechat/client';
-import { useLocalize, useNewConvo } from '~/hooks';
+import { useNewConvo } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import store from '~/store';
 
 export default function NewChat({
@@ -24,7 +25,7 @@ export default function NewChat({
   /** Note: this component needs an explicit index passed if using more than one */
   const { newConversation: newConvo } = useNewConvo(index);
   const navigate = useNavigate();
-  const localize = useLocalize();
+  const t = useT();
   const { conversation } = store.useCreateConversationAtom(index);
 
   const clickHandler: React.MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -51,13 +52,13 @@ export default function NewChat({
     <>
       <div className="flex items-center justify-between py-[2px] md:py-2">
         <TooltipAnchor
-          description={localize('com_nav_close_sidebar')}
+          description={t('com_nav_close_sidebar')}
           render={
             <Button
               size="icon"
               variant="outline"
               data-testid="close-sidebar-button"
-              aria-label={localize('com_nav_close_sidebar')}
+              aria-label={t('com_nav_close_sidebar')}
               className="rounded-full border-none bg-transparent p-2 hover:bg-surface-hover md:rounded-xl"
               onClick={toggleNav}
             >
@@ -69,13 +70,13 @@ export default function NewChat({
         <div className="flex">
           {headerButtons}
           <TooltipAnchor
-            description={localize('com_ui_new_chat')}
+            description={t('com_ui_new_chat')}
             render={
               <Button
                 size="icon"
                 variant="outline"
                 data-testid="nav-new-chat-button"
-                aria-label={localize('com_ui_new_chat')}
+                aria-label={t('com_ui_new_chat')}
                 className="rounded-full border-none bg-transparent p-2 hover:bg-surface-hover md:rounded-xl"
                 onClick={clickHandler}
               >

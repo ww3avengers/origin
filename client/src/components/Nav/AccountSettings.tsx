@@ -93,7 +93,7 @@ function AccountSettings() {
         </Select.SelectItem>
         <Select.SelectItem
           value=""
-          onClick={() => window.location.href = '/referral'}
+          onClick={() => (window.location.href = '/referral')}
           className="select-item text-sm"
         >
           <UserIcon aria-hidden="true" />

@@ -52,9 +52,10 @@ export function truncate(text: string, length: number): string {
 export function generateRandomString(length: number): string {
   return Array.from(
     { length },
-    () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[
-      Math.floor(Math.random() * 62)
-    ]
+    () =>
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[
+        Math.floor(Math.random() * 62)
+      ],
   ).join('');
 }
 
@@ -66,7 +67,7 @@ export function generateRandomString(length: number): string {
  */
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
-  wait: number
+  wait: number,
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
   return function executedFunction(...args: Parameters<T>) {
@@ -87,7 +88,7 @@ export function debounce<T extends (...args: any[]) => any>(
  */
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
-  limit: number
+  limit: number,
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
   return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
@@ -105,9 +106,7 @@ export function throttle<T extends (...args: any[]) => any>(
  */
 export const isMobile = (): boolean => {
   if (typeof window === 'undefined') return false;
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 };
 
 /**

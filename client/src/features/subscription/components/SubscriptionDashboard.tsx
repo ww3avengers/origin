@@ -12,7 +12,11 @@ export default function SubscriptionDashboard() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const { data: subscription, isLoading, error } = useQuery({
+  const {
+    data: subscription,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['subscription'],
     queryFn: getSubscription,
     enabled: !!user,
@@ -25,7 +29,8 @@ export default function SubscriptionDashboard() {
     } catch (err) {
       toast({
         title: 'Fehler',
-        description: 'Zahlungsverwaltung konnte nicht geöffnet werden. Bitte versuchen Sie es später erneut.',
+        description:
+          'Zahlungsverwaltung konnte nicht geöffnet werden. Bitte versuchen Sie es später erneut.',
         variant: 'destructive',
       });
     }
@@ -33,7 +38,7 @@ export default function SubscriptionDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
@@ -41,9 +46,9 @@ export default function SubscriptionDashboard() {
 
   if (error) {
     return (
-      <div className="text-center py-10">
+      <div className="py-10 text-center">
         <h3 className="text-lg font-medium">Fehler beim Laden der Abonnement-Daten</h3>
-        <p className="text-muted-foreground mt-2">Bitte versuchen Sie es später erneut.</p>
+        <p className="mt-2 text-muted-foreground">Bitte versuchen Sie es später erneut.</p>
       </div>
     );
   }
@@ -53,7 +58,9 @@ export default function SubscriptionDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Mein Abonnement</h1>
-          <p className="text-muted-foreground">Verwalten Sie Ihr Abonnement und Zahlungsinformationen</p>
+          <p className="text-muted-foreground">
+            Verwalten Sie Ihr Abonnement und Zahlungsinformationen
+          </p>
         </div>
         <Button onClick={handleManageBilling} variant="outline">
           Zahlungsverwaltung
@@ -89,27 +96,29 @@ export default function SubscriptionDashboard() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <div className="flex justify-between text-sm mb-1">
+                <div className="mb-1 flex justify-between text-sm">
                   <span>Verbrauchte Tokens</span>
                   <span>
                     {subscription?.monthlyUsage?.tokens?.toLocaleString() || '0'} /{' '}
                     {subscription?.limits?.monthlyTokens?.toLocaleString() || 'Unbegrenzt'}
                   </span>
                 </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-2 overflow-hidden rounded-full bg-gray-200">
                   <div
                     className="h-full bg-primary"
                     style={{
                       width: `${Math.min(
-                        ((subscription?.monthlyUsage?.tokens || 0) / (subscription?.limits?.monthlyTokens || 1)) * 100,
-                        100
+                        ((subscription?.monthlyUsage?.tokens || 0) /
+                          (subscription?.limits?.monthlyTokens || 1)) *
+                          100,
+                        100,
                       )}%`,
                     }}
                   />
                 </div>
               </div>
               <div>
-                <div className="flex justify-between text-sm mb-1">
+                <div className="mb-1 flex justify-between text-sm">
                   <span>Anfragen</span>
                   <span>{subscription?.monthlyUsage?.requests?.toLocaleString() || '0'}</span>
                 </div>
@@ -125,15 +134,15 @@ export default function SubscriptionDashboard() {
           <CardContent>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center">
-                <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
+                <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                 {subscription?.limits?.monthlyTokens?.toLocaleString() || 'Unbegrenzt'} Tokens/Monat
               </li>
               <li className="flex items-center">
-                <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
+                <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                 {subscription?.limits?.maxRequestsPerMinute || '10'} Anfragen/Minute
               </li>
               <li className="flex items-center">
-                <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
+                <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                 Zugriff auf {subscription?.limits?.modelAccess?.join(', ') || 'alle Modelle'}
               </li>
             </ul>
@@ -142,7 +151,7 @@ export default function SubscriptionDashboard() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Verfügbare Pläne</h2>
+        <h2 className="mb-4 text-xl font-semibold">Verfügbare Pläne</h2>
         <div className="grid gap-6 md:grid-cols-3">
           {[
             {
@@ -191,7 +200,7 @@ export default function SubscriptionDashboard() {
           ].map((plan) => (
             <Card key={plan.name} className={plan.popular ? 'border-2 border-primary' : ''}>
               <CardHeader>
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                   <CardTitle>{plan.name}</CardTitle>
                   {plan.popular && (
                     <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
@@ -207,10 +216,10 @@ export default function SubscriptionDashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3 mb-6">
+                <ul className="mb-6 space-y-3">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center">
-                      <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />
+                      <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
                       {feature}
                     </li>
                   ))}

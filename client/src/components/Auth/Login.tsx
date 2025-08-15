@@ -2,7 +2,7 @@ import { useOutletContext, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { OpenIDIcon } from '@librechat/client';
 import type { TLoginLayoutContext } from '~/common';
-import { ErrorMessage } from '~/components/Auth/ErrorMessage';
+import { ErrorMessage } from '~/components/ui/ErrorMessage';
 import SocialButton from '~/components/Auth/SocialButton';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { getLoginError } from '~/utils';
@@ -50,7 +50,11 @@ function Login() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-4">
         <p className="text-lg font-semibold">
-          {localize('com_ui_redirecting_to_provider', { 0: startupConfig.openidLabel })}
+          {String(
+            (localize as any)('translation:com_ui_redirecting_to_provider', {
+              0: startupConfig.openidLabel,
+            }),
+          )}
         </p>
         <div className="mt-4">
           <SocialButton
@@ -75,7 +79,9 @@ function Login() {
 
   return (
     <>
-      {error != null && <ErrorMessage>{localize(getLoginError(error))}</ErrorMessage>}
+      {error != null && (
+        <ErrorMessage>{String((localize as any)(getLoginError(error)))}</ErrorMessage>
+      )}
       {startupConfig?.emailLoginEnabled === true && (
         <LoginForm
           onSubmit={login}
@@ -87,12 +93,12 @@ function Login() {
       {startupConfig?.registrationEnabled === true && (
         <p className="my-4 text-center text-sm font-light text-gray-700 dark:text-white">
           {' '}
-          {localize('com_auth_no_account')}{' '}
+          {String((localize as any)('translation:com_auth_no_account'))}{' '}
           <a
             href="/register"
             className="inline-flex p-1 text-sm font-medium text-green-600 transition-colors hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
           >
-            {localize('com_auth_sign_up')}
+            {String((localize as any)('translation:com_auth_sign_up'))}
           </a>
         </p>
       )}

@@ -4,7 +4,7 @@ import { Button, Input } from '@librechat/client';
 import { TFile } from 'librechat-data-provider/dist/types';
 import UploadFileButton from './UploadFileButton';
 import { ListFilter } from 'lucide-react';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 const fakeFiles = [
   {
@@ -141,7 +141,7 @@ const attachedVectorStores = [
 ];
 
 export default function FileSidePanel() {
-  const localize = useLocalize();
+  const t = useT();
   const deleteFile = (id: string | undefined) => {
     // Define delete functionality here
     console.log(`Deleting File with id: ${id}`);
@@ -158,7 +158,7 @@ export default function FileSidePanel() {
             <ListFilter className="h-4 w-4" />
           </Button>
           <Input
-            placeholder={localize('com_files_filter')}
+            placeholder={t('com_files_filter')}
             value={''}
             onChange={() => {
               console.log('changed');

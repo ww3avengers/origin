@@ -22,12 +22,12 @@ import {
   DecibelSelector,
 } from './STT';
 import ConversationModeSwitch from './ConversationModeSwitch';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import { cn, logger } from '~/utils';
 import store from '~/store';
 
 function Speech() {
-  const localize = useLocalize();
+  const t = useT();
 
   const [confirmClear, setConfirmClear] = useState(false);
   const { data } = useGetCustomConfigSpeechQuery();
@@ -155,7 +155,7 @@ function Speech() {
       orientation="horizontal"
       value={advancedMode ? 'advanced' : 'simple'}
     >
-      <div className="sticky -top-1 z-50 mb-4 bg-white dark:bg-gray-700">
+      <div className="sticky -top-1 z-50 mb-4 bg-background/80 backdrop-blur-sm">
         <Tabs.List className="flex justify-center bg-background">
           <Tabs.Trigger
             onClick={() => setAdvancedMode(false)}
@@ -168,7 +168,7 @@ function Speech() {
             style={{ userSelect: 'none' }}
           >
             <Lightbulb />
-            {localize('com_ui_simple')}
+            {t('com_ui_simple')}
           </Tabs.Trigger>
           <Tabs.Trigger
             onClick={() => setAdvancedMode(true)}
@@ -181,59 +181,63 @@ function Speech() {
             style={{ userSelect: 'none' }}
           >
             <Cog />
-            {localize('com_ui_advanced')}
+            {t('com_ui_advanced')}
           </Tabs.Trigger>
         </Tabs.List>
       </div>
 
       <Tabs.Content value={'simple'}>
-        <div className="flex flex-col gap-3 text-sm text-text-primary">
-          <SpeechToTextSwitch />
-          <EngineSTTDropdown external={sttExternal} />
-          <LanguageSTTDropdown />
-          <div className="h-px bg-border-medium" role="none" />
-          <TextToSpeechSwitch />
-          <EngineTTSDropdown external={ttsExternal} />
-          <VoiceDropdown />
+        <div className="rounded-xl border border-border-medium bg-background/40 p-3 shadow-sm">
+          <div className="flex flex-col gap-3 text-sm text-text-primary">
+            <SpeechToTextSwitch />
+            <EngineSTTDropdown external={sttExternal} />
+            <LanguageSTTDropdown />
+            <div className="h-px bg-border-medium" role="none" />
+            <TextToSpeechSwitch />
+            <EngineTTSDropdown external={ttsExternal} />
+            <VoiceDropdown />
+          </div>
         </div>
       </Tabs.Content>
 
       <Tabs.Content value={'advanced'}>
-        <div className="flex flex-col gap-3 text-sm text-text-primary">
-          <ConversationModeSwitch />
-          <div className="mt-2 h-px bg-border-medium" role="none" />
-          <SpeechToTextSwitch />
+        <div className="rounded-xl border border-border-medium bg-background/40 p-3 shadow-sm">
+          <div className="flex flex-col gap-3 text-sm text-text-primary">
+            <ConversationModeSwitch />
+            <div className="mt-2 h-px bg-border-medium" role="none" />
+            <SpeechToTextSwitch />
 
-          <EngineSTTDropdown external={sttExternal} />
+            <EngineSTTDropdown external={sttExternal} />
 
-          <LanguageSTTDropdown />
-          <div className="pb-2">
-            <AutoTranscribeAudioSwitch />
-          </div>
-          {autoTranscribeAudio && (
+            <LanguageSTTDropdown />
             <div className="pb-2">
-              <DecibelSelector />
+              <AutoTranscribeAudioSwitch />
             </div>
-          )}
-          <div className="pb-2">
-            <AutoSendTextSelector />
-          </div>
-          <div className="h-px bg-border-medium" role="none" />
-          <div className="pb-3">
-            <TextToSpeechSwitch />
-          </div>
-          <AutomaticPlaybackSwitch />
-          <EngineTTSDropdown external={ttsExternal} />
-          <VoiceDropdown />
-          {engineTTS === 'browser' && (
+            {autoTranscribeAudio && (
+              <div className="pb-2">
+                <DecibelSelector />
+              </div>
+            )}
             <div className="pb-2">
-              <CloudBrowserVoicesSwitch />
+              <AutoSendTextSelector />
             </div>
-          )}
-          <div className="pb-2">
-            <PlaybackRate />
+            <div className="h-px bg-border-medium" role="none" />
+            <div className="pb-3">
+              <TextToSpeechSwitch />
+            </div>
+            <AutomaticPlaybackSwitch />
+            <EngineTTSDropdown external={ttsExternal} />
+            <VoiceDropdown />
+            {engineTTS === 'browser' && (
+              <div className="pb-2">
+                <CloudBrowserVoicesSwitch />
+              </div>
+            )}
+            <div className="pb-2">
+              <PlaybackRate />
+            </div>
+            <CacheTTSSwitch />
           </div>
-          <CacheTTSSwitch />
         </div>
       </Tabs.Content>
     </Tabs.Root>

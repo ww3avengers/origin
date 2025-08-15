@@ -1,8 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
-import { Spinner, useToastContext } from '@librechat/client';
+import { useToastContext } from '@librechat/client';
+import LoadingState from '~/components/ui/LoadingState';
 import MinimalMessagesWrapper from '~/components/Chat/Messages/MinimalMessages';
-import { useNavScrolling, useLocalize, useAuthContext } from '~/hooks';
+import { useNavScrolling, useAuthContext } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import SearchMessage from '~/components/Chat/Messages/SearchMessage';
 import { useMessagesInfiniteQuery } from '~/data-provider';
 import { useFileMapContext } from '~/Providers';
@@ -11,9 +13,7 @@ import store from '~/store';
 import Meta from '~/components/Seo/Meta';
 
 export default function Search() {
-  const localize = useLocalize();
-  // Lokaler Wrapper mit flexibler Signatur, liefert garantiert string
-  const lz = localize as unknown as (key: string, options?: any) => string;
+  const t = useT();
   const fileMap = useFileMapContext();
   const { showToast } = useToastContext();
   const { isAuthenticated } = useAuthContext();
@@ -60,11 +60,7 @@ export default function Search() {
   const isSearchLoading = search.isTyping || isLoading || isFetchingNextPage;
 
   if (isSearchLoading) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Spinner className="text-text-primary" />
-      </div>
-    );
+    return <LoadingState className="absolute inset-0" label={t('com_ui_loading') as string} />;
   }
 
   if (!searchQuery) {
@@ -80,25 +76,25 @@ export default function Search() {
     <>
       <Meta title="Suche" description="Suchergebnisse" robots="noindex, nofollow" />
       <MinimalMessagesWrapper ref={containerRef} className="relative flex h-full pt-4">
-      {(messages && messages.length === 0) || messages == null ? (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="rounded-lg bg-white p-6 text-lg text-gray-500 dark:border-gray-800/50 dark:bg-gray-800 dark:text-gray-300">
-            {lz('translation:com_ui_nothing_found')}
-          </div>
-        </div>
-      ) : (
-        <>
-          {messages.map((msg) => (
-            <SearchMessage key={msg.messageId} message={msg} />
-          ))}
-          {isFetchingNextPage && (
-            <div className="flex justify-center py-4">
-              <Spinner className="text-text-primary" />
+        {(messages && messages.length === 0) || messages == null ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="rounded-lg bg-white p-6 text-lg text-gray-500 dark:border-gray-800/50 dark:bg-gray-800 dark:text-gray-300">
+              {t('com_ui_nothing_found')}
             </div>
-          )}
-        </>
-      )}
-      <div className="absolute bottom-0 left-0 right-0 h-[5%] bg-gradient-to-t from-gray-50 to-transparent dark:from-gray-800" />
+          </div>
+        ) : (
+          <>
+            {messages.map((msg) => (
+              <SearchMessage key={msg.messageId} message={msg} />
+            ))}
+            {isFetchingNextPage && (
+              <div className="flex justify-center py-4">
+                <LoadingState size="sm" />
+              </div>
+            )}
+          </>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 h-[5%] bg-gradient-to-t from-gray-50 to-transparent dark:from-gray-800" />
       </MinimalMessagesWrapper>
     </>
   );

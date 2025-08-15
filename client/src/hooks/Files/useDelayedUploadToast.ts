@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useToastContext } from '@librechat/client';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 export const useDelayedUploadToast = () => {
-  const localize = useLocalize();
+  const t = useT();
   const { showToast } = useToastContext();
   const [uploadTimers, setUploadTimers] = useState<Record<string, NodeJS.Timeout>>({});
 
@@ -21,7 +21,7 @@ export const useDelayedUploadToast = () => {
     }
 
     const timer = setTimeout(() => {
-      const message = localize('com_ui_upload_delay', { 0: fileName });
+      const message = t('com_ui_upload_delay', { 0: fileName });
       showToast({
         message,
         status: 'warning',

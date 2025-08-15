@@ -1,7 +1,8 @@
 import { forwardRef } from 'react';
 import type { ForwardedRef } from 'react';
 import { CheckIcon } from 'lucide-react';
-import { Spinner, DialogButton } from '@librechat/client';
+import { DialogButton } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import HoverCardSettings from './HoverCardSettings';
 import type { TDangerButtonProps } from '~/common';
 import { useLocalize } from '~/hooks';
@@ -27,7 +28,7 @@ const DangerButton = (props: TDangerButtonProps, ref: ForwardedRef<HTMLButtonEle
 
   const renderMutation = (node: React.ReactNode | string) => {
     if (mutation && mutation.isLoading) {
-      return <Spinner className="h-5 w-5" />;
+      return <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading`} />;
     }
     return node;
   };
@@ -36,7 +37,7 @@ const DangerButton = (props: TDangerButtonProps, ref: ForwardedRef<HTMLButtonEle
     <div className="flex items-center justify-between">
       {showText && (
         <div className={`flex items-center ${infoDescriptionCode ? 'space-x-2' : ''}`}>
-          <div>{localize(infoTextCode)}</div>
+          <div>{localize(infoTextCode as string)}</div>
           {infoDescriptionCode && <HoverCardSettings side="bottom" text={infoDescriptionCode} />}
         </div>
       )}
@@ -57,7 +58,7 @@ const DangerButton = (props: TDangerButtonProps, ref: ForwardedRef<HTMLButtonEle
             data-testid={dataTestIdConfirm}
           >
             {renderMutation(<CheckIcon className="h-5 w-5" />)}
-            {mutation && mutation.isLoading ? null : localize(confirmActionTextCode)}
+            {mutation && mutation.isLoading ? null : localize(confirmActionTextCode as string)}
           </div>
         ) : (
           <div
@@ -65,7 +66,7 @@ const DangerButton = (props: TDangerButtonProps, ref: ForwardedRef<HTMLButtonEle
             id={`${id}-text`}
             data-testid={dataTestIdInitial}
           >
-            {renderMutation(localize(actionTextCode))}
+            {renderMutation(localize(actionTextCode as string))}
           </div>
         )}
       </DialogButton>

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import type { AnnounceOptions } from '~/common';
 import AnnouncerContext from '~/Providers/AnnouncerContext';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import Announcer from './Announcer';
 
 interface LiveAnnouncerProps {
@@ -13,16 +13,15 @@ const LiveAnnouncer: React.FC<LiveAnnouncerProps> = ({ children }) => {
   const [logMessage, setLogMessage] = useState('');
 
   const statusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const localize = useLocalize();
+  const t = useT();
 
   const events: Record<string, string | undefined> = useMemo(
     () => ({
-      start: localize('com_a11y_start'),
-      end: localize('com_a11y_end'),
-      composing: localize('com_a11y_ai_composing'),
+      start: t('com_a11y_start'),
+      end: t('com_a11y_end'),
+      composing: t('com_a11y_ai_composing'),
     }),
-    [localize],
+    [t],
   );
 
   const announceStatus = useCallback((message: string) => {

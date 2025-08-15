@@ -9,7 +9,6 @@ import {
   Label,
   Button,
   Switch,
-  Spinner,
   TableRow,
   OGDialog,
   EditIcon,
@@ -23,6 +22,7 @@ import {
   OGDialogTrigger,
   OGDialogTemplate,
 } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import type { TUserMemory } from 'librechat-data-provider';
 import {
   useUpdateMemoryPreferencesMutation,
@@ -106,7 +106,7 @@ const DeleteMemoryButton = ({ memory }: { memory: TUserMemory }) => {
               className="h-8 w-8 p-0"
             >
               {deletingKey === memory.key ? (
-                <Spinner className="size-4 animate-spin" />
+                <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading`} />
               ) : (
                 <TrashIcon className="size-4" />
               )}
@@ -218,7 +218,7 @@ export default function MemoryViewer() {
   if (isLoading) {
     return (
       <div className="flex h-full w-full items-center justify-center p-4">
-        <Spinner />
+        <InlineSpinner size="md" ariaLabel={localize`com_ui_loading`} />
       </div>
     );
   }

@@ -53,7 +53,7 @@
     "e2e:codegen": "npx playwright codegen --load-storage=e2e/storageState.json http://localhost:3080/c/new",
     "e2e:login": "npx playwright codegen --save-storage=e2e/auth.json http://localhost:3080/login",
     "e2e:github": "act -W .github/workflows/playwright.yml --secret-file my.secrets",
-    "test:client": "cd client && npm run test:ci",
+    "test:client": "npm run i18n:check && cd client && npm run test:ci",
     "test:api": "cd api && npm run test:ci",
     "e2e:update": "playwright test --config=e2e/playwright.config.js --update-snapshots",
     "e2e:report": "npx playwright show-report e2e/playwright-report",
@@ -79,6 +79,8 @@
     "i18n:sync:write": "bun config/translations/sync-locales.ts --direction app->pkg --write",
     "i18n:sync:strict": "bun config/translations/sync-locales.ts --direction app->pkg --strict-array-fill",
     "i18n:sync:strict:write": "bun config/translations/sync-locales.ts --direction app->pkg --strict-array-fill --write",
+    "i18n:sync:copy": "bun config/translations/sync-locales.ts --direction app->pkg --copy-values",
+    "i18n:sync:copy:write": "bun config/translations/sync-locales.ts --direction app->pkg --copy-values --write",
     "i18n:sync:prune": "bun config/translations/sync-locales.ts --direction app->pkg --prune",
     "i18n:sync:prune:write": "bun config/translations/sync-locales.ts --direction app->pkg --prune --write",
     "prepare": "husky"

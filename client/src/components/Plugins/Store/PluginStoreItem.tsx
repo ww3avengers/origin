@@ -40,11 +40,17 @@ function PluginStoreItem({ plugin, onInstall, onUninstall, isInstalled }: TPlugi
             {!isInstalled ? (
               <button
                 className="btn btn-primary relative"
-                aria-label={`${localize('com_nav_plugin_install')} ${plugin.name}`}
+                aria-label={`${(() => {
+                  const v = localize('com_nav_plugin_install');
+                  return v === 'com_nav_plugin_install' ? 'Install' : (v as string);
+                })()} ${plugin.name}`}
                 onClick={handleClick}
               >
                 <div className="flex w-full items-center justify-center gap-2">
-                  {localize('com_nav_plugin_install')}
+                  {(() => {
+                    const v = localize('com_nav_plugin_install');
+                    return v === 'com_nav_plugin_install' ? 'Install' : (v as string);
+                  })()}
                   <DownloadCloud className="flex h-4 w-4 items-center stroke-2" />
                 </div>
               </button>
@@ -52,10 +58,16 @@ function PluginStoreItem({ plugin, onInstall, onUninstall, isInstalled }: TPlugi
               <button
                 className="btn relative bg-gray-300 hover:bg-gray-400 dark:bg-gray-50 dark:hover:bg-gray-200"
                 onClick={handleClick}
-                aria-label={`${localize('com_nav_plugin_uninstall')} ${plugin.name}`}
+                aria-label={`${(() => {
+                  const v = localize('com_nav_plugin_uninstall');
+                  return v === 'com_nav_plugin_uninstall' ? 'Uninstall' : (v as string);
+                })()} ${plugin.name}`}
               >
                 <div className="flex w-full items-center justify-center gap-2">
-                  {localize('com_nav_plugin_uninstall')}
+                  {(() => {
+                    const v = localize('com_nav_plugin_uninstall');
+                    return v === 'com_nav_plugin_uninstall' ? 'Uninstall' : (v as string);
+                  })()}
                   <XCircle className="flex h-4 w-4 items-center stroke-2" />
                 </div>
               </button>

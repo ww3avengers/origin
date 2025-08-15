@@ -40,7 +40,7 @@ export const createDropdownSetter = (setValue: (value: string) => void): Dropdow
  * Creates an Option object for a provider dropdown.
  **/
 export const createProviderOption = (provider: string) => ({
-  label: (alternateName[provider] as string | undefined) ?? provider,
+  label: ((alternateName as Record<string, string>)[provider] as string | undefined) ?? provider,
   value: provider,
 });
 

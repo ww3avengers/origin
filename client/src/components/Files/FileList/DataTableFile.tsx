@@ -37,7 +37,7 @@ import type { AugmentedColumnDef } from '~/common';
 import ActionButton from '~/components/Files/ActionButton';
 import { useDeleteFilesFromTable } from '~/hooks/Files';
 import UploadFileButton from './UploadFileButton';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import store from '~/store';
 
 interface DataTableProps<TData, TValue> {
@@ -59,7 +59,7 @@ export default function DataTableFile<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const localize = useLocalize();
+  const t = useT();
   const setFiles = useSetRecoilState(store.filesByIndex(0));
   const [isDeleting, setIsDeleting] = React.useState(false);
   const { deleteFiles } = useDeleteFilesFromTable(() => setIsDeleting(false));
@@ -92,7 +92,7 @@ export default function DataTableFile<TData, TValue>({
     <>
       <div className="mt-2 flex flex-col items-start">
         <h2 className="text-lg">
-          <strong>{localize('com_ui_files')}</strong>
+          <strong>{t('com_ui_files')}</strong>
         </h2>
         <div className="mt-3 flex w-full flex-col-reverse justify-between md:flex-row">
           <div className="mt-3 flex w-full flex-row justify-center gap-x-3 md:m-0 md:justify-start">
@@ -119,7 +119,7 @@ export default function DataTableFile<TData, TValue>({
               ) : (
                 <TrashIcon className="h-4 w-4 text-red-400" />
               )}
-              {localize('com_ui_delete')}
+              {t('com_ui_delete')}
             </Button>
           </div>
           <div className="flex w-full flex-row gap-x-3">
@@ -145,14 +145,14 @@ export default function DataTableFile<TData, TValue>({
                         checked={column.getIsVisible()}
                         onCheckedChange={(value) => column.toggleVisibility(Boolean(value))}
                       >
-                        {localize(contextMap[column.id])}
+                        {t(contextMap[column.id])}
                       </DropdownMenuCheckboxItem>
                     );
                   })}
               </DropdownMenuContent>
             </DropdownMenu>
             <Input
-              placeholder={localize('com_files_filter')}
+              placeholder={t('com_files_filter')}
               value={(table.getColumn('filename')?.getFilterValue() as string | undefined) ?? ''}
               onChange={(event) => table.getColumn('filename')?.setFilterValue(event.target.value)}
               className="max-w-sm border-border-medium placeholder:text-text-secondary"
@@ -239,7 +239,7 @@ export default function DataTableFile<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {localize('com_files_no_results')}
+                  {t('com_files_no_results')}
                 </TableCell>
               </TableRow>
             )}
@@ -248,7 +248,7 @@ export default function DataTableFile<TData, TValue>({
       </div>
       <div className="ml-4 mr-4 mt-4 flex h-auto items-center justify-end space-x-2 py-4 sm:ml-0 sm:mr-0 sm:h-0">
         <div className="ml-2 flex-1 text-sm text-muted-foreground">
-          {localize('com_files_number_selected', {
+          {t('com_files_number_selected', {
             0: `${table.getFilteredSelectedRowModel().rows.length}`,
             1: `${table.getFilteredRowModel().rows.length}`,
           })}
@@ -260,7 +260,7 @@ export default function DataTableFile<TData, TValue>({
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {localize('com_ui_prev')}
+          {t('com_ui_prev')}
         </Button>
         <Button
           className="dark:border-gray-500 dark:hover:bg-gray-600"
@@ -269,7 +269,7 @@ export default function DataTableFile<TData, TValue>({
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          {localize('com_ui_next')}
+          {t('com_ui_next')}
         </Button>
       </div>
     </>

@@ -8,6 +8,8 @@ const express = require('express');
 const passport = require('passport');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { isEnabled } = require('@librechat/api');
 const { logger } = require('@librechat/data-schemas');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -22,6 +24,9 @@ const AppService = require('./services/AppService');
 const staticCache = require('./utils/staticCache');
 const noIndex = require('./middleware/noIndex');
 const routes = require('./routes');
+const { initAnalyticsSchema } = require('./services/analyticsInit');
+const { startAnalyticsRetentionJob } = require('./services/analyticsRetention');
+const { ensureMaterializedViews, refreshAllMaterializedViews } = require('./services/analyticsViews');
 
 const { PORT, HOST, ALLOW_SOCIAL_LOGIN, DISABLE_COMPRESSION, TRUST_PROXY } = process.env ?? {};
 
@@ -39,6 +44,24 @@ const startServer = async () => {
   await connectDb();
 
   logger.info('Connected to MongoDB');
+  // Initialize Postgres schema for analytics (non-blocking errors will bubble to logs)
+  try { await initAnalyticsSchema(); } catch (e) { console.warn('[analytics] init failed', e); }
+  // Ensure materialized views exist (non-blocking)
+  try { await ensureMaterializedViews(); } catch (e) { console.warn('[analytics] ensure views failed', e); }
+  // Allow disabling background analytics jobs explicitly
+  const analyticsDisabled = process.env.NODE_ENV === 'test' || process.env.ANALYTICS_DISABLE_JOBS === 'true';
+  // schedule retention job (non-blocking)
+  if (!analyticsDisabled) {
+    try { startAnalyticsRetentionJob(); } catch (e) { console.warn('[analytics] retention job failed to schedule', e); }
+  }
+  // periodic MV refresh every 15 minutes (non-blocking)
+  if (!analyticsDisabled) {
+    try {
+      setInterval(() => {
+        refreshAllMaterializedViews().catch((err) => console.warn('[analytics] mv refresh failed', err));
+      }, 15 * 60 * 1000);
+    } catch (e) { console.warn('[analytics] schedule mv refresh failed', e); }
+  }
   indexSync().catch((err) => {
     logger.error('[indexSync] Background sync failed:', err);
   });
@@ -49,11 +72,54 @@ const startServer = async () => {
   await AppService(app);
 
   const indexPath = path.join(app.locals.paths.dist, 'index.html');
-  const indexHTML = fs.readFileSync(indexPath, 'utf8');
+  let indexHTML;
+  try {
+    indexHTML = fs.readFileSync(indexPath, 'utf8');
+  } catch (e) {
+    console.warn(
+      `[server] index.html not found at ${indexPath}. Serving minimal placeholder.`,
+      e?.message || e,
+    );
+    indexHTML =
+      '<!doctype html><html lang="en-US"><head><meta charset="utf-8"><title>LibreChat API</title></head><body><h1>LibreChat API</h1><p>Client build not found. API is running.</p></body></html>';
+  }
 
   app.get('/health', (_req, res) => res.status(200).send('OK'));
 
   /* Middleware */
+  // Rate limiting (configurable via env)
+  const windowMs = Number(process.env.RATE_LIMIT_WINDOW_MS || 15 * 60 * 1000);
+  const maxRequests = Number(process.env.RATE_LIMIT_MAX || 600); // 600 reqs / 15min per IP (~40 rpm)
+  const authMax = Number(process.env.AUTH_RATE_LIMIT_MAX || 60); // stricter for auth endpoints
+
+  const generalLimiter = rateLimit({ windowMs, max: maxRequests, standardHeaders: true, legacyHeaders: false });
+  const authLimiter = rateLimit({ windowMs, max: authMax, standardHeaders: true, legacyHeaders: false });
+
+  // Apply general limiter early for all routes
+  app.use(generalLimiter);
+  // Security headers (CSP in report-only to start safe)
+  app.use(
+    helmet({
+      crossOriginEmbedderPolicy: false,
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    }),
+  );
+  app.use(
+    helmet.contentSecurityPolicy({
+      useDefaults: true,
+      reportOnly: true,
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://www.googletagmanager.com'],
+        "style-src": ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        "img-src": ["'self'", 'data:', 'blob:'],
+        "font-src": ["'self'", 'data:', 'https://fonts.gstatic.com'],
+        "connect-src": ["'self'", 'https:', 'http://localhost:*'],
+        "frame-ancestors": ["'self'"],
+        "object-src": ["'none'"],
+      },
+    }),
+  );
   app.use(noIndex);
   app.use(express.json({ limit: '3mb' }));
   app.use(express.urlencoded({ extended: true, limit: '3mb' }));
@@ -92,7 +158,8 @@ const startServer = async () => {
 
   app.use('/oauth', routes.oauth);
   /* API Endpoints */
-  app.use('/api/auth', routes.auth);
+  // Apply stricter limiter specifically to auth endpoints
+  app.use('/api/auth', authLimiter, routes.auth);
   app.use('/api/actions', routes.actions);
   app.use('/api/keys', routes.keys);
   app.use('/api/user', routes.user);
@@ -121,6 +188,14 @@ const startServer = async () => {
   app.use('/api/mcp', routes.mcp);
   app.use('/api/chatbot', routes.chatbot);
   app.use('/api/llm/usage', routes.llmUsage);
+  app.use('/api/analytics', routes.analytics);
+  app.use('/api/analytics/ingest', routes.analyticsIngest);
+  app.use('/api/analytics/bots', routes.analyticsBots);
+  app.use('/api/analytics/admin', routes.analyticsAdmin);
+  app.use('/api/analytics/admin/metrics', routes.analyticsMetrics);
+  app.use('/api/analytics/overview', routes.analyticsOverview);
+  // SEO: robots.txt & sitemap.xml
+  app.use('/', routes.seo);
 
   // Add the error controller one more time after all routes
   app.use(errorController);
@@ -139,17 +214,20 @@ const startServer = async () => {
     res.send(updatedIndexHtml);
   });
 
-  app.listen(port, host, () => {
-    if (host === '0.0.0.0') {
-      logger.info(
-        `Server listening on all interfaces at port ${port}. Use http://localhost:${port} to access it`,
-      );
-    } else {
-      logger.info(`Server listening at http://${host == '0.0.0.0' ? 'localhost' : host}:${port}`);
-    }
+  // Avoid starting a real HTTP server during tests; Supertest uses the Express app directly
+  if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, host, () => {
+      if (host === '0.0.0.0') {
+        logger.info(
+          `Server listening on all interfaces at port ${port}. Use http://localhost:${port} to access it`,
+        );
+      } else {
+        logger.info(`Server listening at http://${host == '0.0.0.0' ? 'localhost' : host}:${port}`);
+      }
 
-    initializeMCPs(app);
-  });
+      initializeMCPs(app);
+    });
+  }
 };
 
 startServer();

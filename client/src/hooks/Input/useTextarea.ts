@@ -17,7 +17,7 @@ import useFileHandling from '~/hooks/Files/useFileHandling';
 import { useInteractionHealthCheck } from '~/data-provider';
 import { useChatContext } from '~/Providers/ChatContext';
 import { globalAudioId } from '~/common';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import store from '~/store';
 
 type KeyEvent = KeyboardEvent<HTMLTextAreaElement>;
@@ -33,7 +33,7 @@ export default function useTextarea({
   setIsScrollable: React.Dispatch<React.SetStateAction<boolean>>;
   disabled?: boolean;
 }) {
-  const localize = useLocalize();
+  const t = useT();
   const getSender = useGetSender();
   const isComposing = useRef(false);
   const agentsMap = useAgentsMapContext();
@@ -78,31 +78,31 @@ export default function useTextarea({
 
     const getPlaceholderText = () => {
       if (disabled) {
-        return localize('com_endpoint_config_placeholder');
+        return t('com_endpoint_config_placeholder');
       }
       const currentEndpoint = conversation?.endpoint ?? '';
       const currentAgentId = conversation?.agent_id ?? '';
       const currentAssistantId = conversation?.assistant_id ?? '';
       if (isAgent && (!currentAgentId || !agentsMap?.[currentAgentId])) {
-        return localize('com_endpoint_agent_placeholder');
+        return t('com_endpoint_agent_placeholder');
       } else if (
         isAssistant &&
         (!currentAssistantId || !assistantMap?.[currentEndpoint]?.[currentAssistantId])
       ) {
-        return localize('com_endpoint_assistant_placeholder');
+        return t('com_endpoint_assistant_placeholder');
       }
 
       if (isNotAppendable) {
-        return localize('com_endpoint_message_not_appendable');
+        return t('com_endpoint_message_not_appendable');
       }
 
       const sender =
         isAssistant || isAgent
-          ? getEntityName({ name: entityName, isAgent, localize })
+          ? getEntityName({ name: entityName, isAgent, localize: t })
           : getSender(conversation as TEndpointOption);
 
-      return `${localize('com_endpoint_message_new', {
-        0: sender ? sender : localize('com_endpoint_ai'),
+      return `${t('com_endpoint_message_new', {
+        0: sender ? sender : t('com_endpoint_ai'),
       })}`;
     };
 
@@ -127,7 +127,7 @@ export default function useTextarea({
     return () => debouncedSetPlaceholder.cancel();
   }, [
     isAgent,
-    localize,
+    t,
     disabled,
     getSender,
     agentsMap,

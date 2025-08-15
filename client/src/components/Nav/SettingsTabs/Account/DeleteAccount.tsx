@@ -3,16 +3,16 @@ import React, { useState, useCallback } from 'react';
 import {
   Input,
   Button,
-  Spinner,
   OGDialog,
   OGDialogContent,
   OGDialogTrigger,
   OGDialogHeader,
   OGDialogTitle,
 } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { useDeleteUserMutation } from '~/data-provider';
 import { useAuthContext } from '~/hooks/AuthContext';
-import { LocalizeFunction } from '~/common';
+import type { LocalizeFn } from '~/hooks/useLocalize';
 import { useLocalize } from '~/hooks';
 import { cn } from '~/utils';
 
@@ -104,7 +104,7 @@ const renderDeleteButton = (
   handleDeleteUser: () => void,
   isDeleting: boolean,
   isLocked: boolean,
-  localize: LocalizeFunction,
+  localize: LocalizeFn,
 ) => (
   <button
     className={cn(
@@ -116,7 +116,7 @@ const renderDeleteButton = (
   >
     {isDeleting ? (
       <div className="flex h-6 justify-center">
-        <Spinner className="icon-sm m-auto" />
+        <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading` as string} />
       </div>
     ) : (
       <>

@@ -1,15 +1,14 @@
 import React from 'react';
+import { Badge as UIBadge, type UIBadgeProps } from '~/components/ui/Badge';
 
-interface BadgeProps {
-  className?: string;
-  children: React.ReactNode;
-}
+type BadgeProps = Omit<UIBadgeProps, 'children'> & { children: React.ReactNode };
 
-const Badge: React.FC<BadgeProps> = ({ className = '', children }) => {
+// Thin wrapper to keep existing imports working while unifying design
+const Badge: React.FC<BadgeProps> = ({ children, size = 'sm', variant = 'brand', tone = 'soft', ...rest }) => {
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
+    <UIBadge size={size} variant={variant} tone={tone} {...rest}>
       {children}
-    </span>
+    </UIBadge>
   );
 };
 

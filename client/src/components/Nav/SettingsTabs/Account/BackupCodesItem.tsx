@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { RefreshCcw, ShieldX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TBackupCode, TRegenerateBackupCodesResponse, type TUser } from 'librechat-data-provider';
+import type { TUser } from 'librechat-data-provider';
 import {
   OGDialog,
   OGDialogContent,
@@ -9,14 +9,27 @@ import {
   OGDialogTrigger,
   Button,
   Label,
-  Spinner,
   TooltipAnchor,
   useToastContext,
 } from '@librechat/client';
+import InlineSpinner from '~/components/ui/InlineSpinner';
 import { useRegenerateBackupCodesMutation } from '~/data-provider';
 import { useAuthContext, useLocalize } from '~/hooks';
 import { useSetRecoilState } from 'recoil';
 import store from '~/store';
+import { Badge } from '~/components/ui/Badge';
+
+// Local types to avoid fragile external named exports and fix implicit any lints
+type BackupCode = {
+  codeHash: string;
+  used: boolean;
+  usedAt: string | null; // ISO string from API; formatted via toLocaleDateString
+};
+
+type RegenerateBackupCodesResponse = {
+  backupCodes: string[]; // plain codes for download
+  backupCodesHash: string[]; // hashed codes for storing in user
+};
 
 const BackupCodesItem: React.FC = () => {
   const localize = useLocalize();
@@ -24,19 +37,20 @@ const BackupCodesItem: React.FC = () => {
   const { showToast } = useToastContext();
   const setUser = useSetRecoilState(store.user);
   const [isDialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [liveMessage, setLiveMessage] = useState<string>('');
 
   const { mutate: regenerateBackupCodes, isLoading } = useRegenerateBackupCodesMutation();
 
   const fetchBackupCodes = (auto: boolean = false) => {
     regenerateBackupCodes(undefined, {
-      onSuccess: (data: TRegenerateBackupCodesResponse) => {
-        const newBackupCodes: TBackupCode[] = data.backupCodesHash.map((codeHash) => ({
+      onSuccess: (data: RegenerateBackupCodesResponse) => {
+        const newBackupCodes: BackupCode[] = data.backupCodesHash.map((codeHash: string) => ({
           codeHash,
           used: false,
           usedAt: null,
         }));
 
-        setUser((prev) => ({ ...prev, backupCodes: newBackupCodes }) as TUser);
+        setUser((prev: TUser) => ({ ...prev, backupCodes: newBackupCodes }) as TUser);
         showToast({
           message: localize('com_ui_backup_codes_regenerated'),
           status: 'success',
@@ -45,11 +59,15 @@ const BackupCodesItem: React.FC = () => {
         // Trigger file download only when user explicitly clicks the button.
         if (!auto && newBackupCodes.length) {
           const codesString = data.backupCodes.join('\n');
+          const now = new Date();
+          const isoDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+            now.getDate(),
+          ).padStart(2, '0')}`;
           const blob = new Blob([codesString], { type: 'text/plain;charset=utf-8' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'backup-codes.txt';
+          a.download = `backup-codes_${isoDate}.txt`;
           a.click();
           URL.revokeObjectURL(url);
         }
@@ -73,7 +91,7 @@ const BackupCodesItem: React.FC = () => {
           <Label className="font-light">{localize('com_ui_backup_codes')}</Label>
         </div>
         <OGDialogTrigger asChild>
-          <Button aria-label="Show Backup Codes" variant="outline">
+          <Button aria-label={localize('com_ui_show')} variant="outline">
             {localize('com_ui_show')}
           </Button>
         </OGDialogTrigger>
@@ -83,6 +101,8 @@ const BackupCodesItem: React.FC = () => {
         <OGDialogTitle className="mb-6 text-2xl font-semibold">
           {localize('com_ui_backup_codes')}
         </OGDialogTitle>
+        {/* Local aria-live region for screen readers */}
+        <div className="sr-only" aria-live="polite" aria-atomic="true">{liveMessage}</div>
 
         <AnimatePresence>
           <motion.div
@@ -93,29 +113,26 @@ const BackupCodesItem: React.FC = () => {
           >
             {Array.isArray(user?.backupCodes) && user?.backupCodes.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 gap-4">
-                  {user?.backupCodes.map((code, index) => {
+                <ul role="list" className="grid grid-cols-2 gap-4">
+                  {user?.backupCodes.map((code: BackupCode, index: number) => {
                     const isUsed = code.used;
-                    const description = `Backup code number ${index + 1}, ${
-                      isUsed
-                        ? `used on ${code.usedAt ? new Date(code.usedAt).toLocaleDateString() : 'an unknown date'}`
-                        : 'not used yet'
-                    }`;
+                    const usedDate = code.usedAt ? new Date(code.usedAt).toLocaleDateString() : '';
+                    const description = isUsed
+                      ? `${localize('com_ui_backup_code')} #${index + 1} — ${localize('com_ui_used')}${
+                          usedDate ? ` (${usedDate})` : ''
+                        }`
+                      : `${localize('com_ui_backup_code')} #${index + 1} — ${localize('com_ui_not_used')}`;
 
                     return (
-                      <motion.div
+                      <motion.li
                         key={code.codeHash}
-                        role="listitem"
                         tabIndex={0}
                         aria-label={description}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                         onFocus={() => {
-                          const announcement = new CustomEvent('announce', {
-                            detail: { message: description },
-                          });
-                          document.dispatchEvent(announcement);
+                          setLiveMessage(description);
                         }}
                         className={`flex flex-col rounded-xl border p-4 backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                           isUsed
@@ -135,31 +152,32 @@ const BackupCodesItem: React.FC = () => {
                             focusable={false}
                             className={isUsed ? 'cursor-pointer' : 'cursor-default'}
                             render={
-                              <span
-                                className={`rounded-full px-3 py-1 text-sm font-medium ${
-                                  isUsed
-                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-                                    : 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
-                                }`}
+                              <Badge
+                                size="xs"
+                                tone="soft"
+                                variant={isUsed ? 'danger' : 'success'}
+                                aria-live="polite"
                               >
                                 {isUsed ? localize('com_ui_used') : localize('com_ui_not_used')}
-                              </span>
+                              </Badge>
                             }
                           />
                         </div>
-                      </motion.div>
+                      </motion.li>
                     );
                   })}
-                </div>
+                </ul>
                 <div className="mt-12 flex justify-center">
                   <Button
                     onClick={handleRegenerate}
                     disabled={isLoading}
                     variant="default"
                     className="px-8 py-3 transition-all disabled:opacity-50"
+                    aria-busy={isLoading}
+                    aria-disabled={isLoading}
                   >
                     {isLoading ? (
-                      <Spinner className="mr-2" />
+                      <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading`} />
                     ) : (
                       <RefreshCcw className="mr-2 h-4 w-4" />
                     )}
@@ -178,8 +196,10 @@ const BackupCodesItem: React.FC = () => {
                   disabled={isLoading}
                   variant="default"
                   className="px-8 py-3 transition-all disabled:opacity-50"
+                  aria-busy={isLoading}
+                  aria-disabled={isLoading}
                 >
-                  {isLoading && <Spinner className="mr-2" />}
+                  {isLoading && <InlineSpinner size="sm" ariaLabel={localize`com_ui_loading`} />}
                   {localize('com_ui_generate_backup')}
                 </Button>
               </div>

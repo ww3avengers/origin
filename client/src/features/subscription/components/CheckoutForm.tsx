@@ -51,17 +51,17 @@ export default function CheckoutForm({ defaultPlan = 'pro' }: CheckoutFormProps)
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="flex min-h-[300px] items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-10">
+      <div className="py-10 text-center">
         <h3 className="text-lg font-medium text-destructive">Fehler</h3>
-        <p className="text-muted-foreground mt-2">{error}</p>
+        <p className="mt-2 text-muted-foreground">{error}</p>
       </div>
     );
   }
@@ -85,20 +85,21 @@ export default function CheckoutForm({ defaultPlan = 'pro' }: CheckoutFormProps)
   };
 
   return (
-    <div className="max-w-md mx-auto">
-      <h2 className="text-2xl font-bold text-center mb-6">
+    <div className="mx-auto max-w-md">
+      <h2 className="mb-6 text-center text-2xl font-bold">
         Upgrade auf {plan.charAt(0).toUpperCase() + plan.slice(1)}-Plan
       </h2>
-      
-      <div className="bg-card p-6 rounded-lg shadow-sm border">
+
+      <div className="rounded-lg border bg-card p-6 shadow-sm">
         {clientSecret && (
           <Elements options={options} stripe={stripePromise}>
             <StripeCheckoutForm plan={plan} />
           </Elements>
         )}
-        
-        <p className="text-xs text-muted-foreground mt-4 text-center">
-          Ihre Zahlung wird sicher über Stripe verarbeitet. Wir speichern keine Kreditkarteninformationen.
+
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Ihre Zahlung wird sicher über Stripe verarbeitet. Wir speichern keine
+          Kreditkarteninformationen.
         </p>
       </div>
     </div>

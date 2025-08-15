@@ -1,28 +1,24 @@
 import { useState } from 'react';
-import {
-  PaymentElement,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
+import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Fallback Button-Komponente, falls die eigentliche nicht verfügbar ist
-const Button = ({ 
-  children, 
-  disabled, 
-  onClick, 
-  className = '' 
-}: { 
-  children: React.ReactNode; 
-  disabled?: boolean; 
-  onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => void; 
+const Button = ({
+  children,
+  disabled,
+  onClick,
+  className = '',
+}: {
+  children: React.ReactNode;
+  disabled?: boolean;
+  onClick?: (e?: React.MouseEvent<HTMLButtonElement>) => void;
   className?: string;
 }) => (
-  <button 
-    onClick={onClick} 
+  <button
+    onClick={onClick}
     disabled={disabled}
-    className={`px-4 py-2 rounded-md ${disabled ? 'bg-gray-300' : 'bg-blue-500 text-white'} ${className}`}
+    className={`rounded-md px-4 py-2 ${disabled ? 'bg-gray-300' : 'bg-blue-500 text-white'} ${className}`}
   >
     {children}
   </button>
@@ -70,7 +66,8 @@ const StripeCheckoutForm = ({ plan }: { plan: string }) => {
         } else {
           toast({
             title: 'Fehler',
-            description: 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.',
+            description:
+              'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.',
             variant: 'destructive',
           });
         }

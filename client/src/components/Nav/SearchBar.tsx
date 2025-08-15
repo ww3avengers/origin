@@ -5,7 +5,8 @@ import { Search, X } from 'lucide-react';
 import { QueryKeys } from 'librechat-data-provider';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useLocalize, useNewConvo } from '~/hooks';
+import { useNewConvo } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import { cn } from '~/utils';
 import store from '~/store';
 
@@ -14,7 +15,7 @@ type SearchBarProps = {
 };
 
 const SearchBar = forwardRef((props: SearchBarProps, ref: React.Ref<HTMLDivElement>) => {
-  const localize = useLocalize();
+  const t = useT();
   const location = useLocation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -116,8 +117,8 @@ const SearchBar = forwardRef((props: SearchBarProps, ref: React.Ref<HTMLDivEleme
         onKeyDown={(e) => {
           e.code === 'Space' ? e.stopPropagation() : null;
         }}
-        aria-label={localize('com_nav_search_placeholder')}
-        placeholder={localize('com_nav_search_placeholder')}
+        aria-label={t('com_nav_search_placeholder')}
+        placeholder={t('com_nav_search_placeholder')}
         onKeyUp={handleKeyUp}
         onFocus={() => setSearchState((prev) => ({ ...prev, isSearching: true }))}
         onBlur={() => setSearchState((prev) => ({ ...prev, isSearching: false }))}
@@ -126,7 +127,7 @@ const SearchBar = forwardRef((props: SearchBarProps, ref: React.Ref<HTMLDivEleme
       />
       <button
         type="button"
-        aria-label={`${localize('com_ui_clear')} ${localize('com_ui_search')}`}
+        aria-label={`${t('com_ui_clear')} ${t('com_ui_search')}`}
         className={cn(
           'absolute right-[7px] flex h-5 w-5 items-center justify-center rounded-full border-none bg-transparent p-0 transition-opacity duration-200',
           showClearIcon ? 'opacity-100' : 'opacity-0',

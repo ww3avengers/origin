@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Switch, useToastContext } from '@librechat/client';
 import { useGetUserQuery, useUpdateMemoryPreferencesMutation } from '~/data-provider';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 interface PersonalizationProps {
   hasMemoryOptOut: boolean;
@@ -12,7 +12,7 @@ export default function Personalization({
   hasMemoryOptOut,
   hasAnyPersonalizationFeature,
 }: PersonalizationProps) {
-  const localize = useLocalize();
+  const t = useT();
   const { showToast } = useToastContext();
   const { data: user } = useGetUserQuery();
   const [referenceSavedMemories, setReferenceSavedMemories] = useState(true);
@@ -20,13 +20,13 @@ export default function Personalization({
   const updateMemoryPreferencesMutation = useUpdateMemoryPreferencesMutation({
     onSuccess: () => {
       showToast({
-        message: localize('com_ui_preferences_updated'),
+        message: t('com_ui_preferences_updated'),
         status: 'success',
       });
     },
     onError: () => {
       showToast({
-        message: localize('com_ui_error_updating_preferences'),
+        message: t('com_ui_error_updating_preferences'),
         status: 'error',
       });
       // Revert the toggle on error
@@ -49,7 +49,7 @@ export default function Personalization({
   if (!hasAnyPersonalizationFeature) {
     return (
       <div className="flex flex-col gap-3 text-sm text-text-primary">
-        <div className="text-text-secondary">{localize('com_ui_no_personalization_available')}</div>
+        <div className="text-text-secondary">{t('com_ui_no_personalization_available')}</div>
       </div>
     );
   }
@@ -60,23 +60,21 @@ export default function Personalization({
       {hasMemoryOptOut && (
         <>
           <div className="border-b border-border-medium pb-3">
-            <div className="text-base font-semibold">{localize('com_ui_memory')}</div>
+            <div className="text-base font-semibold">{t('com_ui_memory')}</div>
           </div>
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="flex items-center gap-2">
-                {localize('com_ui_reference_saved_memories')}
-              </div>
+              <div className="flex items-center gap-2">{t('com_ui_reference_saved_memories')}</div>
               <div className="mt-1 text-xs text-text-secondary">
-                {localize('com_ui_reference_saved_memories_description')}
+                {t('com_ui_reference_saved_memories_description')}
               </div>
             </div>
             <Switch
               checked={referenceSavedMemories}
               onCheckedChange={handleMemoryToggle}
               disabled={updateMemoryPreferencesMutation.isLoading}
-              aria-label={localize('com_ui_reference_saved_memories')}
+              aria-label={t('com_ui_reference_saved_memories')}
             />
           </div>
         </>

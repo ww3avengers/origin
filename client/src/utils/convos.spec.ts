@@ -404,7 +404,7 @@ describe('Conversation Utilities', () => {
           pages: [makePage([makeConversation('1', '2023-01-01T00:00:00Z'), makeConversation('2')])],
           pageParams: [],
         };
-        const updater = (c: any) => ({ ...c, updatedAt: '2024-01-01T00:00:00Z' });
+        const updater = (c: TConversation) => ({ ...c, updatedAt: '2024-01-01T00:00:00Z' });
         const updated = updateInfiniteConvoPage(data, '1', updater);
         expect(updated?.pages[0].conversations[0].updatedAt).toBe('2024-01-01T00:00:00Z');
       });
@@ -414,7 +414,7 @@ describe('Conversation Utilities', () => {
           pages: [makePage([makeConversation('1')])],
           pageParams: [],
         };
-        const updater = (c: any) => ({ ...c, foo: 'bar' });
+        const updater = (c: TConversation) => ({ ...c, foo: 'bar' }) as unknown as TConversation;
         const updated = updateInfiniteConvoPage(data, 'notfound', updater);
         expect(updated).toEqual(data);
       });
@@ -599,12 +599,21 @@ describe('Conversation Utilities', () => {
 
       it('addConvoToAllQueries does not duplicate', () => {
         addConvoToAllQueries(queryClient, convoA);
-        const data = queryClient.getQueryData<InfiniteData<any>>(['allConversations']);
-        expect(data!.pages[0].conversations.filter((c) => c.conversationId === 'a').length).toBe(1);
+        const data = queryClient.getQueryData<
+          InfiniteData<{ conversations: TConversation[]; nextCursor: string | null }>
+        >(['allConversations']);
+        expect(
+          data!.pages[0].conversations.filter((c: TConversation) => c.conversationId === 'a')
+            .length,
+        ).toBe(1);
       });
 
       it('updateConvoInAllQueries updates correct convo', () => {
-        updateConvoInAllQueries(queryClient, 'a', (c) => ({ ...c, model: 'gpt-4' }));
+        updateConvoInAllQueries(
+          queryClient,
+          'a',
+          (c: TConversation) => ({ ...c, model: 'gpt-4' }) as TConversation,
+        );
         const data = queryClient.getQueryData<InfiniteData<any>>(['allConversations']);
         expect(data!.pages[0].conversations[0].model).toBe('gpt-4');
       });

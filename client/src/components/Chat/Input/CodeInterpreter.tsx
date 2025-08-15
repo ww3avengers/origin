@@ -8,7 +8,7 @@ import { useBadgeRowContext } from '~/Providers';
 function CodeInterpreter() {
   const localize = useLocalize();
   const { codeInterpreter, codeApiKeyForm } = useBadgeRowContext();
-  const { toggleState: runCode, debouncedChange, isPinned } = codeInterpreter;
+  const { toggleState: runCode, isToolEnabled, debouncedChange, isPinned } = codeInterpreter;
   const { badgeTriggerRef } = codeApiKeyForm;
 
   const canRunCode = useHasAccess({
@@ -21,14 +21,14 @@ function CodeInterpreter() {
   }
 
   return (
-    (runCode || isPinned) && (
+    (isToolEnabled || isPinned) && (
       <CheckboxButton
         ref={badgeTriggerRef}
         className="max-w-fit"
-        checked={runCode}
+        checked={isToolEnabled}
         setValue={debouncedChange}
         label={localize('com_assistants_code_interpreter')}
-        isCheckedClassName="border-purple-600/40 bg-purple-500/10 hover:bg-purple-700/10"
+        isCheckedClassName="border-brand-purple/40 bg-brand-purple/10 hover:bg-brand-purple/10"
         icon={<TerminalSquareIcon className="icon-md" />}
       />
     )

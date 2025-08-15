@@ -1,150 +1,207 @@
 {
-  "landing_legacy": {
-    "comparison": {
-      "descriptions": {}
-    }
-  },
+  "com_a11y_ai_composing": "Die KI erstellt noch ihre Antwort.\n",
+  "com_a11y_end": "Die KI hat die Antwort fertiggestellt.",
+  "com_a11y_start": "Die KI hat mit ihrer Antwort begonnen. ",
+  "com_auth_click_here": "Klicke hier",
+  "com_auth_create_account": "Erstelle dein Konto",
+  "com_auth_email_verification_redirecting": "Weiterleitung in {{0}} Sekunden...",
+  "com_auth_error_create": "Bei der Registrierung deines Kontos ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+  "com_auth_error_invalid_reset_token": "Dieser Passwort-Reset-Token ist nicht mehr gültig.",
+  "com_auth_error_login_server": "Es gab einen internen Serverfehler. Bitte warte einen Moment und versuche es erneut.",
+  "com_auth_registration_success_generic": "Bitte überprüfe deine E-Mail, um deine E-Mail-Adresse zu verifizieren.",
+  "com_auth_registration_success_insecure": "Registrierung erfolgreich.",
+  "com_auth_reset_password": "Setze dein Passwort zurück",
+  "com_auth_to_try_again": "um es erneut zu versuchen.",
+  "com_auth_verify_your_identity": "Bestätige deine Identität",
+  "com_auth_welcome_back": "Willkommen zurück",
+  "com_nav_close_sidebar": "Seitenleiste schließen",
+  "com_nav_open_sidebar": "Seitenleiste öffnen",
+  "nav.dashboard": "Dashboard",
+  "nav.analytics": "Analysen",
+  "com_nav_account_settings": "Kontoeinstellungen",
+  "com_nav_my_files": "Meine Dateien",
+  "com_nav_help_faq": "Hilfe & FAQ",
+  "com_nav_settings": "Einstellungen",
+  "com_nav_log_out": "Abmelden",
   "com_ui_cancel": "Abbrechen",
-  "hero": {
-    "subtitle": {},
-    "cta": {}
-  },
-  "site": {},
-  "landing": {
-    "hero": {
-      "cta": {}
+  "com_ui_currently_production": "Aktuell im Produktivbetrieb",
+  "com_ui_dashboard": "Dashboard",
+  "com_ui_latest_production_version": "Neueste Produktiv-Version",
+  "com_ui_latest_version": "Neueste Version",
+  "com_ui_logo": "{{0}} Logo",
+  "com_ui_oauth_connected_to": "Verbunden mit",
+  "com_ui_oauth_success_title": "Authentifizierung erfolgreich",
+  "com_ui_save_badge_changes": "Änderungen an Badges speichern?",
+  "com_ui_seconds": "Sekunden",
+  "com_ui_select": "Auswählen",
+  "com_ui_version_var": "Version {{0}}",
+  "com_ui_x_selected": "{{0}} ausgewählt",
+  "com_nav_plugin_store": "Plugin-Store",
+  "com_nav_plugin_search": "Plugins suchen",
+  "com_nav_plugin_install": "Installieren",
+  "com_nav_plugin_uninstall": "Deinstallieren",
+  "com_nav_plugin_auth_error": "Authentifizierungsfehler:",
+  "com_ui_prev": "Zurück",
+  "com_ui_next": "Weiter",
+  "com_ui_backup_codes": "Backup-Codes",
+  "com_ui_backup_code": "Backup-Code",
+  "com_ui_generate_backup": "Backup-Codes erstellen",
+  "com_ui_regenerate_backup": "Backup-Codes neu erstellen",
+  "com_ui_regenerating": "Erstelle neu…",
+  "com_ui_backup_codes_regenerated": "Neue Backup-Codes wurden erstellt.",
+  "com_ui_backup_codes_regenerate_error": "Backup-Codes konnten nicht neu erstellt werden.",
+  "com_ui_no_backup_codes": "Noch keine Backup-Codes",
+  "com_ui_used": "Verwendet",
+  "com_ui_not_used": "Noch nicht verwendet",
+  "com_ui_new_chat": "Neuer Chat",
+  "com_ui_chat_history": "Chatverlauf",
+  "com_ui_loading": "Lädt…",
+  "com_ui_empty": "Kein Inhalt verfügbar",
+  "com_ui_bookmarks": "Lesezeichen",
+  "agent": {
+    "actions": {
+      "cancel": "",
+      "copy": "",
+      "expandDetails": "",
+      "retry": ""
     },
-    "agents": {
-      "hero": {
-        "features": [
-          {},
-          {},
-          {}
-        ]
-      },
-      "stats": {},
-      "usp": {
-        "items": [
-          {},
-          {},
-          {},
-          {}
-        ]
-      }
+    "panel": {
+      "empty": "",
+      "title": ""
     },
-    "hero_secondary": {
-      "cta": {}
+    "run": {
+      "active": "",
+      "finished": ""
     },
-    "features": {},
-    "usps": {}
-  },
-  "testimonials": {
-    "1": {},
-    "2": {}
-  },
-  "stats": {},
-  "features": {
-    "categories": {},
-    "ai": {},
-    "security": {},
-    "collaboration": {},
-    "integration": {},
-    "code": {},
-    "analytics": {},
-    "items": [
-      {},
-      {},
-      {},
-      {},
-      {},
-      {}
-    ]
-  },
-  "target": {
-    "social": {
-      "features": [
-        null,
-        null,
-        null,
-        null,
-        null
-      ]
-    },
-    "business": {},
-    "developers": {},
-    "creators": {}
-  },
-  "security": {
-    "features": {
-      "selfhosting": {},
-      "authentication": {},
-      "user_management": {},
-      "isolation": {},
-      "compliance": {},
-      "monitoring": {}
+    "step": {
+      "canceled": "",
+      "done": "",
+      "failed": "",
+      "pending": "",
+      "running": ""
     }
   },
-  "comparison": {
-    "features": {},
-    "solutions": {},
-    "values": {
-      "local_execution": {},
-      "privacy": {},
-      "open_source": {},
-      "customizable_models": {},
-      "code_analysis": {},
-      "api_access": {},
-      "costs": {},
-      "customization": {},
-      "offline": {},
-      "true_false": {}
-    }
-  },
-  "pricing": {
-    "billing": {},
-    "plans": {
-      "community": {
-        "price": {},
-        "features": [
-          null,
-          null,
-          null,
-          null,
-          null
-        ]
+  "analytics": {
+    "admin": {
+      "blocklist": {
+        "add_button": "",
+        "add_placeholder_pattern": "",
+        "add_placeholder_reason": "",
+        "created": "",
+        "delete": "",
+        "pattern": "",
+        "reason": "",
+        "type": "",
+        "type_ip": "",
+        "type_referrer": "",
+        "type_user_agent": ""
       },
-      "professional": {
-        "price": {},
-        "features": [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        ]
+      "booleans": {
+        "no": "",
+        "yes": ""
       },
-      "enterprise": {
-        "price": {},
-        "features": [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null
-        ]
+      "common": {
+        "error": "",
+        "loading": ""
+      },
+      "keys": {
+        "create": {
+          "alert": "",
+          "button": "",
+          "placeholder_label": ""
+        },
+        "list": {
+          "created": "",
+          "delete": "",
+          "label": "",
+          "scope": "",
+          "status": "",
+          "status_active": "",
+          "status_revoked": ""
+        }
+      },
+      "settings": {
+        "allow_raw_ip_label": "",
+        "bot_threshold_label": "",
+        "retention_label": "",
+        "save": ""
+      },
+      "tabs": {
+        "blocklist": "",
+        "keys": "",
+        "settings": "",
+        "webhooks": ""
+      },
+      "title": "",
+      "webhooks": {
+        "add_button": "",
+        "add_placeholder_event": "",
+        "add_placeholder_secret": "",
+        "add_placeholder_url": "",
+        "created": "",
+        "delete": "",
+        "enabled": "",
+        "event": "",
+        "url": ""
       }
     }
   },
-  "faq": {},
-  "cta": {
-    "features": {
-      "open_source": {},
-      "privacy": {},
-      "performance": {}
+  "com_ui_analytics": "",
+  "com_ui_no_options": "",
+  "com_ui_oauth_meta_description": "",
+  "com_ui_oauth_meta_title": "",
+  "com_ui_oauth_success_description_one": "",
+  "com_ui_oauth_success_description_other": "",
+  "agentDemo": {
+    "asm": {
+      "perception": "Wahrnehmen",
+      "plan": "Planen",
+      "act": "Handeln",
+      "review": "Prüfen",
+      "learn": "Lernen",
+      "observe": "Beobachten",
+      "analyze": "Analysieren",
+      "execute": "Ausführen",
+      "validate": "Validieren",
+      "optimize": "Optimieren"
     }
+  },
+  "admin": {
+    "atlas": {
+      "title": "Embedding Atlas",
+      "subtitle": "Interaktive Embedding‑Visualisierung & NN‑Analyse",
+      "loading": "Lade Atlas‑Daten...",
+      "error": "Fehler beim Laden",
+      "status": {
+        "title": "Status",
+        "service": "Service",
+        "version": "Version",
+        "ok": "OK",
+        "unavailable": "Nicht verfügbar"
+      },
+      "datasets": {
+        "title": "Datasets",
+        "empty": "Keine Datasets gefunden",
+        "cols": {
+          "id": "ID",
+          "label": "Name",
+          "dims": "Dims",
+          "vectors": "Vektoren"
+        }
+      },
+      "actions": {
+        "previewSearch": "NN‑Suche testen"
+      },
+      "search": {
+        "ok": "Ergebnisse",
+        "fail": "Suche fehlgeschlagen"
+      }
+    }
+  },
+  "site": {
+    "description": "",
+    "keywords": "",
+    "name": "",
+    "title": ""
   }
 }

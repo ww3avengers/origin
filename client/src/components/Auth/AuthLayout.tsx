@@ -1,6 +1,6 @@
 import { ThemeSelector } from '@librechat/client';
 import { TStartupConfig } from 'librechat-data-provider';
-import { ErrorMessage } from '~/components/Auth/ErrorMessage';
+import { ErrorMessage } from '~/components/ui/ErrorMessage';
 import { TranslationKeys, useLocalize } from '~/hooks';
 import SocialLoginRender from './SocialLoginRender';
 import { BlinkAnimation } from './BlinkAnimation';
@@ -31,18 +31,20 @@ function AuthLayout({
     if (hasStartupConfigError) {
       return (
         <div className="mx-auto sm:max-w-sm">
-          <ErrorMessage>{localize('com_auth_error_login_server')}</ErrorMessage>
+          <ErrorMessage>
+            {String((localize as any)('translation:com_auth_error_login_server'))}
+          </ErrorMessage>
         </div>
       );
     } else if (error === 'com_auth_error_invalid_reset_token') {
       return (
         <div className="mx-auto sm:max-w-sm">
           <ErrorMessage>
-            {localize('com_auth_error_invalid_reset_token')}{' '}
+            {String((localize as any)('translation:com_auth_error_invalid_reset_token'))}{' '}
             <a className="font-semibold text-green-600 hover:underline" href="/forgot-password">
-              {localize('com_auth_click_here')}
+              {String((localize as any)('translation:com_auth_click_here'))}
             </a>{' '}
-            {localize('com_auth_to_try_again')}
+            {String((localize as any)('translation:com_auth_to_try_again'))}
           </ErrorMessage>
         </div>
       );
@@ -64,7 +66,7 @@ function AuthLayout({
           <img
             src="/assets/logo.svg"
             className="h-full w-full object-contain"
-            alt={localize('com_ui_logo', { 0: startupConfig?.appTitle ?? 'LibreChat' })}
+            alt={localize('translation:com_ui_logo', { 0: startupConfig?.appTitle ?? 'LibreChat' })}
           />
         </div>
       </BlinkAnimation>

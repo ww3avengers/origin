@@ -6,29 +6,21 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="description" content="SIGMACODE AI – Innovative KI-Lösungen für Unternehmen. Chatbots, autonome Agenten und maßgeschneiderte AI-Services." />
     <meta name="color-scheme" content="dark light" />
+    <!-- Performance: preconnect to critical origins (fonts/CDNs) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Optional: add more if used, e.g. GTM/CDN
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    -->
     <title>SIGMACODE AI</title>
-    <link rel="shortcut icon" href="#" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
     <link rel="apple-touch-icon" href="/assets/apple-touch-icon-180x180.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="canonical" href="https://sigmacode.ai/" />
     <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="SIGMACODE AI" />
-    <meta property="og:title" content="SIGMACODE AI – Innovative KI-Lösungen" />
-    <meta property="og:description" content="Entdecken Sie die Zukunft der künstlichen Intelligenz mit maßgeschneiderten Lösungen, Chatbots und autonomen Agenten." />
-    <meta property="og:image" content="/assets/unify.webp" />
-    <meta property="og:url" content="https://sigmacode.ai/" />
-    <meta property="og:locale" content="de_DE" />
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="SIGMACODE AI – Innovative KI-Lösungen" />
-    <meta name="twitter:description" content="Entdecken Sie maßgeschneiderte AI-Lösungen, Chatbots und autonome Agenten für Ihr Unternehmen." />
-    <meta name="twitter:image" content="/assets/unify.webp" />
     <style>
       html,
       body {
@@ -37,6 +29,43 @@
         height: 100%;
       }
     </style>
+    <!-- Structured Data (JSON-LD) injected dynamically to avoid hardcoded brand/domain -->
+    <script>
+      (function () {
+        try {
+          var name = document.title || 'Website';
+          var url = location.origin;
+          var logo = url + '/assets/favicon.svg';
+          var data = [
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": name,
+              "url": url,
+              "logo": logo
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": name,
+              "url": url,
+              "inLanguage": document.documentElement.lang || 'de-DE',
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": url + "/search?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            }
+          ];
+          var s = document.createElement('script');
+          s.type = 'application/ld+json';
+          s.text = JSON.stringify(data);
+          document.head.appendChild(s);
+        } catch (e) {
+          // no-op
+        }
+      })();
+    </script>
     <script>
       const theme = localStorage.getItem('color-theme');
       const loadingContainerStyle = document.createElement('style');

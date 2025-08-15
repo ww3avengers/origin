@@ -3,7 +3,7 @@ import { RouteObject, Outlet } from 'react-router-dom';
 import { ErrorBoundary } from 'react-error-boundary';
 import { PLANS } from './types/subscription';
 import AuthLayout from './components/AuthLayout';
-import { LoadingSpinner } from './components/LoadingSpinner';
+import { Spinner } from '@librechat/client';
 
 // Lazy load components for better performance
 const CheckoutForm = lazy(() => import('./components/CheckoutForm'));
@@ -12,19 +12,28 @@ const SubscriptionDashboard = lazy(() => import('./components/SubscriptionDashbo
 
 // Loading component for route suspense
 const RouteLoading = () => (
-  <div className="flex items-center justify-center min-h-[60vh]">
-    <LoadingSpinner size="lg" />
+  <div className="flex min-h-[60vh] items-center justify-center">
+    <div className="flex items-center justify-center" aria-live="polite" aria-busy="true">
+      <Spinner className="h-8 w-8 text-primary" />
+      <span className="sr-only">Wird geladen…</span>
+    </div>
   </div>
 );
 
 // Error boundary for route components
-const RouteErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
+const RouteErrorFallback = ({
+  error,
+  resetErrorBoundary,
+}: {
+  error: Error;
+  resetErrorBoundary: () => void;
+}) => (
   <div className="p-6 text-center">
-    <h2 className="text-xl font-semibold mb-2">Etwas ist schiefgelaufen</h2>
-    <p className="text-muted-foreground mb-4">{error.message}</p>
+    <h2 className="mb-2 text-xl font-semibold">Etwas ist schiefgelaufen</h2>
+    <p className="mb-4 text-muted-foreground">{error.message}</p>
     <button
       onClick={resetErrorBoundary}
-      className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+      className="rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
     >
       Erneut versuchen
     </button>

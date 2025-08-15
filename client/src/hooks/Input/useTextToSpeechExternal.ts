@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useToastContext } from '@librechat/client';
 import { useTextToSpeechMutation, useVoicesQuery } from '~/data-provider';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 import store from '~/store';
 
 const createFormData = (text: string, voice: string) => {
@@ -27,7 +27,7 @@ function useTextToSpeechExternal({
   isLast,
   index = 0,
 }: TUseTTSExternal) {
-  const localize = useLocalize();
+  const t = useT();
   const { showToast } = useToastContext();
   const voice = useRecoilValue(store.voice);
   const cacheTTS = useRecoilValue(store.cacheTTS);
@@ -68,7 +68,7 @@ function useTextToSpeechExternal({
       }
       console.error(error);
       showToast({
-        message: localize('com_nav_audio_play_error', { 0: error.message }),
+        message: t('com_nav_audio_play_error', { 0: error.message }),
         status: 'error',
       });
     });
@@ -95,7 +95,7 @@ function useTextToSpeechExternal({
       const inputText = (variables.get('input') ?? '') as string;
       if (inputText.length >= 4096) {
         showToast({
-          message: localize('com_nav_long_audio_warning'),
+          message: t('com_nav_long_audio_warning'),
           status: 'warning',
         });
       }
@@ -126,7 +126,7 @@ function useTextToSpeechExternal({
     },
     onError: (error: unknown) => {
       showToast({
-        message: localize('com_nav_audio_process_error', { 0: (error as Error).message }),
+        message: t('com_nav_audio_process_error', { 0: (error as Error).message }),
         status: 'error',
       });
     },

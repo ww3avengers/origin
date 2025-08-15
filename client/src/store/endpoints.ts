@@ -25,22 +25,24 @@ const endpointsQueryEnabled = atom<boolean>({
   default: true,
 });
 
-const plugins = selector({
+const plugins = selector<Record<string, unknown>>({
   key: 'plugins',
   get: ({ get }) => {
-    const config = get(endpointsConfig) || {};
+    const config = (get(endpointsConfig) || {}) as TEndpointsConfig & {
+      gptPlugins?: { plugins?: Record<string, unknown> };
+    };
     return config.gptPlugins?.plugins || {};
   },
 });
 
-const endpointsFilter = selector({
+const endpointsFilter = selector<Record<string, boolean>>({
   key: 'endpointsFilter',
   get: ({ get }) => {
-    const config = get(endpointsConfig) || {};
+    const config = (get(endpointsConfig) || {}) as Record<string, unknown>;
 
-    const filter = {};
+    const filter: Record<string, boolean> = {};
     for (const key of Object.keys(config)) {
-      filter[key] = !!config[key];
+      filter[key] = Boolean((config as Record<string, unknown>)[key]);
     }
     return filter;
   },

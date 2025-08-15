@@ -1,0 +1,10 @@
+{
+  "installCommand": "pnpm -w i --frozen-lockfile",
+  "buildCommand": "pnpm -w run frontend",
+  "outputDirectory": "client/dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ],
+  "ignoreCommand": "echo 'Use monorepo build via pnpm workspaces'"
+}

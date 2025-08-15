@@ -1,9 +1,10 @@
-import React from 'react';
-import { motion, Variants } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useMemo } from 'react';
+import { motion, Variants, useReducedMotion } from 'framer-motion';
+import { useT } from '~/utils/i18n';
 import { cn } from '@/lib/utils';
-import { GradientHeading } from '@/components/ui/GradientHeading';
+import { AnimatedBrandTitle } from '~/components/ui';
 import { HeroActions } from './HeroActions';
+import { Badge as UIBadge } from '~/components/ui/Badge';
 
 type TFunction = (key: string, options?: { defaultValue?: string; [key: string]: any }) => string;
 
@@ -23,26 +24,27 @@ interface HeroTranslations {
   trustedBy: string;
 }
 
-import { HeroFeatures } from './HeroFeatures';
 import { HeroLogos } from './HeroLogos';
 
 interface HeroContentProps {
   onPrimaryClick: () => void;
   onSecondaryClick: () => void;
   className?: string;
+  /** Optional ID for the semantic H1 to link via aria-labelledby from parent section */
+  headingId?: string;
 }
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { 
+    transition: {
       duration: 0.8,
       ease: [0.16, 1, 0.3, 1],
-      staggerChildren: 0.1
-    }
-  }
+      staggerChildren: 0.1,
+    },
+  },
 };
 
 const fadeIn: Variants = {
@@ -51,9 +53,9 @@ const fadeIn: Variants = {
     opacity: 1,
     transition: {
       duration: 0.8,
-      ease: [0.16, 1, 0.3, 1]
-    }
-  }
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
 };
 
 const slideInFromLeft: Variants = {
@@ -63,55 +65,101 @@ const slideInFromLeft: Variants = {
     x: 0,
     transition: {
       duration: 0.8,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  }
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
 };
 
 // Removed custom global style injection to simplify and avoid side-effects
 
-export function HeroContent({
-  onPrimaryClick,
-  onSecondaryClick,
-  className,
-}: HeroContentProps) {
-  const { t } = useTranslation(['landing', 'translation']) as { t: TFunction };
-  
+export function HeroContent({ onPrimaryClick, onSecondaryClick, className, headingId }: HeroContentProps) {
+  const t = useT() as TFunction;
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  // Session-Guard: Entrance-Animation nur einmal pro Session abspielen
+  const sessionKey = 'hero_animated_v1';
+  const isBrowser = typeof window !== 'undefined';
+  const shouldAnimate = useMemo(() => {
+    if (!isBrowser) return false; // SSR/No-window: keine Entrance-Animation
+    return !window.sessionStorage.getItem(sessionKey);
+  }, [isBrowser]);
+  useEffect(() => {
+    if (!isBrowser) return;
+    if (shouldAnimate) {
+      try {
+        window.sessionStorage.setItem(sessionKey, '1');
+      } catch {}
+    }
+  }, [isBrowser, shouldAnimate]);
+  // Unified timing & easing for the hero sequence
+  const baseDelay = prefersReducedMotion ? 0 : 0.7;
+  const easeCreamy: [number, number, number, number] = [0.2, 0.8, 0.2, 1];
+  const dBadge = baseDelay; // 0.70s
+  const dTitle = baseDelay + 0.05; // 0.75s
+  const dSubtitle = baseDelay + 0.25; // 0.95s
+  const dDesc = baseDelay + 0.4; // 1.10s
+  const dCtas = baseDelay + 0.55; // 1.25s
+  const dMicro = baseDelay + 0.65; // 1.35s
+
   // Get translations with fallbacks
   const translations = {
-    badge: t('landing:hero.badge', { defaultValue: '🚀 NEU: Jetzt mit KI-Agenten' }),
-    title: t('landing:hero.title', { defaultValue: 'SIGMACODE AI' }),
+    badge: t('landing.hero.badge'),
+    title: t('landing.hero.title'),
     subtitle: {
-      line1: t('landing:hero.subtitle.line1', { defaultValue: 'Innovative KI-Lösungen für Ihr Unternehmen' }),
-      line2: t('landing:hero.subtitle.line2', { defaultValue: '' }),
-      highlight: t('landing:hero.subtitle.highlight', { defaultValue: 'einfach, sicher und leistungsstark' })
+      line1: t('landing.hero.subtitle.line1'),
+      line2: t('landing.hero.subtitle.line2'),
+      highlight: t('landing.hero.subtitle.highlight'),
     },
-    description: t('landing:hero.description', { defaultValue: 'Entdecken Sie die Zukunft der künstlichen Intelligenz mit unseren maßgeschneiderten Lösungen für Ihr Unternehmen.' }),
+    description: t('landing.hero.description'),
     cta: {
-      primary: t('landing:hero.cta.primary', { defaultValue: 'Kostenlos testen' }),
-      secondary: t('landing:hero.cta.secondary', { defaultValue: 'Mehr erfahren' }),
-      secondaryAria: t('landing:hero.cta.secondaryAria', { defaultValue: 'Mehr über SIGMACODE AI erfahren' })
+      primary: t('landing.hero.cta.primary'),
+      secondary: t('landing.hero.cta.secondary'),
+      secondaryAria: t('landing.hero.cta.secondaryAria'),
     },
-    trustedBy: t('landing:hero.trustedBy', { defaultValue: 'Vertrauen Sie den Besten' })
+    trustedBy: t('landing.hero.trustedBy'),
   };
+
+  // Variants respecting reduced motion
+  const simpleFade: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1 } };
+  const upOrFade = prefersReducedMotion ? simpleFade : fadeInUp;
+  const fadeOrSimple = prefersReducedMotion ? simpleFade : fadeIn;
+  const containerVariants = prefersReducedMotion
+    ? { visible: { opacity: 1 } }
+    : { visible: { transition: { staggerChildren: 0.1 } } };
+  // Helper zum Anwenden der Animations-Props; bei erneuten Mounts initial=false
+  const anim = (delay: number, variants: Variants) =>
+    shouldAnimate
+      ? {
+          initial: 'hidden' as const,
+          animate: 'visible' as const,
+          variants,
+          transition: {
+            duration: prefersReducedMotion ? 0.01 : 0.8,
+            ease: easeCreamy,
+            delay,
+          },
+        }
+      : {
+          initial: false as const,
+        };
 
   return (
     <>
-      {/* Badge: reduziert, AA-kontrast, ohne Dauer-Ping */}
-      <motion.div
-        className="relative mb-6 inline-flex items-center rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-semibold text-cyan-100 backdrop-blur"
-        variants={fadeInUp}
-        initial="hidden"
-        animate="visible"
-      >
-        <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-cyan-300" />
-        <span className="tracking-wide">{translations.badge}</span>
+      {/* Badge (Eyebrow) – vereinheitlichtes UIBadge, zentriert */}
+      <motion.div className="mx-auto mb-4 md:mb-6 flex justify-center" {...anim(dBadge, upOrFade)}>
+        <UIBadge
+          size="sm"
+          tone="soft"
+          variant="hero"
+          leadingIcon={<span aria-hidden>🚀</span>}
+          className="whitespace-nowrap py-1 sm:py-1 accent-shimmer-soft focusable-accent"
+        >
+          {t('landing.hero.badgeNewAgents', { defaultValue: 'NEU: Autonome KI‑Agenten & MAS' })}
+        </UIBadge>
       </motion.div>
-
 
       {/* Main Content */}
       <motion.div
-        className={cn('w-full space-y-7', className)}
+        className={cn('relative w-full space-y-6 md:space-y-12', 'mx-auto max-w-7xl', className)}
         style={{
           outline: 'none !important',
           border: '0 !important',
@@ -129,104 +177,94 @@ export function HeroContent({
           // @ts-ignore - CSS custom properties
           '--tw-border-opacity': '0',
         }}
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: {
-            transition: {
-              staggerChildren: 0.1
-            }
-          }
-        }}
+        initial={shouldAnimate ? 'hidden' : false}
+        animate={shouldAnimate ? 'visible' : undefined}
+        variants={shouldAnimate ? containerVariants : undefined}
       >
-        
-
-        {/* Title */}
-        <motion.div variants={fadeInUp}>
-          <GradientHeading 
-            as="h1" 
-            size="4xl"
-            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
-          >
-            {translations.title}
-          </GradientHeading>
+        {/* Title with animated brand effect – ohne Backplate/Vignette */}
+        <motion.div {...anim(dTitle, upOrFade)} className="relative mb-5 text-center md:mb-8">
+          {/* Title only – ohne Backplate. Subtiler Depth-Shadow für mehr Tiefe */}
+          <div className="relative z-10">
+            {/* Semantischer H1 für SEO/A11y, visuelle Headline bleibt aria-hidden */}
+            <h1 className="sr-only" id={headingId}>{t('landing.hero.title')}</h1>
+            <span aria-hidden="true" className="whitespace-nowrap">
+              <AnimatedBrandTitle
+                left={t('landing.hero.title_left', { defaultValue: 'SIGMACODE' })}
+                right={t('landing.hero.title_right', { defaultValue: 'AI' })}
+                className="text-[clamp(3rem,10vw,6.8rem)] md:text-[clamp(4rem,7.2vw,7.2rem)] leading-[0.92] font-extrabold tracking-[0.012em] md:tracking-[0.006em]"
+              />
+            </span>
+          </div>
         </motion.div>
 
         {/* Subtitle & CTAs */}
-        <motion.div 
-          className="mx-auto flex max-w-3xl flex-col gap-3"
-          variants={fadeInUp}
+        <motion.div
+          className="mx-auto flex max-w-3xl flex-col gap-2 text-center px-2 sm:px-0"
+          {...anim(dSubtitle, upOrFade)}
         >
-          {/* Erste Zeile: solid, bessere Lesbarkeit */}
-          <p className="text-xl text-gray-200 md:text-2xl">{translations.subtitle.line1}</p>
-
-          {/* Vereinheitlichte CTA-Gruppe */}
-          <HeroActions
-            onPrimaryClick={onPrimaryClick}
-            onSecondaryClick={onSecondaryClick}
-            className="justify-center"
-          />
-
-          {/* Micro-Trust direkt unter CTAs */}
-          <motion.p
-            className="-mt-1 text-center text-xs text-gray-400"
-            variants={fadeIn}
-            aria-live="polite"
+          {/* Erste Zeile: solide, besser skalierend */}
+          <p
+            className="mt-1.5 whitespace-normal text-[clamp(1.05rem,3.2vw,2rem)] sm:text-[clamp(1.2rem,2.1vw,1.9rem)] leading-[1.12] sm:leading-tight tracking-[0.004em] text-gray-100 font-semibold"
+            style={{ textWrap: 'balance' } as React.CSSProperties}
           >
-            {t('landing:hero.microtrust', { ns: 'landing', defaultValue: 'Keine Kreditkarte erforderlich · In 2 Minuten startklar' })}
-          </motion.p>
+            {translations.subtitle.line1}
+          </p>
 
-          {/* Highlight-Zeile mit begrenztem Gradient */}
-          <p className="mt-1 text-lg md:mt-1.5 md:text-xl">
-            <span className="bg-gradient-to-r from-blue-300 via-cyan-300 to-blue-400 bg-clip-text font-semibold text-transparent">
+          {/* Highlight-Zeile: identischer Farbverlauf wie der Titel */}
+          <p
+            className="mt-1 whitespace-normal text-[clamp(0.9rem,2.6vw,1.5rem)] sm:text-[clamp(1rem,1.8vw,1.45rem)] leading-[1.16] sm:leading-snug tracking-[0.003em] md:mt-2"
+            style={{ textWrap: 'balance' } as React.CSSProperties}
+          >
+            <span className="brand-text-animated font-semibold">
               {translations.subtitle.highlight}
             </span>
           </p>
         </motion.div>
 
         {/* Description */}
-        <motion.p 
-          className="mx-auto max-w-2xl text-lg text-gray-300"
-          variants={fadeInUp}
+        <motion.p
+          className="mx-auto mt-2 max-w-[44rem] xl:max-w-[50rem] text-center text-[clamp(0.92rem,1.8vw,1.15rem)] sm:text-[clamp(0.98rem,1.4vw,1.22rem)] leading-[1.55] sm:leading-[1.68] tracking-[0.0015em] text-gray-300 px-2 sm:px-0"
+          {...anim(dDesc, upOrFade)}
+          style={{ textWrap: 'balance' } as React.CSSProperties}
         >
           {translations.description}
         </motion.p>
 
-
-      </motion.div>
-
-      {/* Features */}
-      <motion.div
-        className="mt-24 w-full"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-      >
-        <HeroFeatures />
-      </motion.div>
-
-      {/* Logos */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-50px" }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        className="w-full mt-16"
-      >
-        <motion.p 
-          className="text-sm mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+        {/* CTAs unter der Beschreibung platzieren – reiner Fade-in (kein y-Shift) für ruhiges Handover */}
+        <motion.div
+          className="mx-auto mt-6 flex max-w-3xl flex-col items-center px-2 sm:px-0"
+          {...anim(dCtas, fadeOrSimple)}
         >
-          <span className="bg-gradient-to-r from-gray-400 via-gray-300 to-gray-400 bg-clip-text text-transparent">
-            {translations.trustedBy}
-          </span>
-        </motion.p>
-        <HeroLogos />
+          <HeroActions
+            onPrimaryClick={onPrimaryClick}
+            onSecondaryClick={onSecondaryClick}
+            className="justify-center gap-2 px-2 sm:px-0"
+            mobileInline
+            compact
+            subtle
+            size="sm"
+          />
+          {/* Micro-Trust direkt unter CTAs */}
+          <motion.p
+            className="mt-2 text-center text-[12px] leading-[1.4] text-gray-400 px-2 sm:px-0 whitespace-normal break-words tracking-[0.002em]"
+            aria-live="polite"
+            {...anim(dMicro, fadeOrSimple)}
+          >
+            {t('landing.hero.microtrust')}
+          </motion.p>
+        </motion.div>
+
+        {/* Trusted By / Social Proof: vollständig ausgeblendet für konsistentes Section-Spacing */}
+        <motion.section
+          className="hidden"
+          variants={upOrFade}
+          aria-label={t('landing.hero.trustedBy')}
+        >
+          <HeroLogos className="mt-0" fullBleed respectReducedMotion />
+        </motion.section>
       </motion.div>
+
+      {/* Removed feature cards in favor of logo slider */}
     </>
   );
 }

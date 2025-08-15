@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from 'test/layout-test-utils';
+import { render, screen, fireEvent, waitFor } from 'test/layout-test-utils';
 import PluginStoreDialog from '../PluginStoreDialog';
 import userEvent from '@testing-library/user-event';
 import * as mockDataProvider from 'librechat-data-provider/react-query';
@@ -167,18 +167,20 @@ const setup = ({
 
 test('renders plugin store dialog with plugins from the available plugins query and shows install/uninstall buttons based on user plugins', () => {
   const { getByText, getByRole } = setup();
-  expect(getByText(/Plugin Store/i)).toBeInTheDocument();
+  // Title may be localized (Plugin Store/Plugin-Store)
+  expect(getByText(/Plugin[- ]?Store/i)).toBeInTheDocument();
   expect(getByText(/Use Google Search to find information/i)).toBeInTheDocument();
-  expect(getByRole('button', { name: 'Install Google' })).toBeInTheDocument();
-  expect(getByRole('button', { name: 'Uninstall Wolfram' })).toBeInTheDocument();
+  // Support EN/DE labels: Install|Installieren, Uninstall|Deinstallieren
+  expect(getByRole('button', { name: /(Install|Installieren) Google/i })).toBeInTheDocument();
+  expect(getByRole('button', { name: /(Uninstall|Deinstallieren) Wolfram/i })).toBeInTheDocument();
 });
 
 test('Displays the plugin auth form when installing a plugin with auth', async () => {
   const { getByRole, getByText } = setup();
-  const googleButton = getByRole('button', { name: 'Install Google' });
+  const googleButton = getByRole('button', { name: /(Install|Installieren) Google/i });
   await userEvent.click(googleButton);
   expect(getByText(/Google CSE ID/i)).toBeInTheDocument();
-  expect(getByRole('button', { name: 'Save' })).toBeInTheDocument();
+  expect(getByRole('button', { name: /(Save|Speichern)/i })).toBeInTheDocument();
 });
 
 test('allows the user to navigate between pages', async () => {
@@ -208,16 +210,20 @@ test('allows the user to navigate between pages', async () => {
 test('allows the user to search for plugins', async () => {
   setup();
 
-  const searchInput = screen.getByPlaceholderText('Search plugins');
+  const searchInput = screen.getByTestId('plugin-search-input');
   fireEvent.change(searchInput, { target: { value: 'Google' } });
 
-  expect(screen.getByText('Google')).toBeInTheDocument();
-  expect(screen.queryByText('Wolfram')).not.toBeInTheDocument();
-  expect(screen.queryByText('Plugin 1')).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByText('Google')).toBeInTheDocument();
+    expect(screen.queryByText('Wolfram')).not.toBeInTheDocument();
+    expect(screen.queryByText('Plugin 1')).not.toBeInTheDocument();
+  });
 
   fireEvent.change(searchInput, { target: { value: 'Plugin 1' } });
 
-  expect(screen.getByText('Plugin 1')).toBeInTheDocument();
-  expect(screen.queryByText('Google')).not.toBeInTheDocument();
-  expect(screen.queryByText('Wolfram')).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.getByText('Plugin 1')).toBeInTheDocument();
+    expect(screen.queryByText('Google')).not.toBeInTheDocument();
+    expect(screen.queryByText('Wolfram')).not.toBeInTheDocument();
+  });
 });

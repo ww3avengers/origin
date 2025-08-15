@@ -38,7 +38,8 @@ describe('PluginStoreItem', () => {
         }}
       />,
     );
-    await userEvent.click(screen.getByText('Install'));
+    const installBtn = screen.getByRole('button', { name: /Install|Installieren/i });
+    await userEvent.click(installBtn);
     expect(onInstall).toHaveBeenCalled();
   });
 
@@ -54,7 +55,8 @@ describe('PluginStoreItem', () => {
         isInstalled
       />,
     );
-    await userEvent.click(screen.getByText('Uninstall'));
+    const uninstallBtn = screen.getByRole('button', { name: /Uninstall|Deinstallieren/i });
+    await userEvent.click(uninstallBtn);
     expect(onUninstall).toHaveBeenCalled();
   });
 });

@@ -5,7 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { REGEXP_ONLY_DIGITS, REGEXP_ONLY_DIGITS_AND_CHARS } from 'input-otp';
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot, Label } from '@librechat/client';
 import { useVerifyTwoFactorTempMutation } from '~/data-provider';
-import { useLocalize } from '~/hooks';
+import { useT } from '~/utils/i18n';
 
 interface VerifyPayload {
   tempToken: string;
@@ -28,7 +28,7 @@ const TwoFactorScreen: React.FC = React.memo(() => {
     handleSubmit,
     formState: { errors },
   } = useForm<TwoFactorFormInputs>();
-  const localize = useLocalize();
+  const t = useT();
   const { showToast } = useToastContext();
   const [useBackup, setUseBackup] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -77,7 +77,7 @@ const TwoFactorScreen: React.FC = React.memo(() => {
     <div className="mt-4">
       <form onSubmit={handleSubmit(onSubmit)}>
         <Label className="flex justify-center break-keep text-center text-sm text-text-primary">
-          {localize('com_auth_two_factor')}
+          {t('com_auth_two_factor')}
         </Label>
         {!useBackup && (
           <div className="my-4 flex justify-center text-text-primary">
@@ -141,12 +141,12 @@ const TwoFactorScreen: React.FC = React.memo(() => {
         <div className="flex items-center justify-between">
           <button
             type="submit"
-            aria-label={localize('com_auth_continue')}
+            aria-label={t('com_auth_continue')}
             data-testid="login-button"
             disabled={isLoading}
             className="w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-80 dark:bg-green-600 dark:hover:bg-green-700"
           >
-            {isLoading ? localize('com_auth_email_verifying_ellipsis') : localize('com_ui_verify')}
+            {isLoading ? t('com_auth_email_verifying_ellipsis') : t('com_ui_verify')}
           </button>
         </div>
         <div className="mt-4 flex justify-center">
@@ -156,7 +156,7 @@ const TwoFactorScreen: React.FC = React.memo(() => {
               onClick={toggleBackupOn}
               className="inline-flex p-1 text-sm font-medium text-green-600 transition-colors hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
             >
-              {localize('com_ui_use_backup_code')}
+              {t('com_ui_use_backup_code')}
             </button>
           ) : (
             <button
@@ -164,7 +164,7 @@ const TwoFactorScreen: React.FC = React.memo(() => {
               onClick={toggleBackupOff}
               className="inline-flex p-1 text-sm font-medium text-green-600 transition-colors hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
             >
-              {localize('com_ui_use_2fa_code')}
+              {t('com_ui_use_2fa_code')}
             </button>
           )}
         </div>
