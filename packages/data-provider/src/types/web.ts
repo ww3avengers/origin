@@ -1,4 +1,3 @@
-import type { Logger as WinstonLogger } from 'winston';
 import type { RunnableConfig } from '@langchain/core/runnables';
 
 export type SearchRefType = 'search' | 'image' | 'news' | 'video' | 'ref';
@@ -173,7 +172,14 @@ export interface CohereRerankerResponse {
 
 export type SafeSearchLevel = 0 | 1 | 2;
 
-export type Logger = WinstonLogger;
+/** Minimal logger interface to avoid runtime dependency on 'winston' in browser builds */
+export interface Logger {
+  info?: (...args: unknown[]) => void;
+  warn?: (...args: unknown[]) => void;
+  error?: (...args: unknown[]) => void;
+  debug?: (...args: unknown[]) => void;
+  log?: (...args: unknown[]) => void;
+}
 export interface SearchToolConfig extends SearchConfig, ProcessSourcesConfig, FirecrawlConfig {
   logger?: Logger;
   safeSearch?: SafeSearchLevel;
