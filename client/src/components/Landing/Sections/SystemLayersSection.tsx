@@ -1,12 +1,12 @@
 import { FC, memo, useEffect, useMemo, useRef, useState } from 'react';
 // i18n Hook aus App-Utility verwenden
 import { useT } from '~/utils/i18n';
-import { useReducedMotion, useInView, motion } from 'framer-motion';
+import { useReducedMotion, useInView, motion, useMotionValue, useTransform } from 'framer-motion';
 import LandingSection from './LandingSection';
 import { SectionHeader } from '@/components/ui/typography/SectionHeader';
 import { getVariantForKey, type Variant } from '@/lib/ab/variant';
 import { track } from '@/lib/analytics/track';
-import SystemLayersVisual from '@/components/Landing/SystemLayersVisual';
+import SystemLayersVisual from '@/components/Landing/SystemLayersVisual/index';
 // Unused subsection imports entfernt
 // Slider entfernt – statisches Grid statt Carousel
 
@@ -26,6 +26,11 @@ const SystemLayersCanvas: FC<{
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inView = useInView(containerRef, { margin: '-20% 0px -20% 0px', amount: 0.2 });
   const prefersReduced = useReducedMotion() ?? false;
+  // Parallax Motion Values
+  const mvX = useMotionValue(0);
+  const mvY = useMotionValue(0);
+  const rotY = useTransform(mvX, [-1, 1], [-5, 5]); // yaw
+  const rotX = useTransform(mvY, [-1, 1], [4, -4]); // pitch
   const [winW, setWinW] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [vhPx, setVhPx] = useState<number | null>(null);
   const [box, setBox] = useState<{ w: number; h: number }>(() => {
@@ -116,12 +121,38 @@ const SystemLayersCanvas: FC<{
         contentVisibility: 'auto',
         containIntrinsicSize: '800px 600px',
       }}
+      onMouseMove={(e) => {
+        if (prefersReduced) return;
+        const el = containerRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1; // -1..1
+        const ny = ((e.clientY - rect.top) / rect.height) * 2 - 1; // -1..1
+        mvX.set(Math.max(-1, Math.min(1, nx)));
+        mvY.set(Math.max(-1, Math.min(1, ny)));
+      }}
+      onMouseLeave={() => {
+        mvX.set(0);
+        mvY.set(0);
+      }}
       initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ amount: 0.2, once: true }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="absolute inset-0">
+      <motion.div
+        className="absolute inset-0 will-change-transform"
+        style={
+          prefersReduced
+            ? undefined
+            : {
+                rotateX: rotX as unknown as number,
+                rotateY: rotY as unknown as number,
+                transformPerspective: 900,
+              }
+        }
+        transition={{ type: 'spring', stiffness: 120, damping: 16, mass: 0.35 }}
+      >
         <SystemLayersVisual
           className="w-full h-full"
           width={box.w}
@@ -139,7 +170,7 @@ const SystemLayersCanvas: FC<{
           active={!!inView}
           intensity={effectiveIntensity}
         />
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
@@ -223,11 +254,7 @@ const SystemLayersSection: FC = memo(() => {
           <div className="relative mb-0 mt-2 sm:mt-6 md:mt-8 lg:mt-10">
             <SystemLayersCanvas
               ariaLabel={lt('system.aria') || td('system.aria') || 'System layers visualization'}
-              layerNames={[
-                lt('system.layers.business.short') || td('system.layers.business.short') || 'Business',
-                lt('system.layers.agents.short') || td('system.layers.agents.short') || 'Agents',
-                lt('system.layers.mas.short') || td('system.layers.mas.short') || 'Multi‑Agent',
-              ]}
+              layerNames={['', '', '']}
               labelMode={visualProps.labelMode}
               arcSide={visualProps.arcSide}
               labelSize={visualProps.labelSize}
