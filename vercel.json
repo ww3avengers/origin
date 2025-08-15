@@ -1,5 +1,5 @@
 {
-  "installCommand": "pnpm -w i --frozen-lockfile",
+  "installCommand": "pnpm -r i --frozen-lockfile",
   "buildCommand": "pnpm -w run frontend:ci",
   "outputDirectory": "client/dist",
   "framework": "vite",
